@@ -1,0 +1,25 @@
+name: phro
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.11.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.1.5
+  yaml: ^3.1.3
+  yaml_writer: ^2.1.0
+  hive_ce: ^2.19.3
+  hive_ce_flutter: ^2.3.4
+  uuid: ^4.5.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
