@@ -65,93 +65,84 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('模型配置')),
-      body: SingleChildScrollView(
-        scrollDirection: Axis.vertical, // 纵向滚动
-        child: DataTable(
-          headingRowColor: WidgetStateColor.resolveWith(
-            (states) => Colors.grey.shade100, // 可选：表头单独颜色
-          ),
-          columns: [
-            DataColumn(
-              label: Text(
-                '配置别名',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            DataColumn(
-              label: Text(
-                '模型名称',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-            ),
-            DataColumn(
-              label: IconButton(
-                icon: Icon(Icons.add_circle, color: Colors.blue),
-                tooltip: '新增配置',
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext buildContext) {
-                      return EditModelConfigCard();
-                    },
-                  ).then((_) {
-                    _loadConfigs(); // 编辑完成后也刷新
-                  });
-                },
-              ),
-            ),
-          ],
-          rows: _configs.map((config) {
-            final configName = config['configName'] as String? ?? '';
-            final modelName = config['modelName'] as String? ?? '';
-            final id = config['id'] as String? ?? '';
-            return DataRow(
-              cells: [
-                DataCell(Text(configName)),
-                DataCell(Text(modelName)),
-                DataCell(
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext buildContext) {
-                              return EditModelConfigCard(id: id);
-                            },
-                          ).then((_) {
-                            _loadConfigs(); // 编辑完成后也刷新
-                          });
-                        },
-                      ),
-                      // 删除按钮
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => _deleteCard(id, configName),
-                      ),
-                      Switch(
-                        value: id == _activated,
-                        onChanged: (bool newValue) {
-                          _toggleActive(id, newValue);
-                          if (newValue) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('设置已保存')),
-                            );
-                          }
-                        },
-                        activeThumbColor: Colors.green,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            );
-          }).toList(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical, // 纵向滚动
+      child: DataTable(
+        headingRowColor: WidgetStateColor.resolveWith(
+          (states) => Colors.grey.shade100, // 可选：表头单独颜色
         ),
+        columns: [
+          DataColumn(
+            label: Text('配置别名', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: Text('模型名称', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+          DataColumn(
+            label: IconButton(
+              icon: Icon(Icons.add_circle, color: Colors.blue),
+              tooltip: '新增配置',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext buildContext) {
+                    return EditModelConfigCard();
+                  },
+                ).then((_) {
+                  _loadConfigs(); // 编辑完成后也刷新
+                });
+              },
+            ),
+          ),
+        ],
+        rows: _configs.map((config) {
+          final configName = config['configName'] as String? ?? '';
+          final modelName = config['modelName'] as String? ?? '';
+          final id = config['id'] as String? ?? '';
+          return DataRow(
+            cells: [
+              DataCell(Text(configName)),
+              DataCell(Text(modelName)),
+              DataCell(
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext buildContext) {
+                            return EditModelConfigCard(id: id);
+                          },
+                        ).then((_) {
+                          _loadConfigs(); // 编辑完成后也刷新
+                        });
+                      },
+                    ),
+                    // 删除按钮
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteCard(id, configName),
+                    ),
+                    Switch(
+                      value: id == _activated,
+                      onChanged: (bool newValue) {
+                        _toggleActive(id, newValue);
+                        if (newValue) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('设置已保存')),
+                          );
+                        }
+                      },
+                      activeThumbColor: Colors.green,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList(),
       ),
     );
   }

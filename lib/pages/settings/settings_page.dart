@@ -10,69 +10,23 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  // 关键：给嵌套 Navigator 一个 GlobalKey，方便在主页面控制跳转
   final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
-  // 路由生成器（所有子页面在这里统一管理）
-  Route<dynamic> _onGenerateRoute(RouteSettings settings) {
-  switch (settings.name) {
-    case '/': // 主设置页面
-      return PageRouteBuilder(
-        settings: settings,
-        transitionDuration: Duration.zero,      // 正向无动画
-        reverseTransitionDuration: Duration.zero, // 返回时也无动画
-        pageBuilder: (context, animation, secondaryAnimation) => _buildMainSettings(),
-      );
-
-    case '/model': // 模型设置子页面
-      return PageRouteBuilder(
-        settings: settings,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, animation, secondaryAnimation) => const ModelConfigPage(),
-      );
-
-    case '/other': // 其他设置子页面
-      return PageRouteBuilder(
-        settings: settings,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, animation, secondaryAnimation) => const OtherSettings(),
-      );
-
-    default:
-      return PageRouteBuilder(
-        settings: settings,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const Center(child: Text('页面不存在')),
-      );
-  }
-}
-
-  // 主设置页面（去掉左侧导航栏后的新首页）
-  Widget _buildMainSettings() {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('设置'),
-        centerTitle: true,
-        actions: [IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.close))],
-      ),
-      body: Column(
-        children: [
-          ListTile(
-            title: const Text('模型配置'),
-            onTap: () => _navigatorKey.currentState?.pushNamed('/model'),
-          ),
-          ListTile(
-            title: const Text('其他设置'),
-            onTap: () => _navigatorKey.currentState?.pushNamed('/other'),
-          ),
-          // 如果以后还有更多设置项，直接在这里继续添加 ListTile 即可
-        ],
+  // 这个千万不能改写成类实例，一定要是函数。会影响Scaffold初始化的时机
+  Widget _buildMainSettings(Widget body, String appBarText) {
+    return ScaffoldMessenger(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(appBarText),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
+        body: body,
       ),
     );
   }
@@ -82,7 +36,37 @@ class _SettingsPageState extends State<SettingsPage> {
     return Navigator(
       key: _navigatorKey, // 绑定 key
       initialRoute: '/', // 默认显示主设置列表
-      onGenerateRoute: _onGenerateRoute, // 所有跳转走这里
+      onGenerateRoute: (RouteSettings settings) {
+        Widget body = Column(
+          children: [
+            ListTile(
+              title: const Text('模型配置'),
+              onTap: () => _navigatorKey.currentState?.pushNamed('/model'),
+            ),
+            ListTile(
+              title: const Text('其他设置'),
+              onTap: () => _navigatorKey.currentState?.pushNamed('/other'),
+            ),
+            // 如果以后还有更多设置项，直接在这里继续添加 ListTile 即可
+          ],
+        );
+        String appBarText = '设置';
+        switch (settings.name) {
+          case '/model': // 模型设置子页面
+            body = const ModelConfigPage();
+            appBarText = '模型配置';
+          case '/other': // 其他设置子页面
+            body = const OtherSettings();
+            appBarText = '其他设置';
+        }
+        return PageRouteBuilder(
+          settings: settings,
+          transitionDuration: Duration.zero, // 正向无动画
+          reverseTransitionDuration: Duration.zero, // 返回时也无动画
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              _buildMainSettings(body, appBarText),
+        );
+      }, // 所有跳转走这里
     );
   }
 }
