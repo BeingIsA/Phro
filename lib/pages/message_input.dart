@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:phro/services/chat_service.dart';
 
 class MessageInput extends StatefulWidget {
-  final void Function(String text) onSend;
+  final void Function(String) onSend; // 回调函数，父页面决定
+
   const MessageInput({super.key, required this.onSend});
 
   @override
@@ -9,6 +11,7 @@ class MessageInput extends StatefulWidget {
 }
 
 class _MessageInputState extends State<MessageInput> {
+
   final TextEditingController _controller = TextEditingController();
   bool _hasText = false;
 
@@ -22,9 +25,11 @@ class _MessageInputState extends State<MessageInput> {
     });
   }
 
+  // 清空输入框，执行发送
   void _send() {
     if (_hasText) {
-      widget.onSend(_controller.text);
+      final String text = _controller.text.trim();
+      widget.onSend(text); // 通知父页面
       _controller.clear();
     }
   }
@@ -56,6 +61,7 @@ class _MessageInputState extends State<MessageInput> {
                   vertical: 0,
                 ),
               ),
+              onSubmitted: (_) => _send(),
             ),
             Align(
               alignment: Alignment.centerRight,

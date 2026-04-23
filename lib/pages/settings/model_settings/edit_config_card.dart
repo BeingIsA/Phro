@@ -32,10 +32,10 @@ class _EditModelConfigCardState extends State<EditModelConfigCard> {
 
     if (config != null) {
       // 同时支持对象属性和 Map 两种常见写法（任选其一，推荐根据实际 Model 统一使用）
-      _nameController.text = config['configName'] ?? '';
-      _urlController.text = config['url'] ?? '';
-      _modelController.text = (config['modelName'] ?? config['model'] ?? '');
-      _apiKeyController.text = config['apiKey'] ?? '';
+      _nameController.text = config.configName;
+      _urlController.text = config.url;
+      _modelController.text = config.modelName;
+      _apiKeyController.text = config.apiKey;
     }
   }
 
@@ -134,9 +134,6 @@ class _EditModelConfigCardState extends State<EditModelConfigCard> {
                     apiKey: apiKey,
                   );
                   Navigator.of(context).pop();
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('设置已保存')));
                 }
               },
               child: const Text('保存'),

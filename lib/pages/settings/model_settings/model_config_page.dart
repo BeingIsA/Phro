@@ -85,20 +85,24 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
               onPressed: () {
                 showDialog(
                   context: context,
+                  useRootNavigator: false,
                   builder: (BuildContext buildContext) {
                     return EditModelConfigCard();
                   },
                 ).then((_) {
-                  _loadConfigs(); // 编辑完成后也刷新
+                  _loadConfigs(); // 编辑完成后也刷新    
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('设置已保存')));
                 });
               },
             ),
           ),
         ],
         rows: _configs.map((config) {
-          final configName = config['configName'] as String? ?? '';
-          final modelName = config['modelName'] as String? ?? '';
-          final id = config['id'] as String? ?? '';
+          final configName = config.configName as String? ?? '';
+          final modelName = config.modelName as String? ?? '';
+          final id = config.id as String? ?? '';
           return DataRow(
             cells: [
               DataCell(Text(configName)),
@@ -117,6 +121,9 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                           },
                         ).then((_) {
                           _loadConfigs(); // 编辑完成后也刷新
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('设置已保存')),
+                          );
                         });
                       },
                     ),
@@ -129,11 +136,9 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                       value: id == _activated,
                       onChanged: (bool newValue) {
                         _toggleActive(id, newValue);
-                        if (newValue) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('设置已保存')),
-                          );
-                        }
+                        ScaffoldMessenger.of(
+                          context,
+                        ).showSnackBar(const SnackBar(content: Text('设置已保存')));
                       },
                       activeThumbColor: Colors.green,
                     ),

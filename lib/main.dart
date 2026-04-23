@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:phro/pages/home_page.dart';
+import 'package:phro/services/chat_service.dart';
 
 Future<void> main() async {
-
+  await Hive.initFlutter(); // 必须第一步！
+  await ChatService.instance.init();
   runApp(
     MaterialApp(
       title: 'Flutter Internal Send Button',

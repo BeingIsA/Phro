@@ -1,8 +1,45 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
+
+class ModelConfigObject {
+  final String id;
+  final String configName;
+  final String url;
+  final String modelName;
+  final String apiKey;
+
+  const ModelConfigObject({
+    required this.id,
+    required this.configName,
+    required this.url,
+    required this.modelName,
+    required this.apiKey,
+  });
+
+  /// 从 Map 创建对象（用于从 JSON 反序列化）
+  factory ModelConfigObject.fromMap(Map<String, dynamic> map) {
+    return ModelConfigObject(
+      id: map['id'] as String,
+      configName: map['configName'] as String,
+      url: map['url'] as String,
+      modelName: map['modelName'] as String,
+      apiKey: map['apiKey'] as String,
+    );
+  }
+
+  /// 转换为 Map（用于 JSON 序列化）
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'configName': configName,
+      'url': url,
+      'modelName': modelName,
+      'apiKey': apiKey,
+    };
+  }
+}
 
 class ModelConfigService {
   static const String configFileName = 'model_configs';
@@ -10,7 +47,7 @@ class ModelConfigService {
   static final ModelConfigService instance = ModelConfigService._();
   ModelConfigService._();
 
-  Map<String, dynamic> _data = {};
+  Map<String, ModelConfigObject> _data = {};
   String? _activated = '';
 
   String? _filePath;
@@ -23,8 +60,8 @@ class ModelConfigService {
     // _activated 就是一个String
     if (_loaded) return;
 
-    final directory = (await getApplicationSupportDirectory()).path;
-    _filePath = '$directory/$configFileName.json';
+    final directory = await getApplicationSupportDirectory();
+    _filePath = '${directory.path}/$configFileName.json';
 
     final file = File(_filePath!);
 
@@ -41,7 +78,7 @@ class ModelConfigService {
           final config = item as Map<String, dynamic>;
           final id = config['id'] as String?;
           if (id != null && id.isNotEmpty) {
-            _data[id] = config;
+            _data[id] = ModelConfigObject.fromMap(config);
           }
         }
       } catch (e) {
@@ -60,7 +97,8 @@ class ModelConfigService {
 
     await file.parent.create(recursive: true);
 
-    final jsonList = _data.values.toList();
+    final jsonList = _data.values.map((config) => config.toMap()).toList();
+
     Map<String, dynamic> json = {'configs': jsonList, 'activated': _activated};
     await file.writeAsString(jsonEncode(json), flush: true);
   }
@@ -86,15 +124,13 @@ class ModelConfigService {
       id = await _generateUniqueId();
     }
 
-    var config = <String, dynamic>{
-      'id': id,
-      'configName': configName?.isNotEmpty == true
-          ? configName!
-          : modelName, // 如果没填则采用模型名称
-      'url': url,
-      'modelName': modelName,
-      'apiKey': apiKey,
-    };
+    final config = ModelConfigObject(
+      id: id,
+      configName: configName?.isNotEmpty == true ? configName! : modelName,
+      url: url,
+      modelName: modelName,
+      apiKey: apiKey,
+    );
 
     _data[id] = config;
     await _save();
@@ -104,24 +140,33 @@ class ModelConfigService {
   Future<void> deleteConfig(String id) async {
     await _ensureLoaded();
     _data.remove(id);
+    if (_activated == id) {
+      _activated = '';
+    }
     await _save();
   }
 
   /// 获取所有配置（按名称排序）
-  Future<List<dynamic>> getAllConfigs() async {
+  Future<List<ModelConfigObject>> getAllConfigs() async {
     await _ensureLoaded();
     final list = _data.values.toList();
-    list.sort(
-      (a, b) =>
-          (a['configName'] as String).compareTo(b['configName'] as String),
-    );
+    list.sort((a, b) => a.configName.compareTo(b.configName));
     return list;
   }
 
   /// 根据 ID 获取单个配置
-  Future<Map<String, dynamic>?> getConfigById(String id) async {
+  Future<ModelConfigObject?> getConfigById(String id) async {
     await _ensureLoaded();
     return _data[id];
+  }
+
+  Future<ModelConfigObject?> getActivatedConfig() async {
+    await _ensureLoaded();
+    if (_activated != null && _activated!.isNotEmpty) {
+      return _data[_activated];
+    } else {
+      return null;
+    }
   }
 
   Future<void> activate(String id) async {
