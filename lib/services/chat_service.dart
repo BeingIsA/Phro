@@ -31,6 +31,14 @@ class ChatService {
     return Chat.fromMap(Map<String, dynamic>.from(data));
   }
 
+  Future<void> updateChatTitle(String id, String newTitle) async {
+    final data = _box.get(id);
+    if (data == null) return;
+    final chatMap = Map<String, dynamic>.from(data);
+    chatMap['title'] = newTitle.trim(); // 只更新标题
+    await _box.put(id, chatMap);
+  }
+
   Future<void> deleteChat(String id) async {
     await _box.delete(id);
   }

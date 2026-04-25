@@ -32,64 +32,137 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       drawer: Drawer(
-        child: Stack(
+        child: Column(
+          // 关键修复：让所有子组件横向拉满（DrawerHeader 蓝色背景不再有白边）
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 主要内容区域：历史记录列表
-            ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                const DrawerHeader(
-                  decoration: BoxDecoration(color: Colors.blue),
-                  child: Text(
-                    'Phro',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
-                ),
-                // 新对话按钮
-                ListTile(
-                  leading: const Icon(Icons.add),
-                  title: const Text('新对话'),
-                  onTap: () {
-                    _startNewChat();
-                    Navigator.pop(context);
-                  },
-                ),
-                const Divider(),
-                // 历史对话列表
-                ..._allChats.map((chat) {
-                  return ListTile(
-                    leading: const Icon(Icons.chat_bubble_outline),
-                    title: Text(
-                      chat.title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    selected: chat.id == _currentChatId,
-                    onTap: () {
-                      _selectChat(chat.id);
-                      Navigator.pop(context);
-                    },
-                  );
-                }).toList(),
-                if (_allChats.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        '暂无历史对话',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    ),
-                  ),
-              ],
+            // 顶部固定 Header（蓝色背景现在会完全横向拉满）
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Colors.blue),
+              child: Text(
+                'Phro',
+                style: TextStyle(color: Colors.white, fontSize: 24),
+              ),
             ),
-            Positioned(
-              right: 16,
-              bottom: 24,
-              child: IconButton(
-                onPressed: _openSettings,
-                tooltip: '设置',
-                icon: const Icon(Icons.settings_outlined, size: 28),
+
+            // 顶部固定 - 新对话按钮
+            ListTile(
+              leading: const Icon(Icons.add),
+              title: const Text('新对话'),
+              onTap: () {
+                _startNewChat();
+                Navigator.pop(context);
+              },
+            ),
+
+            const Divider(height: 1),
+
+            // 中间可滚动区域 - 历史对话列表
+            Expanded(
+              child: _allChats.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          '暂无历史对话',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      itemCount: _allChats.length,
+                      itemBuilder: (context, index) {
+                        final chat = _allChats[index];
+                        return ListTile(
+                          leading: const Icon(Icons.chat_bubble_outline),
+                          title: Text(
+                            chat.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          selected: chat.id == _currentChatId,
+                          onTap: () {
+                            _selectChat(chat.id);
+                            Navigator.pop(context);
+                          },
+                          trailing: PopupMenuButton<String>(
+                            tooltip: '更多操作',
+                            icon: const Icon(Icons.more_vert, size: 20),
+                            itemBuilder: (BuildContext context) => [
+                              const PopupMenuItem<String>(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('编辑'),
+                                  ],
+                                ),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.delete,
+                                      size: 20,
+                                      color: Colors.red,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      '删除',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onSelected: (String value) async {
+                              if (value == 'edit') {
+                                final newTitle = await _showEditDialog(
+                                  chat.title,
+                                );
+                                if (newTitle != null &&
+                                    newTitle.trim().isNotEmpty &&
+                                    newTitle != chat.title) {
+                                  await _chatService.updateChatTitle(
+                                    chat.id,
+                                    newTitle,
+                                  );
+                                  await _loadChats();
+                                }
+                              } else if (value == 'delete') {
+                                final confirm = await _showDeleteConfirmDialog(
+                                  chat.title,
+                                );
+                                if (confirm == true) {
+                                  await _chatService.deleteChat(chat.id);
+                                  await _loadChats();
+                                  if (chat.id == _currentChatId && mounted) {
+                                    _startNewChat();
+                                  }
+                                }
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
+            ),
+
+            // 底部固定 - 设置按钮
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    onPressed: _openSettings,
+                    tooltip: '设置',
+                    icon: const Icon(Icons.settings_outlined, size: 28),
+                  ),
+                ],
               ),
             ),
           ],
@@ -135,18 +208,17 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  // 从后台重新加载对话
   Future<void> _loadChats() async {
-    final chats = await _chatService.getAllChats(); // 先取数据
+    final chats = await _chatService.getAllChats();
 
     if (mounted) {
-      // 防止页面已销毁
       setState(() {
         _allChats = chats;
       });
     }
   }
 
-  // 开始新对话
   void _startNewChat() {
     setState(() {
       _currentChatId = Uuid().v4();
@@ -155,25 +227,22 @@ class _HomePageState extends State<HomePage> {
     _scrollToBottom();
   }
 
-  // 加载指定历史对话
   Future<void> _selectChat(String chatId) async {
     if (chatId == _currentChatId) return;
     final chat = await _chatService.getChatById(chatId);
     if (chat != null && mounted) {
       setState(() {
         _currentChatId = chatId;
-        _messages = List.from(chat.messages); // 复制列表避免引用问题
+        _messages = List.from(chat.messages);
       });
       _scrollToBottom();
     }
   }
 
-  // 打开设置（支持手机与平板不同交互方式）
   void _openSettings() {
     final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
 
     if (isSmallScreen) {
-      // 手机：跳转新页面
       Navigator.push(
         context,
         PageRouteBuilder(
@@ -184,7 +253,6 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     } else {
-      // 平板/大屏：弹出对话框
       showDialog(
         context: context,
         builder: (BuildContext dialogContext) {
@@ -240,20 +308,17 @@ class _HomePageState extends State<HomePage> {
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
 
-    // 1. 立即显示用户气泡
     final userMessage = Message(role: 'user', content: content);
     setState(() {
       _messages.add(userMessage);
     });
     _scrollToBottom();
 
-    // 2. 立即显示助手占位气泡
     setState(() {
       _messages.add(Message(role: 'assistant', content: ''));
     });
     _scrollToBottom();
 
-    // 3. 调用服务流式输出并实时更新助手气泡
     String fullResponse = '';
 
     await for (final chunk in _chatService.sendMessage(
@@ -270,7 +335,55 @@ class _HomePageState extends State<HomePage> {
       _scrollToBottom();
     }
 
-    // 发送完成后刷新历史记录列表（标题/排序更新）
     await _loadChats();
+  }
+
+  /// 新增：编辑标题弹窗
+  Future<String?> _showEditDialog(String currentTitle) async {
+    final TextEditingController controller = TextEditingController(text: currentTitle);
+    return showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑标题'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: '请输入新标题',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('保存'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool?> _showDeleteConfirmDialog(String title) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除对话'),
+        content: Text('确定删除 "$title" 吗？此操作无法撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
   }
 }
