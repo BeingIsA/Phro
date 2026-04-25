@@ -24,7 +24,7 @@ class Message {
     'createdAt': createdAt.toIso8601String(),
   };
 
-  factory Message.fromMap(Map<String, String> json) => Message(
+  factory Message.fromMap(Map<String, dynamic> json) => Message(
     id: json['id'] as String,
     role: json['role'] as String,
     reasoningContent: json['reasoningContent'],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phro/pages/message_input.dart';
 import 'package:phro/pages/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
+import 'package:phro/services/data_objects/chat.dart';
 import 'package:phro/services/data_objects/message.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,8 +19,13 @@ class _HomePageState extends State<HomePage> {
 
   String _currentChatId = Uuid().v4();
   List<Message> _messages = [];
+  List<Chat> _allChats = [];
 
-  // TODO 历史记录查询和展示功能
+  @override
+  void initState() {
+    super.initState();
+    _loadChats();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +34,7 @@ class _HomePageState extends State<HomePage> {
       drawer: Drawer(
         child: Stack(
           children: [
-            // 主要内容区域（后续可在此添加历史记录列表）
+            // 主要内容区域：历史记录列表
             ListView(
               padding: EdgeInsets.zero,
               children: [
@@ -39,10 +45,44 @@ class _HomePageState extends State<HomePage> {
                     style: TextStyle(color: Colors.white, fontSize: 24),
                   ),
                 ),
-                // TODO 历史记录查询和展示功能（未来在此扩展）
+                // 新对话按钮
+                ListTile(
+                  leading: const Icon(Icons.add),
+                  title: const Text('新对话'),
+                  onTap: () {
+                    _startNewChat();
+                    Navigator.pop(context);
+                  },
+                ),
+                const Divider(),
+                // 历史对话列表
+                ..._allChats.map((chat) {
+                  return ListTile(
+                    leading: const Icon(Icons.chat_bubble_outline),
+                    title: Text(
+                      chat.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    selected: chat.id == _currentChatId,
+                    onTap: () {
+                      _selectChat(chat.id);
+                      Navigator.pop(context);
+                    },
+                  );
+                }).toList(),
+                if (_allChats.isEmpty)
+                  const Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text(
+                        '暂无历史对话',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  ),
               ],
             ),
-            // 设置按钮 → 移动到侧边栏右下角（小按钮）
             Positioned(
               right: 16,
               bottom: 24,
@@ -93,6 +133,39 @@ class _HomePageState extends State<HomePage> {
         );
       }
     });
+  }
+
+  Future<void> _loadChats() async {
+    final chats = await _chatService.getAllChats(); // 先取数据
+
+    if (mounted) {
+      // 防止页面已销毁
+      setState(() {
+        _allChats = chats;
+      });
+    }
+  }
+
+  // 开始新对话
+  void _startNewChat() {
+    setState(() {
+      _currentChatId = Uuid().v4();
+      _messages = [];
+    });
+    _scrollToBottom();
+  }
+
+  // 加载指定历史对话
+  Future<void> _selectChat(String chatId) async {
+    if (chatId == _currentChatId) return;
+    final chat = await _chatService.getChatById(chatId);
+    if (chat != null && mounted) {
+      setState(() {
+        _currentChatId = chatId;
+        _messages = List.from(chat.messages); // 复制列表避免引用问题
+      });
+      _scrollToBottom();
+    }
   }
 
   // 打开设置（支持手机与平板不同交互方式）
@@ -196,5 +269,8 @@ class _HomePageState extends State<HomePage> {
       });
       _scrollToBottom();
     }
+
+    // 发送完成后刷新历史记录列表（标题/排序更新）
+    await _loadChats();
   }
 }

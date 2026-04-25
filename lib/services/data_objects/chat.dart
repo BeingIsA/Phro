@@ -35,8 +35,8 @@ class Chat {
 
   factory Chat.fromMap(Map<String, dynamic> json) {
     final messages =
-        (json['messages'] as List<Map<String, dynamic>>?)
-            ?.map((e) => Message.fromMap(e as Map<String, String>))
+        (json['messages'] as List<dynamic>?)
+            ?.map((e) => Message.fromMap(Map<String, dynamic>.from(e)))
             .toList() ??
         <Message>[];
     return Chat(

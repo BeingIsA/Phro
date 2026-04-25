@@ -19,7 +19,7 @@ class ChatService {
 
   Future<List<Chat>> getAllChats() async {
     final chats = _box.values
-        .map((data) => Chat.fromMap(Map<String, String>.from(data)))
+        .map((data) => Chat.fromMap(Map<String, dynamic>.from(data)))
         .toList();
     chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return chats;
@@ -31,24 +31,15 @@ class ChatService {
     return Chat.fromMap(Map<String, dynamic>.from(data));
   }
 
-  Future<Chat> _createChat(String id, String title) async {
-    final chat = Chat(id: id, title: title);
-    await _saveChat(chat);
-    return chat;
-  }
-
   Future<void> deleteChat(String id) async {
     await _box.delete(id);
-  }
-
-  Future<void> _saveChat(Chat chat) async {
-    await _box.put(chat.id, chat.toMap());
   }
 
   Stream<String> sendMessage({
     required String chatId,
     required String content,
   }) async* {
+    // 先查，有就编辑没有则创建
     Chat? chat = await getChatById(chatId);
     if (chat == null) {
       chat = await _createChat(chatId, '新对话');
@@ -86,5 +77,15 @@ class ChatService {
     );
 
     await _saveChat(chat);
+  }
+
+  Future<Chat> _createChat(String id, String title) async {
+    final chat = Chat(id: id, title: title);
+    await _saveChat(chat);
+    return chat;
+  }
+
+  Future<void> _saveChat(Chat chat) async {
+    await _box.put(chat.id, chat.toMap());
   }
 }
