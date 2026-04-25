@@ -1,5 +1,5 @@
 import 'package:hive_ce/hive.dart';
-import 'package:phro/services/llm_client_service.dart';
+import 'package:phro/infrastructures/llm_client.dart';
 import 'package:uuid/uuid.dart';
 
 class Message {
@@ -18,17 +18,17 @@ class Message {
   }) : createdAt = createdAt ?? DateTime.now(),
        id = id ?? const Uuid().v4();
 
-  Map<String, String> toJson() => {
+  Map<String, String> toMap() => {
     'id': id,
     'role': role,
     'content': content,
     'createdAt': createdAt.toIso8601String(),
   };
 
-  factory Message.fromJson(Map<String, String> json) => Message(
+  factory Message.fromMap(Map<String, String> json) => Message(
     id: json['id'] as String,
     role: json['role'] as String,
-    reasoningContent: json['reasoningContent'] as String,
+    reasoningContent: json['reasoningContent'],
     content: json['content'] as String,
     createdAt: DateTime.parse(json['createdAt'] as String),
   );
@@ -58,18 +58,18 @@ class Chat {
     updatedAt = DateTime.now();
   }
 
-  Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toMap() => {
     'id': id,
     'title': title,
     'createdAt': createdAt.toIso8601String(),
     'updatedAt': updatedAt.toIso8601String(),
-    'messages': messages.map((m) => m.toJson()).toList(),
+    'messages': messages.map((m) => m.toMap()).toList(),
   };
 
-  factory Chat.fromJson(Map<String, dynamic> json) {
+  factory Chat.fromMap(Map<String, dynamic> json) {
     final messages =
-        (json['messages'] as List<String>?)
-            ?.map((e) => Message.fromJson(e as Map<String, String>))
+        (json['messages'] as List<Map<String, dynamic>>?)
+            ?.map((e) => Message.fromMap(e as Map<String, String>))
             .toList() ??
         <Message>[];
     return Chat(
@@ -89,7 +89,7 @@ class ChatService {
   static const String _boxName = 'chats';
   late Box<Map<dynamic, dynamic>> _box;
 
-  final LLMClientService _llmClientService = LLMClientService.instance;
+  final LLMClient _llmClientService = LLMClient.instance;
 
   Future<void> init() async {
     _box = await Hive.openBox<Map>(_boxName);
@@ -97,7 +97,7 @@ class ChatService {
 
   Future<List<Chat>> getAllChats() async {
     final chats = _box.values
-        .map((data) => Chat.fromJson(Map<String, String>.from(data)))
+        .map((data) => Chat.fromMap(Map<String, String>.from(data)))
         .toList();
     chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return chats;
@@ -106,7 +106,7 @@ class ChatService {
   Future<Chat?> getChatById(String id) async {
     final data = _box.get(id);
     if (data == null) return null;
-    return Chat.fromJson(Map<String, String>.from(data));
+    return Chat.fromMap(Map<String, dynamic>.from(data));
   }
 
   Future<Chat> _createChat(String id, String title) async {
@@ -115,12 +115,12 @@ class ChatService {
     return chat;
   }
 
-  Future<void> _saveChat(Chat chat) async {
-    await _box.put(chat.id, chat.toJson());
-  }
-
   Future<void> deleteChat(String id) async {
     await _box.delete(id);
+  }
+
+  Future<void> _saveChat(Chat chat) async {
+    await _box.put(chat.id, chat.toMap());
   }
 
   Stream<String> sendMessage({
@@ -146,14 +146,13 @@ class ChatService {
     String fullResponse = '';
 
     final List<Map<String, String>> messages = chat.messages
-        .map((m) => m.toJson())
+        .map((m) => m.toMap())
         .toList();
 
-    await for (final chunk in _llmClientService.sendMessageStream(
-      messages,
-    )) {
-      fullResponse += chunk;
-      yield chunk; // 实时返回给 UI
+    await for (final chunk in _llmClientService.sendMessageStream(messages)) {
+      content = chunk['content']!;
+      fullResponse += content;
+      yield content; // 实时返回给 UI
     }
     chat.addMessage(
       Message(

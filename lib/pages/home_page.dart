@@ -8,9 +8,7 @@ class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() {
-    return _HomePageState();
-  }
+  State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
@@ -20,8 +18,69 @@ class _HomePageState extends State<HomePage> {
   String _currentChatId = Uuid().v4();
   List<Message> _messages = [];
 
+  // TODO 历史记录查询和展示功能
 
-  //  TODO 历史记录查询和展示功能
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Phro')),
+      drawer: Drawer(
+        child: Stack(
+          children: [
+            // 主要内容区域（后续可在此添加历史记录列表）
+            ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                const DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.blue),
+                  child: Text(
+                    'Phro',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
+                ),
+                // TODO 历史记录查询和展示功能（未来在此扩展）
+              ],
+            ),
+            // 设置按钮 → 移动到侧边栏右下角（小按钮）
+            Positioned(
+              right: 16,
+              bottom: 24,
+              child: IconButton(
+                onPressed: _openSettings,
+                tooltip: '设置',
+                icon: const Icon(Icons.settings_outlined, size: 28),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: _messages.isEmpty
+                ? const Center(
+                    child: Text(
+                      '开始新的对话吧！',
+                      style: TextStyle(fontSize: 18, color: Colors.grey),
+                    ),
+                  )
+                : ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      return _buildMessageBubble(_messages[index]);
+                    },
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: MessageInput(onSend: _handleSendMessage),
+          ),
+        ],
+      ),
+    );
+  }
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -33,6 +92,45 @@ class _HomePageState extends State<HomePage> {
         );
       }
     });
+  }
+
+  // 打开设置（支持手机与平板不同交互方式）
+  void _openSettings() {
+    final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
+
+    if (isSmallScreen) {
+      // 手机：跳转新页面
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              const SettingsPage(),
+        ),
+      );
+    } else {
+      // 平板/大屏：弹出对话框
+      showDialog(
+        context: context,
+        builder: (BuildContext dialogContext) {
+          return Dialog(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            elevation: 0,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 560, maxHeight: 680),
+              child: const Padding(
+                padding: EdgeInsets.all(24),
+                child: SettingsPage(),
+              ),
+            ),
+          );
+        },
+      );
+    }
   }
 
   Widget _buildMessageBubble(Message message) {
@@ -54,7 +152,7 @@ class _HomePageState extends State<HomePage> {
             bottomRight: isUser ? Radius.zero : const Radius.circular(18),
           ),
         ),
-        child: Text(
+        child: SelectableText(
           message.content,
           style: TextStyle(
             color: isUser ? Colors.white : Colors.black87,
@@ -97,100 +195,5 @@ class _HomePageState extends State<HomePage> {
       });
       _scrollToBottom();
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Phro'), // 可自定义标题
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text(
-                'Phro',
-                style: TextStyle(color: Colors.white, fontSize: 24),
-              ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('设置'),
-              onTap: () {
-                if (isSmallScreen) {
-                  // 手机：跳转新页面
-                  Navigator.push(
-                    context,
-                    PageRouteBuilder(
-                      // 保留 route settings（重要）
-                      transitionDuration: Duration.zero, // 正向切换无动画
-                      reverseTransitionDuration: Duration.zero, // 返回时也无动画
-                      pageBuilder: (context, animation, secondaryAnimation) =>
-                          const SettingsPage(),
-                    ),
-                  );
-                } else {
-                  // 平板/大屏：弹出对话框
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext dialogContext) {
-                      return Dialog(
-                        backgroundColor: Theme.of(
-                          context,
-                        ).scaffoldBackgroundColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 0,
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(
-                            maxWidth: 560, // 控制弹窗最大宽度
-                            maxHeight: 680, // 可选，根据内容调整或去掉
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: SettingsPage(),
-                          ), // 直接复用
-                        ),
-                      );
-                    },
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _messages.isEmpty
-                ? const Center(
-                    child: Text(
-                      '开始新的对话吧！',
-                      style: TextStyle(fontSize: 18, color: Colors.grey),
-                    ),
-                  )
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(8.0),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      return _buildMessageBubble(_messages[index]);
-                    },
-                  ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: MessageInput(onSend: _handleSendMessage),
-          ),
-        ],
-      ),
-    );
   }
 }
