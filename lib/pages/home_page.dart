@@ -277,30 +277,80 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildMessageBubble(Message message) {
     final bool isUser = message.role == 'user';
+    final bool hasReasoning =
+        message.reasoningContent != null &&
+        message.reasoningContent!.trim().isNotEmpty;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        decoration: BoxDecoration(
-          color: isUser ? Colors.blue[500] : Colors.grey[200],
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(18),
-            topRight: const Radius.circular(18),
-            bottomLeft: isUser ? const Radius.circular(18) : Radius.zero,
-            bottomRight: isUser ? Radius.zero : const Radius.circular(18),
+      child: Column(
+        crossAxisAlignment: isUser
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
+        children: [
+          if (hasReasoning)
+            Padding(
+              padding: const EdgeInsets.only(
+                left: 12.0,
+                right: 12.0,
+                bottom: 4.0,
+              ),
+              child: ExpansionTile(
+                initiallyExpanded: false, // 默认收起
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 8.0,
+                ),
+                leading: const Icon(Icons.psychology_outlined, size: 20),
+                title: const Text(
+                  '思考过程',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                collapsedBackgroundColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+                children: [
+                  SelectableText(
+                    message.reasoningContent!,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black87,
+                      height: 1.4,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.75,
+            ),
+            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
+            decoration: BoxDecoration(
+              color: isUser ? Colors.blue[500] : Colors.grey[200],
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(18),
+                topRight: const Radius.circular(18),
+                bottomLeft: isUser ? const Radius.circular(18) : Radius.zero,
+                bottomRight: isUser ? Radius.zero : const Radius.circular(18),
+              ),
+            ),
+            child: SelectableText(
+              message.content,
+              style: TextStyle(
+                color: isUser ? Colors.white : Colors.black87,
+                fontSize: 16,
+              ),
+            ),
           ),
-        ),
-        child: SelectableText(
-          message.content,
-          style: TextStyle(
-            color: isUser ? Colors.white : Colors.black87,
-            fontSize: 16,
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -319,17 +369,24 @@ class _HomePageState extends State<HomePage> {
     });
     _scrollToBottom();
 
-    String fullResponse = '';
+    String fullContent = '';
+    String fullReasoningContent = '';
 
     await for (final chunk in _chatService.sendMessage(
       chatId: _currentChatId,
       content: content,
     )) {
-      fullResponse += chunk;
+      String chunkContent = chunk['content']!;
+      if (chunk['type'] == 'reasoningContent') {
+        fullReasoningContent += chunkContent;
+      } else if (chunk['type'] == 'content') {
+        fullContent += chunkContent;
+      }
       setState(() {
         _messages[_messages.length - 1] = Message(
           role: 'assistant',
-          content: fullResponse,
+          content: fullContent,
+          reasoningContent: fullReasoningContent,
         );
       });
       _scrollToBottom();
@@ -340,7 +397,9 @@ class _HomePageState extends State<HomePage> {
 
   /// 新增：编辑标题弹窗
   Future<String?> _showEditDialog(String currentTitle) async {
-    final TextEditingController controller = TextEditingController(text: currentTitle);
+    final TextEditingController controller = TextEditingController(
+      text: currentTitle,
+    );
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -348,9 +407,7 @@ class _HomePageState extends State<HomePage> {
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(
-            hintText: '请输入新标题',
-          ),
+          decoration: const InputDecoration(hintText: '请输入新标题'),
         ),
         actions: [
           TextButton(

@@ -133,7 +133,7 @@ class _EditModelConfigCardState extends State<EditModelConfigCard> {
                     modelName: model,
                     apiKey: apiKey,
                   );
-                  Navigator.of(context).pop();
+                  Navigator.of(context).pop(true);
                 }
               },
               child: const Text('保存'),

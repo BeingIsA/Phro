@@ -43,7 +43,7 @@ class ChatService {
     await _box.delete(id);
   }
 
-  Stream<String> sendMessage({
+  Stream<Map<String, String>> sendMessage({
     required String chatId,
     required String content,
   }) async* {
@@ -64,23 +64,28 @@ class ChatService {
     chat.addMessage(userMsg);
     await _saveChat(chat);
 
-    String fullResponse = '';
+    String fullContent = '';
+    String fullReasoningContent = '';
 
     final List<Map<String, String>> messages = chat.messages
         .map((m) => m.toMap())
         .toList();
 
     await for (final chunk in _llmClientService.sendMessageStream(messages)) {
-      content = chunk['content']!;
-      fullResponse += content;
-      yield content; // 实时返回给 UI
+      String chunkContent = chunk['content']!;
+      if (chunk['type'] == 'reasoningContent') {
+        fullReasoningContent += chunkContent;
+      } else if (chunk['type'] == 'content') {
+        fullContent += chunkContent;
+      }
+      yield chunk; // 实时返回给 UI
     }
     chat.addMessage(
       Message(
         role: 'assistant',
-        content: fullResponse,
+        content: fullContent,
         id: Uuid().v4(),
-        reasoningContent: null, // TODO: 添加推理内容
+        reasoningContent: fullReasoningContent,
       ),
     );
 

@@ -21,6 +21,7 @@ class Message {
     'id': id,
     'role': role,
     'content': content,
+    'reasoningContent': reasoningContent?.trim() ?? '',
     'createdAt': createdAt.toIso8601String(),
   };
 

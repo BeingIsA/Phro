@@ -89,11 +89,13 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                   builder: (BuildContext buildContext) {
                     return EditModelConfigCard();
                   },
-                ).then((_) {
-                  _loadConfigs(); // 编辑完成后也刷新    
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(const SnackBar(content: Text('设置已保存')));
+                ).then((saved) {
+                  _loadConfigs();
+                  if (saved == true) {
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(const SnackBar(content: Text('设置已保存')));
+                  }
                 });
               },
             ),
@@ -119,11 +121,13 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                           builder: (BuildContext buildContext) {
                             return EditModelConfigCard(id: id);
                           },
-                        ).then((_) {
+                        ).then((saved) {
                           _loadConfigs(); // 编辑完成后也刷新
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('设置已保存')),
-                          );
+                          if (saved == true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('设置已保存')),
+                            );
+                          }
                         });
                       },
                     ),
