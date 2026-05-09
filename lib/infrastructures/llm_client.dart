@@ -10,19 +10,23 @@ class LLMClient {
   final modelConfigService = ModelConfigService.instance;
 
   /// 流式对话 + 实时返回 reasoning content（broadcast stream，解决重复订阅问题）
-  Stream<Map<String, String>> sendMessageStream(List<Map<String, String>> messages) {
-    final controller = StreamController<Map<String, String>>.broadcast(); // ← 关键修改
+  Stream<Map<String, dynamic>> sendMessageStream(
+    List<Map<String, dynamic>> messages,
+    List<Map<String, dynamic>> tools,
+  ) {
+    final controller = StreamController<Map<String, dynamic>>.broadcast();
 
     // 在后台执行请求逻辑
-    _executeStreamRequest(controller, messages);
+    _executeStreamRequest(controller, messages, tools);
 
     return controller.stream;
   }
 
   /// 内部实际执行 HTTP 请求的逻辑
   Future<void> _executeStreamRequest(
-    StreamController<Map<String, String>> controller,
-    List<Map<String, String>> messages,
+    StreamController<Map<String, dynamic>> controller,
+    List<Map<String, dynamic>> messages,
+    List<Map<String, dynamic>> tools,
   ) async {
     http.Client? client;
     try {
@@ -41,6 +45,7 @@ class LLMClient {
       final body = jsonEncode({
         'model': config.configName,
         'messages': messages,
+        'tools': tools,
         'stream': true,
         // 'temperature': 0.7,
         // 'max_tokens': 8192,
@@ -55,15 +60,18 @@ class LLMClient {
 
       if (streamedResponse.statusCode != 200) {
         final errorBody = await streamedResponse.stream.bytesToString();
-        controller.add({'type': 'error', 'content': '${streamedResponse.statusCode}: $errorBody'});
+        controller.add({
+          'type': 'error',
+          'content': '${streamedResponse.statusCode}: $errorBody',
+        });
         return;
       }
 
       // 解析 SSE 流
-      await for (final chunk in streamedResponse.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())) {
-        
+      await for (final chunk
+          in streamedResponse.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())) {
         final trimmed = chunk.trim();
         if (trimmed.isEmpty || trimmed == 'data: [DONE]') continue;
 
@@ -79,16 +87,14 @@ class LLMClient {
             final delta = choices[0]['delta'] as Map<String, dynamic>?;
             if (delta == null) continue;
 
-            // 1. 普通回答内容
-            final content = delta['content'] as String?;
-            if (content != null && content.isNotEmpty) {
-              controller.add({'type': 'content', 'content': content});
-            }
-
-            // 2. reasoning 思考过程
-            final reasoningContent = delta['reasoning_content'] as String?;
-            if (reasoningContent != null && reasoningContent.isNotEmpty) {
-              controller.add({'type': 'reasoningContent', 'content': reasoningContent});
+            for (final entry in delta.entries) {
+              if (entry.value != null) {
+                controller.add({
+                  'type':
+                      entry.key, // content / reasoning_content / tool_calls ...
+                  'content': entry.value,
+                });
+              }
             }
           } catch (e) {
             continue; // JSON 解析失败就跳过

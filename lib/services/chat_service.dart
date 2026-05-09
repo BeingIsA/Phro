@@ -1,5 +1,6 @@
 import 'package:hive_ce/hive.dart';
 import 'package:phro/infrastructures/llm_client.dart';
+import 'package:phro/services/data_objects/agent.dart';
 import 'package:phro/services/data_objects/chat.dart';
 import 'package:phro/services/data_objects/message.dart';
 import 'package:uuid/uuid.dart';
@@ -12,8 +13,10 @@ class ChatService {
   late Box<Map<dynamic, dynamic>> _box;
 
   final LLMClient _llmClientService = LLMClient.instance;
+  Agent agent = Agent();
 
-  Future<void> init() async {
+
+  Future<void> initHiveBox() async {
     _box = await Hive.openBox<Map>(_boxName);
   }
 
@@ -43,15 +46,14 @@ class ChatService {
     await _box.delete(id);
   }
 
-  Stream<Map<String, String>> sendMessage({
+  Stream<Message> sendMessage({
     required String chatId,
     required String content,
   }) async* {
     // 先查，有就编辑没有则创建
     Chat? chat = await getChatById(chatId);
     if (chat == null) {
-      chat = await _createChat(chatId, '新对话');
-      await _saveChat(chat);
+      throw Exception("chatId doesn't exist");
     }
 
     // 1. 添加用户消息
@@ -66,36 +68,63 @@ class ChatService {
 
     String fullContent = '';
     String fullReasoningContent = '';
+    List<Map<String, dynamic>> fullToolCalls = [];
 
-    final List<Map<String, String>> messages = chat.messages
+    final List<Map<String, dynamic>> messages = chat.messages
         .map((m) => m.toMap())
         .toList();
 
-    await for (final chunk in _llmClientService.sendMessageStream(messages)) {
-      String chunkContent = chunk['content']!;
-      if (chunk['type'] == 'reasoningContent') {
-        fullReasoningContent += chunkContent;
+    await for (final chunk in _llmClientService.sendMessageStream(
+      messages,
+      agent.tools,
+    )) {
+      if (chunk['type'] == 'reasoning_content') {
+        fullReasoningContent += chunk['content'];
       } else if (chunk['type'] == 'content') {
-        fullContent += chunkContent;
+        fullContent += chunk['content'];
+      } else if (chunk['type'] == 'tool_calls') {
+        final list = chunk['content'];
+        fullToolCalls.addAll(list.cast<Map<String, dynamic>>());
       }
-      yield chunk; // 实时返回给 UI
+      // 每次有更新就 yield 一个新的 Message 给 UI
+      yield Message(
+        role: 'assistant',
+        content: fullContent,
+        reasoningContent: fullReasoningContent.isEmpty
+            ? null
+            : fullReasoningContent,
+        toolCalls: fullToolCalls.isEmpty ? null : fullToolCalls,
+      ); // 实时返回给 UI
     }
+    // 流结束之后完整结果生成id，落库
     chat.addMessage(
       Message(
         role: 'assistant',
         content: fullContent,
         id: Uuid().v4(),
         reasoningContent: fullReasoningContent,
+        toolCalls: fullToolCalls,
       ),
+
+      // TODO 工具调用怎么处理，前端也要好看
     );
 
     await _saveChat(chat);
   }
 
-  Future<Chat> _createChat(String id, String title) async {
-    final chat = Chat(id: id, title: title);
+  // 创建新对话，添加系统消息，落库
+  Future<String> createChat({String? title}) async {
+    final chat = Chat(title: title);
+    chat.addMessage(
+      Message(
+        role: 'system',
+        content: agent.systemPrompt,
+        id: Uuid().v4(),
+        reasoningContent: null,
+      ),
+    );
     await _saveChat(chat);
-    return chat;
+    return chat.id;
   }
 
   Future<void> _saveChat(Chat chat) async {

@@ -5,7 +5,7 @@ import 'package:phro/services/chat_service.dart';
 
 Future<void> main() async {
   await Hive.initFlutter(); // 必须第一步！
-  await ChatService.instance.init();
+  await ChatService.instance.initHiveBox();
   runApp(
     MaterialApp(
       title: 'Flutter Internal Send Button',

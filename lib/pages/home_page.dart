@@ -17,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   final ChatService _chatService = ChatService.instance;
   final ScrollController _scrollController = ScrollController();
 
-  String _currentChatId = Uuid().v4();
+  String _currentChatId = '';
   List<Message> _messages = [];
   List<Chat> _allChats = [];
 
@@ -233,7 +233,8 @@ class _HomePageState extends State<HomePage> {
     if (chat != null && mounted) {
       setState(() {
         _currentChatId = chatId;
-        _messages = List.from(chat.messages);
+        // system prompt不在前台展示
+        _messages = chat.messages.where((message) => message.role != 'system').toList();
       });
       _scrollToBottom();
     }
@@ -357,37 +358,26 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-
+    // 新建会话并更新id
+    if (await _chatService.getChatById(_currentChatId) == null) {
+      _currentChatId = await _chatService.createChat();
+    }
     final userMessage = Message(role: 'user', content: content);
     setState(() {
       _messages.add(userMessage);
     });
     _scrollToBottom();
-
+    // 先展示一个空的气泡
     setState(() {
       _messages.add(Message(role: 'assistant', content: ''));
     });
     _scrollToBottom();
-
-    String fullContent = '';
-    String fullReasoningContent = '';
-
-    await for (final chunk in _chatService.sendMessage(
+    await for (final currentMessage in _chatService.sendMessage(
       chatId: _currentChatId,
       content: content,
     )) {
-      String chunkContent = chunk['content']!;
-      if (chunk['type'] == 'reasoningContent') {
-        fullReasoningContent += chunkContent;
-      } else if (chunk['type'] == 'content') {
-        fullContent += chunkContent;
-      }
       setState(() {
-        _messages[_messages.length - 1] = Message(
-          role: 'assistant',
-          content: fullContent,
-          reasoningContent: fullReasoningContent,
-        );
+        _messages[_messages.length - 1] = currentMessage;
       });
       _scrollToBottom();
     }

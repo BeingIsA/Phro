@@ -10,11 +10,12 @@ class Chat {
 
   Chat({
     String? id,
-    this.title = '新对话',
+    String? title,
     DateTime? createdAt,
     DateTime? updatedAt,
     List<Message>? messages,
-  }) : id = id ?? const Uuid().v4(),
+  }) : id = id?.isNotEmpty == true ? id! : const Uuid().v4(),
+       title = title?.isNotEmpty == true ? title! : DateTime.now().toString(),
        createdAt = createdAt ?? DateTime.now(),
        updatedAt = updatedAt ?? DateTime.now() {
     if (messages != null) this.messages.addAll(messages);
@@ -28,11 +29,12 @@ class Chat {
   Map<String, dynamic> toMap() => {
     'id': id,
     'title': title,
-    'createdAt': createdAt.toIso8601String(),
-    'updatedAt': updatedAt.toIso8601String(),
+    'created_at': createdAt.toIso8601String(),
+    'updated_at': updatedAt.toIso8601String(),
     'messages': messages.map((m) => m.toMap()).toList(),
   };
 
+  // 历史记录中的tool是否正确读取
   factory Chat.fromMap(Map<String, dynamic> json) {
     final messages =
         (json['messages'] as List<dynamic>?)
@@ -42,8 +44,12 @@ class Chat {
     return Chat(
       id: json['id'] as String,
       title: json['title'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['created_at'] != null
+          ? DateTime.parse(json['created_at'] as String)
+          : DateTime.now(),
+      updatedAt: json['updated_at'] != null
+          ? DateTime.parse(json['updated_at'] as String)
+          : DateTime.now(),
       messages: messages,
     );
   }
