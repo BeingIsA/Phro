@@ -3,9 +3,9 @@ import 'package:uuid/uuid.dart';
 class Message {
   final String id;
   final String role; // "user" 或 "assistant"
-  final String? reasoningContent;
-  final String content;
-  final List? toolCalls;
+  String? reasoningContent;
+  String content;
+  List? toolCalls;
   final DateTime createdAt;
 
   Message({
@@ -26,6 +26,23 @@ class Message {
     'tool_calls': toolCalls,
     'created_at': createdAt.toIso8601String(),
   };
+
+  void update({
+    String? reasoningContent,
+    String? content,
+    List? toolCalls,
+  }) {
+    if (reasoningContent != null) {
+      this.reasoningContent = reasoningContent;
+    }
+    if (content != null) {
+      this.content = content;
+    }
+    if (toolCalls != null) {
+      this.toolCalls = toolCalls;
+    }
+  }
+
 
   // TODO tool_calls是否能正常存取
   factory Message.fromMap(Map<String, dynamic> json) => Message(

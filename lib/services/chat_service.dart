@@ -15,7 +15,7 @@ class ChatService {
   final LLMClient _llmClientService = LLMClient.instance;
   Agent agent = Agent();
 
-
+  // 存聊天记录就用Hive，别想着存文件了。性能差
   Future<void> initHiveBox() async {
     _box = await Hive.openBox<Map>(_boxName);
   }
@@ -28,9 +28,11 @@ class ChatService {
     return chats;
   }
 
-  Future<Chat?> getChatById(String id) async {
+  Future<Chat> getChatById(String id) async {
     final data = _box.get(id);
-    if (data == null) return null;
+    if (data == null) {
+      throw Exception("ChatId $id doesn't exist");
+    }
     return Chat.fromMap(Map<String, dynamic>.from(data));
   }
 
@@ -46,15 +48,11 @@ class ChatService {
     await _box.delete(id);
   }
 
-  Stream<Message> sendMessage({
+  Stream<List<Message>> sendMessage({
     required String chatId,
     required String content,
   }) async* {
-    // 先查，有就编辑没有则创建
-    Chat? chat = await getChatById(chatId);
-    if (chat == null) {
-      throw Exception("chatId doesn't exist");
-    }
+    Chat chat = await getChatById(chatId);
 
     // 1. 添加用户消息
     final userMsg = Message(
@@ -64,18 +62,19 @@ class ChatService {
       reasoningContent: null,
     );
     chat.addMessage(userMsg);
+    chat.addMessage(Message(role: 'assistant', content: ''));
     await _saveChat(chat);
+
+    yield chat.messages
+        .where((message) => message.role != 'system') // 前端不需要看到 system prompt
+        .toList();
 
     String fullContent = '';
     String fullReasoningContent = '';
     List<Map<String, dynamic>> fullToolCalls = [];
 
-    final List<Map<String, dynamic>> messages = chat.messages
-        .map((m) => m.toMap())
-        .toList();
-
     await for (final chunk in _llmClientService.sendMessageStream(
-      messages,
+      chat.messages.map((messaage) => messaage.toMap()).toList(),
       agent.tools,
     )) {
       if (chunk['type'] == 'reasoning_content') {
@@ -87,27 +86,12 @@ class ChatService {
         fullToolCalls.addAll(list.cast<Map<String, dynamic>>());
       }
       // 每次有更新就 yield 一个新的 Message 给 UI
-      yield Message(
-        role: 'assistant',
-        content: fullContent,
-        reasoningContent: fullReasoningContent.isEmpty
-            ? null
-            : fullReasoningContent,
-        toolCalls: fullToolCalls.isEmpty ? null : fullToolCalls,
-      ); // 实时返回给 UI
-    }
-    // 流结束之后完整结果生成id，落库
-    chat.addMessage(
-      Message(
-        role: 'assistant',
-        content: fullContent,
-        id: Uuid().v4(),
+      chat.messages.last.update(
         reasoningContent: fullReasoningContent,
+        content: fullContent,
         toolCalls: fullToolCalls,
-      ),
-
-      // TODO 工具调用怎么处理，前端也要好看
-    );
+      );
+    }
 
     await _saveChat(chat);
   }

@@ -4,7 +4,6 @@ import 'package:phro/pages/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/services/data_objects/chat.dart';
 import 'package:phro/services/data_objects/message.dart';
-import 'package:uuid/uuid.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -17,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   final ChatService _chatService = ChatService.instance;
   final ScrollController _scrollController = ScrollController();
 
-  String _currentChatId = '';
+  String? _currentChatId;
   List<Message> _messages = [];
   List<Chat> _allChats = [];
 
@@ -221,7 +220,7 @@ class _HomePageState extends State<HomePage> {
 
   void _startNewChat() {
     setState(() {
-      _currentChatId = Uuid().v4();
+      _currentChatId = null;
       _messages = [];
     });
     _scrollToBottom();
@@ -230,7 +229,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _selectChat(String chatId) async {
     if (chatId == _currentChatId) return;
     final chat = await _chatService.getChatById(chatId);
-    if (chat != null && mounted) {
+    if (mounted) {
       setState(() {
         _currentChatId = chatId;
         // system prompt不在前台展示
@@ -358,26 +357,21 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    // 新建会话并更新id
-    if (await _chatService.getChatById(_currentChatId) == null) {
-      _currentChatId = await _chatService.createChat();
-    }
-    final userMessage = Message(role: 'user', content: content);
-    setState(() {
-      _messages.add(userMessage);
-    });
+    // 如果会话不存在，新建会话并更新id
+    _currentChatId ??= await _chatService.createChat();
+
     _scrollToBottom();
     // 先展示一个空的气泡
     setState(() {
       _messages.add(Message(role: 'assistant', content: ''));
     });
     _scrollToBottom();
-    await for (final currentMessage in _chatService.sendMessage(
-      chatId: _currentChatId,
+    await for (final currentMessages in _chatService.sendMessage(
+      chatId: _currentChatId!,
       content: content,
     )) {
       setState(() {
-        _messages[_messages.length - 1] = currentMessage;
+        _messages = currentMessages;
       });
       _scrollToBottom();
     }
