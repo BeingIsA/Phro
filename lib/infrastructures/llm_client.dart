@@ -30,6 +30,7 @@ class LLMClient {
   ) async {
     http.Client? client;
     try {
+      // 激活配置不从前台传，永远从后台查，保证数据修改一致性
       final config = await modelConfigService.getActivatedConfig();
       if (config == null) throw Exception('未激活api配置');
 
@@ -43,7 +44,7 @@ class LLMClient {
       };
 
       final body = jsonEncode({
-        'model': config.configName,
+        'model': config.modelName,
         'messages': messages,
         'tools': tools,
         'stream': true,
