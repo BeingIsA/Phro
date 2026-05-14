@@ -6,6 +6,7 @@ class Message {
   String? reasoningContent;
   String content;
   List? toolCalls;
+  String? error;
   final DateTime createdAt;
 
   Message({
@@ -15,6 +16,7 @@ class Message {
     required this.content,
     DateTime? createdAt,
     this.toolCalls,
+    this.error,
   }) : createdAt = createdAt ?? DateTime.now(),
        id = id ?? const Uuid().v4();
 
@@ -25,12 +27,14 @@ class Message {
     'reasoning_content': reasoningContent?.trim() ?? '',
     'tool_calls': toolCalls,
     'created_at': createdAt.toIso8601String(),
+    'error': error,
   };
 
   void update({
     String? reasoningContent,
     String? content,
     List? toolCalls,
+    String? error,
   }) {
     if (reasoningContent != null) {
       this.reasoningContent = reasoningContent;
@@ -41,8 +45,10 @@ class Message {
     if (toolCalls != null) {
       this.toolCalls = toolCalls;
     }
+    if (error != null) {
+      this.error = error;
+    }
   }
-
 
   // TODO tool_calls是否能正常存取
   factory Message.fromMap(Map<String, dynamic> json) => Message(
@@ -51,6 +57,7 @@ class Message {
     reasoningContent: json['reasoning_content'],
     content: json['content'] as String,
     toolCalls: json['tool_calls'],
+    error: json['error'],
     createdAt: json['created_at'] != null
         ? DateTime.parse(json['created_at'] as String)
         : DateTime.now(),

@@ -48,6 +48,7 @@ class ChatService {
     await _box.delete(id);
   }
 
+  // 每次返回完整的消息列表
   Stream<List<Message>> sendMessage({
     required String chatId,
     required String content,
@@ -62,38 +63,55 @@ class ChatService {
       reasoningContent: null,
     );
     chat.addMessage(userMsg);
-    chat.addMessage(Message(role: 'assistant', content: ''));
+    Message assistantMsg = Message(role: 'assistant', content: '');
+    chat.addMessage(assistantMsg);
     await _saveChat(chat);
 
-    yield chat.messages
-        .where((message) => message.role != 'system') // 前端不需要看到 system prompt
-        .toList();
+    // 先把用户输入和开头的空消息返回给UI
+    yield chat.messages.toList();
 
-    String fullContent = '';
-    String fullReasoningContent = '';
-    List<Map<String, dynamic>> fullToolCalls = [];
+    try {
+      // 开始调用api，同步更新最后一条消息
+      String fullContent = '';
+      String fullReasoningContent = '';
+      List<Map<String, dynamic>> fullToolCalls = [];
 
-    await for (final chunk in _llmClientService.sendMessageStream(
-      chat.messages.map((messaage) => messaage.toMap()).toList(),
-      agent.tools,
-    )) {
-      if (chunk['type'] == 'reasoning_content') {
-        fullReasoningContent += chunk['content'];
-      } else if (chunk['type'] == 'content') {
-        fullContent += chunk['content'];
-      } else if (chunk['type'] == 'tool_calls') {
-        final list = chunk['content'];
-        fullToolCalls.addAll(list.cast<Map<String, dynamic>>());
+      await for (final chunk in _llmClientService.sendMessageStream(
+        chat.messages.map((messaage) => messaage.toMap()).toList(),
+        agent.tools,
+      )) {
+        final type = chunk['type'] as String?;
+        final content = chunk['content'];
+        if (type == 'error') {
+          assistantMsg.update(error: content as String);
+          yield chat.messages.toList();
+          return; // 错误时提前结束
+        }
+        switch (type) {
+          case 'content':
+            fullContent += content as String? ?? '';
+            break;
+          case 'reasoning_content':
+            fullReasoningContent += content as String? ?? '';
+            break;
+          case 'tool_calls':
+            if (content is List) {
+              fullToolCalls.addAll(content.cast<Map<String, dynamic>>());
+            }
+            break;
+        }
+        assistantMsg.update(
+          content: fullContent,
+          reasoningContent: fullReasoningContent,
+          toolCalls: fullToolCalls,
+        );
+
+        // 每次有更新就yield一个完整的Message列表给UI
+        yield chat.messages.toList();
       }
-      // 每次有更新就 yield 一个新的 Message 给 UI
-      chat.messages.last.update(
-        reasoningContent: fullReasoningContent,
-        content: fullContent,
-        toolCalls: fullToolCalls,
-      );
+    } finally {
+      await _saveChat(chat);
     }
-
-    await _saveChat(chat);
   }
 
   // 创建新对话，添加系统消息，落库

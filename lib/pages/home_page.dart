@@ -233,7 +233,9 @@ class _HomePageState extends State<HomePage> {
       setState(() {
         _currentChatId = chatId;
         // system prompt不在前台展示
-        _messages = chat.messages.where((message) => message.role != 'system').toList();
+        _messages = chat.messages
+            .where((message) => message.role != 'system')
+            .toList();
       });
       _scrollToBottom();
     }
@@ -280,6 +282,7 @@ class _HomePageState extends State<HomePage> {
     final bool hasReasoning =
         message.reasoningContent != null &&
         message.reasoningContent!.trim().isNotEmpty;
+    final bool hasError = message.error != null;
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
@@ -343,9 +346,11 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             child: SelectableText(
-              message.content,
+              hasError ? message.error! : (message.content),
               style: TextStyle(
-                color: isUser ? Colors.white : Colors.black87,
+                color: isUser
+                    ? Colors.white
+                    : (hasError ? Colors.red : Colors.black87),
                 fontSize: 16,
               ),
             ),
@@ -371,7 +376,9 @@ class _HomePageState extends State<HomePage> {
       content: content,
     )) {
       setState(() {
-        _messages = currentMessages;
+        _messages = currentMessages
+            .where((message) => message.role != 'system')
+            .toList();
       });
       _scrollToBottom();
     }
