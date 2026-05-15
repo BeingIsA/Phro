@@ -31,14 +31,14 @@ class Chat {
     'title': title,
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
-    'messages': messages.map((m) => m.toMap()).toList(),
+    'messages': messages.map((m) => m.toMap4Storage()).toList(),
   };
 
   // 历史记录中的tool是否正确读取
   factory Chat.fromMap(Map<String, dynamic> json) {
     final messages =
         (json['messages'] as List<dynamic>?)
-            ?.map((e) => Message.fromMap(Map<String, dynamic>.from(e)))
+            ?.map((json) => Message.fromMap(Map<String, dynamic>.from(json)))
             .toList() ??
         <Message>[];
     return Chat(

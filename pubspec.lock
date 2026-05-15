@@ -171,6 +171,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.4"
+  hive_ce_test:
+    dependency: "direct dev"
+    description:
+      name: hive_ce_test
+      sha256: acb92f33dc2882f5b39ac5adecd2059fe2b47e2ddb5f8d201bdd363297bc172a
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   hooks:
     dependency: transitive
     description:
@@ -307,6 +315,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.17.0"
+  mocktail:
+    dependency: "direct dev"
+    description:
+      name: mocktail
+      sha256: "5e1bf53cc7baa8062a33b84424deb61513858ea05c601b8509e683815b5914aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   native_toolchain_c:
     dependency: transitive
     description:
