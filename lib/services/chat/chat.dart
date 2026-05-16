@@ -1,4 +1,4 @@
-import 'package:phro/services/data_objects/message.dart';
+import 'package:phro/services/chat/message.dart';
 import 'package:uuid/uuid.dart';
 
 class Chat {

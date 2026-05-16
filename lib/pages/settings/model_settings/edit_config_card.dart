@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phro/services/model_config_service.dart';
+import 'package:phro/services/model_config/model_config_service.dart';
 
 /// 模型设置组件（URL、模型名称、API Key + 保存按钮）
 class EditModelConfigCard extends StatefulWidget {

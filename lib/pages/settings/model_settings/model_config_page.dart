@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/pages/settings/model_settings/edit_config_card.dart';
-import 'package:phro/services/model_config_service.dart';
+import 'package:phro/services/model_config/model_config_service.dart';
 
 class ModelConfigPage extends StatefulWidget {
   const ModelConfigPage({super.key});

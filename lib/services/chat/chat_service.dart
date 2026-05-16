@@ -1,8 +1,8 @@
 import 'package:hive_ce/hive.dart';
 import 'package:phro/infrastructures/llm_client.dart';
-import 'package:phro/services/data_objects/agent.dart';
-import 'package:phro/services/data_objects/chat.dart';
-import 'package:phro/services/data_objects/message.dart';
+import 'package:phro/services/agent/agent.dart';
+import 'package:phro/services/chat/chat.dart';
+import 'package:phro/services/chat/message.dart';
 
 class ChatService {
   static final ChatService instance = ChatService._();

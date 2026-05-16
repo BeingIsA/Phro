@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phro/services/chat_service.dart';
+import 'package:phro/services/chat/chat_service.dart';
 
 class MessageInput extends StatefulWidget {
   final void Function(String) onSend; // 回调函数，父页面决定
@@ -11,7 +11,6 @@ class MessageInput extends StatefulWidget {
 }
 
 class _MessageInputState extends State<MessageInput> {
-
   final TextEditingController _controller = TextEditingController();
   bool _hasText = false;
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:phro/pages/home_page.dart';
-import 'package:phro/services/chat_service.dart';
+import 'package:phro/services/chat/chat_service.dart';
 
 Future<void> main() async {
   await Hive.initFlutter(); // 必须第一步！

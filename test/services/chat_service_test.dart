@@ -4,8 +4,8 @@ import 'package:hive_ce/hive.dart';
 import 'package:hive_ce_test/hive_ce_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:phro/infrastructures/llm_client.dart';
-import 'package:phro/services/chat_service.dart';
-import 'package:phro/services/data_objects/message.dart';
+import 'package:phro/services/chat/chat_service.dart';
+import 'package:phro/services/chat/message.dart';
 
 class MockLLMClient extends Mock implements LLMClient {}
 

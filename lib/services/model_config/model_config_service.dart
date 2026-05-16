@@ -47,7 +47,7 @@ class ModelConfigService {
   static final ModelConfigService instance = ModelConfigService._();
   ModelConfigService._();
 
-  Map<String, ModelConfigObject> _data = {};
+  final Map<String, ModelConfigObject> _data = {};
   String? _activated = '';
 
   String? _filePath;
