@@ -26,7 +26,10 @@ class CmdTool extends Tool {
 
   @override
   Future<String> execute(Map<String, dynamic> args) async {
-    final command = args['command'] as String;
+    final command = args['command'];
+    if (command == null || command!.isEmpty) {
+      return "missing argument: command";
+    }
     final result = await Process.run(
       Platform.isWindows ? 'cmd.exe' : 'sh',
       Platform.isWindows ? ['/c', command] : ['-c', command],

@@ -11,7 +11,7 @@ class Message {
 
   // 工具调用ID
   String? toolCallId;
-  // 可选工具名称
+  // 已选工具名称
   String? name;
 
   String? error;
@@ -59,6 +59,7 @@ class Message {
   // 用来调用API
   Map<String, dynamic> toMap4Api() {
     final map = toMap4Storage();
+    // TODO 思考内容是否要保留待讨论
     map.remove('reasoning_content');
     map.remove('error');
     map.remove('created_at');

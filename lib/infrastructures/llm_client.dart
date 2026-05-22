@@ -61,10 +61,7 @@ class LLMClient {
 
       if (streamedResponse.statusCode != 200) {
         final errorBody = await streamedResponse.stream.bytesToString();
-        controller.add({
-          'type': 'error',
-          'content': '${streamedResponse.statusCode}: $errorBody',
-        });
+        controller.add({'error': '${streamedResponse.statusCode}: $errorBody'});
         return;
       }
 
@@ -87,16 +84,7 @@ class LLMClient {
 
             final delta = choices[0]['delta'] as Map<String, dynamic>?;
             if (delta == null) continue;
-
-            for (final entry in delta.entries) {
-              if (entry.value != null) {
-                controller.add({
-                  'type':
-                      entry.key, // content / reasoning_content / tool_calls ...
-                  'content': entry.value,
-                });
-              }
-            }
+            controller.add(delta);
           } catch (e) {
             continue; // JSON 解析失败就跳过
           }

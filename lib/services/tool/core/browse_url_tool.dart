@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:html2md/html2md.dart' as html2md;
 import 'package:http/http.dart' as http;
 import 'package:phro/services/tool/tool.dart';
@@ -48,9 +50,9 @@ class BrowseUrlTool extends Tool {
         uri,
       );
     }
-
+    final rawHtml = utf8.decode(response.bodyBytes);
     String markdown = html2md.convert(
-      response.body,
+      rawHtml,
       styleOptions: {
         'headingStyle': 'atx', // # 标题，更简洁
         'codeBlockStyle': 'fenced', // ``` 代码块

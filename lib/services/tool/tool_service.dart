@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:phro/services/tool/core/browse_url_tool.dart';
 import 'package:phro/services/tool/core/cmd_tool.dart';
 import 'package:phro/services/tool/tool.dart';
@@ -25,10 +27,13 @@ class ToolService {
     return _toolMap.values.toList();
   }
 
-  Future<String> execute(String name, Map<String, dynamic> args) async {
+  Future<String> execute(String name, String argsString) async {
     final tool = _toolMap[name];
     if (tool == null) return 'Unknown tool: $name';
-
+    Map<String, dynamic> args = {};
+    if (argsString.isNotEmpty) {
+      args = jsonDecode(argsString);
+    }
     try {
       return await tool.execute(args);
     } catch (e, s) {

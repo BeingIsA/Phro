@@ -278,81 +278,134 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildMessageBubble(Message message) {
-    final bool isUser = message.role == 'user';
-    final bool hasReasoning =
-        message.reasoningContent != null &&
-        message.reasoningContent!.trim().isNotEmpty;
-    final bool hasError = message.error != null;
+    List<Widget> columnChildren = [];
+
+    if (message.role == 'user') {
+      columnChildren.add(_buildBasicMessageBubble(message.role, message));
+    } else if (message.role == 'assistant') {
+      if (message.reasoningContent != null &&
+          message.reasoningContent!.trim().isNotEmpty) {
+        columnChildren.add(_buildReasongContext(message));
+      }
+      columnChildren.add(_buildBasicMessageBubble(message.role, message));
+    } else if (message.role == 'tool') {
+      columnChildren.add(_buildToolMessage(message));
+    }
+
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      // 用户消息靠右其他的靠左
+      alignment: message.role == 'user'
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: isUser
+        crossAxisAlignment: message.role == 'user'
             ? CrossAxisAlignment.end
             : CrossAxisAlignment.start,
+        children: columnChildren,
+      ),
+    );
+  }
+
+  Widget _buildToolMessage(Message message) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
+      child: ExpansionTile(
+        initiallyExpanded: false,
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ),
+        leading: const Icon(Icons.build, size: 20),
+        title: Text(
+          '工具${message.name}调用结果',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        collapsedBackgroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
         children: [
-          if (hasReasoning)
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 12.0,
-                right: 12.0,
-                bottom: 4.0,
-              ),
-              child: ExpansionTile(
-                initiallyExpanded: false, // 默认收起
-                tilePadding: EdgeInsets.zero,
-                childrenPadding: const EdgeInsets.symmetric(
-                  horizontal: 16.0,
-                  vertical: 8.0,
-                ),
-                leading: const Icon(Icons.psychology_outlined, size: 20),
-                title: const Text(
-                  '思考过程',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                collapsedBackgroundColor: Colors.transparent,
-                backgroundColor: Colors.transparent,
-                children: [
-                  SelectableText(
-                    message.reasoningContent!,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                      height: 1.4,
-                    ),
-                  ),
-                ],
-              ),
+          SelectableText(
+            message.content,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              height: 1.4,
             ),
-          Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.75,
-            ),
-            margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 12.0,
-            ),
-            decoration: BoxDecoration(
-              color: isUser ? Colors.blue[500] : Colors.grey[200],
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: isUser ? const Radius.circular(18) : Radius.zero,
-                bottomRight: isUser ? Radius.zero : const Radius.circular(18),
-              ),
-            ),
-            child: SelectableText(
-              hasError ? message.error! : (message.content),
-              style: TextStyle(
-                color: isUser
-                    ? Colors.white
-                    : (hasError ? Colors.red : Colors.black87),
-                fontSize: 16,
-              ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // 构建基本的气泡，展示context。适用于user和assistant类型的Message
+  Widget _buildBasicMessageBubble(String role, Message message) {
+    final bool isUser = message.role == 'user';
+    final bool hasError =
+        message.error != null && message.error!.trim().isNotEmpty;
+
+    final String displayText = hasError ? message.error! : message.content;
+    if (displayText.trim().isEmpty) {
+      return const SizedBox.shrink(); // 完全不渲染，不占空间
+    }
+    return Container(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.75,
+      ),
+      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      decoration: BoxDecoration(
+        color: isUser ? Colors.blue[500] : Colors.grey[200],
+        borderRadius: BorderRadius.only(
+          topLeft: const Radius.circular(18),
+          topRight: const Radius.circular(18),
+          bottomLeft: isUser ? const Radius.circular(18) : Radius.zero,
+          bottomRight: isUser ? Radius.zero : const Radius.circular(18),
+        ),
+      ),
+      child: SelectableText(
+        displayText,
+        style: TextStyle(
+          color: isUser
+              ? Colors.white
+              : (hasError ? Colors.red : Colors.black87),
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  Padding _buildReasongContext(Message message) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
+      child: ExpansionTile(
+        initiallyExpanded: false, // 默认收起
+        tilePadding: EdgeInsets.zero,
+        childrenPadding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+          vertical: 8.0,
+        ),
+        leading: const Icon(Icons.psychology_outlined, size: 20),
+        title: const Text(
+          '思考过程',
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        collapsedBackgroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
+        children: [
+          SelectableText(
+            message.reasoningContent!,
+            style: const TextStyle(
+              fontSize: 14,
+              color: Colors.black87,
+              height: 1.4,
             ),
           ),
         ],

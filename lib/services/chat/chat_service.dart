@@ -3,6 +3,7 @@ import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/services/agent/agent.dart';
 import 'package:phro/services/chat/chat.dart';
 import 'package:phro/services/chat/message.dart';
+import 'package:phro/services/tool/tool_service.dart';
 
 class ChatService {
   static final ChatService instance = ChatService._();
@@ -10,19 +11,23 @@ class ChatService {
   static const String _boxName = 'chats';
 
   final LLMClient _llmClient;
+  final ToolService _toolService;
   late Box<Map<dynamic, dynamic>> _box;
   late Agent agent;
 
   // 私有构造函数，防止外部调用构造函数
   ChatService._()
     : _llmClient = LLMClient.instance, // ← 这里初始化
+      _toolService = ToolService.instance,
       agent = Agent();
 
   ChatService.forTest({
     LLMClient? llmClient,
+    ToolService? toolService,
     required Box<Map<dynamic, dynamic>> box,
     Agent? agent,
   }) : _llmClient = llmClient ?? LLMClient.instance,
+       _toolService = toolService ?? ToolService.instance,
        _box = box, // 测试时必须传入
        agent = agent ?? Agent();
 
@@ -73,78 +78,118 @@ class ChatService {
       reasoningContent: null,
     );
     chat.addMessage(userMsg);
-    Message assistantMsg = Message(role: 'assistant', content: '');
-    chat.addMessage(assistantMsg);
-    await _saveChat(chat);
-
-    // 先把用户输入和开头的空消息返回给UI
-    yield chat.messages.toList();
-
     try {
-      // 开始调用api，同步更新最后一条消息
-      String fullContent = '';
-      String fullReasoningContent = '';
-      List<Map<String, dynamic>> fullToolCalls = [];
-      final toolCalls = <int, Map<String, dynamic>>{};
-
-      await for (final chunk in _llmClient.sendMessageStream(
-        chat.messages.map((messaage) => messaage.toMap4Api()).toList(),
-        agent.tools,
-      )) {
-        final type = chunk['type'] as String?;
-        final content = chunk['content'];
-        if (type == 'error') {
-          assistantMsg.update(error: content as String);
-          yield chat.messages.toList();
-          return; // 错误时提前结束
-        }
-        switch (type) {
-          case 'content':
-            fullContent += content as String? ?? '';
-            break;
-          case 'reasoning_content':
-            fullReasoningContent += content as String? ?? '';
-            break;
-          case 'tool_calls':
-            for (final toolCallChunk in content) {
-              final index = toolCallChunk['index'];
-              // 第一次遇到这个 index 时初始化
-              if (!toolCalls.containsKey(index)) {
-                toolCalls[index] = {
-                  "id": toolCallChunk['id'],
-                  "type": toolCallChunk['type'] ?? "function",
-                  "function": {
-                    "name": toolCallChunk['function']['name'] ?? "",
-                    "arguments": "",
-                  },
-                };
-              }
-
-              // 累加 arguments（最关键的部分）
-              final newArgs = toolCallChunk['function']['arguments'];
-              if (newArgs != null && newArgs.isNotEmpty) {
-                final prevArgs =
-                    toolCalls[index]!["function"]["arguments"] as String;
-                toolCalls[index]!["function"]["arguments"] = prevArgs + newArgs;
-              }
-            }
-            break;
-        }
-        // Map转列表
-        fullToolCalls = [
-          for (var key in toolCalls.keys.toList()..sort()) toolCalls[key]!,
-        ];
-        assistantMsg.update(
-          content: fullContent,
-          reasoningContent: fullReasoningContent,
-          toolCalls: fullToolCalls,
-        );
-
-        // 每次有更新就yield一个完整的Message列表给UI
+      while (true) {
+        // 先搞一个空会话，前端展示空气泡
+        Message assistantMessage = Message(role: 'assistant', content: '');
+        chat.addMessage(assistantMessage);
         yield chat.messages.toList();
-      }
+        // 存流结果用的
+        String fullContent = '';
+        String fullReasoningContent = '';
+        final fullToolCalls = <int, Map<String, dynamic>>{};
+        List<Map<String, dynamic>> fullToolCallsList = [];
+        // 开始调用api，同步更新最后一条消息
+        final messages4Api = chat.messages
+            .map((messaage) => messaage.toMap4Api())
+            .toList();
+        messages4Api.removeLast();
+        await for (final chunk in _llmClient.sendMessageStream(
+          messages4Api,
+          agent.tools,
+        )) {
+          final error = chunk['error'];
+          final content = chunk['content'];
+          final reasoningContent = chunk['reasoning_content'];
+          final toolCalls = chunk['tool_calls'];
+          if (error != null) {
+            assistantMessage.update(error: error as String);
+            yield chat.messages.toList();
+            return; // 错误时提前结束
+          }
+          if (content != null) {
+            fullContent += content as String;
+          }
+          if (reasoningContent != null) {
+            fullReasoningContent += reasoningContent as String;
+          }
+          if (toolCalls != null && toolCalls.isNotEmpty) {
+            _accumulateToolCalls(toolCalls, fullToolCalls);
+          }
+
+          // 流一更新消息就要更新，前端也实时更新
+          assistantMessage.update(
+            content: fullContent,
+            reasoningContent: fullReasoningContent,
+          );
+          yield chat.messages.toList();
+        } // 流结束
+
+        fullToolCallsList = [
+          for (var key in fullToolCalls.keys.toList()..sort())
+            fullToolCalls[key]!,
+        ];
+        if (fullToolCallsList.isEmpty) {
+          // 普通对话，直接结束本次 while
+          break;
+        }
+        assistantMessage.update(toolCalls: fullToolCallsList);
+        yield* _executeToolCalls(fullToolCallsList, chat);
+      } // 循环结束
     } finally {
       await _saveChat(chat);
+    }
+  }
+
+  // 执行tool call并更新Chat
+  Stream<List<Message>> _executeToolCalls(
+    List<Map<String, dynamic>> fullToolCallsList,
+    Chat chat,
+  ) async* {
+    for (final toolJson in fullToolCallsList) {
+      final function = toolJson['function'];
+      Message toolMessage = Message(
+        role: 'tool',
+        content: "正在执行工具 '${function["name"]}'...",
+        toolCallId: toolJson['id'],
+      );
+      chat.addMessage(toolMessage);
+      yield chat.messages.toList();
+
+      final String toolResult = await _toolService.execute(
+        function['name'],
+        function['arguments'],
+      );
+      toolMessage.update(content: toolResult);
+      yield chat.messages.toList();
+    }
+  }
+
+  void _accumulateToolCalls(
+    List toolCallList,
+    Map<int, Map<String, dynamic>> fullToolCalls,
+  ) {
+    for (final toolCallChunk in toolCallList) {
+      final index = toolCallChunk['index'];
+      // 第一次遇到这个 index 时初始化
+      if (!fullToolCalls.containsKey(index)) {
+        fullToolCalls[index] = {
+          "id": toolCallChunk['id'],
+          "type": toolCallChunk['type'] ?? "function",
+          "function": {
+            "name": toolCallChunk['function']['name'] ?? "",
+            "arguments": toolCallChunk['function']['arguments'],
+          },
+        };
+      } else {
+        // 累加 arguments（最关键的部分）
+        final prevArgs =
+            fullToolCalls[index]!["function"]["arguments"] as String;
+        final newArgs = toolCallChunk['function']['arguments'];
+        if (newArgs != null && newArgs.isNotEmpty) {
+          fullToolCalls[index]!["function"]["arguments"] = prevArgs + newArgs;
+        }
+      }
     }
   }
 
@@ -162,6 +207,7 @@ class ChatService {
     return chat.id;
   }
 
+  // 对话历史记录存数据库
   Future<void> _saveChat(Chat chat) async {
     await _box.put(chat.id, chat.toMap());
   }
