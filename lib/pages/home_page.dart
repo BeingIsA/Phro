@@ -329,7 +329,7 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         children: [
           SelectableText(
-            message.content,
+            "参数：${message.argument}\n调用结果：${message.content}",
             style: const TextStyle(
               fontSize: 14,
               color: Colors.black87,

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:phro/services/tool/core/browse_url_tool.dart';
 import 'package:phro/services/tool/core/cmd_tool.dart';
+import 'package:phro/services/tool/core/read_file_tool.dart';
 import 'package:phro/services/tool/core/web_search_tool.dart';
 import 'package:phro/services/tool/tool.dart';
 
@@ -11,6 +12,7 @@ class ToolService {
     registerTool(CmdTool.instance);
     registerTool(BrowseUrlTool.instance);
     registerTool(WebSearchTool.instance);
+    registerTool(ReadFileTool.instance);
   }
 
   static final ToolService instance = ToolService._();

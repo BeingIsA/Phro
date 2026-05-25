@@ -154,6 +154,7 @@ class ChatService {
         content: "正在执行工具 '$functionName'...",
         toolCallId: toolJson['id'],
         name: functionName,
+        argument: functionArgs,
       );
       chat.addMessage(toolMessage);
       yield chat.messages.toList();

@@ -9,10 +9,13 @@ class Message {
 
   List? toolCalls;
 
+  // 以下三个仅当role == tool时会出现
   // 工具调用ID
   String? toolCallId;
   // 已选工具名称
   String? name;
+  // 工具调用的参数，
+  String? argument;
 
   String? error;
   final DateTime createdAt;
@@ -24,6 +27,7 @@ class Message {
     this.toolCalls,
     this.toolCallId,
     this.name,
+    this.argument,
     this.error,
   }) : id = const Uuid().v4(),
        createdAt = DateTime.now();
@@ -50,6 +54,7 @@ class Message {
       'tool_calls': toolCalls,
       'tool_call_id': toolCallId,
       'name': name,
+      'argument': argument,
       'error': error,
       'created_at': createdAt.toIso8601String(),
     };
