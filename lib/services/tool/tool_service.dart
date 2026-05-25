@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:phro/services/tool/core/browse_url_tool.dart';
 import 'package:phro/services/tool/core/cmd_tool.dart';
+import 'package:phro/services/tool/core/web_search_tool.dart';
 import 'package:phro/services/tool/tool.dart';
 
 // 负责管理工具，生成工具信息用于调用api、执行工具、向前台展示工具信息等
@@ -9,6 +10,7 @@ class ToolService {
   ToolService._() {
     registerTool(CmdTool.instance);
     registerTool(BrowseUrlTool.instance);
+    registerTool(WebSearchTool.instance);
   }
 
   static final ToolService instance = ToolService._();

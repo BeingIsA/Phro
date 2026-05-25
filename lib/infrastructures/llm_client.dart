@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:phro/services/model_config/model_config_service.dart';
+import 'package:phro/services/config/model_config_service.dart';
 
 class LLMClient {
   static final LLMClient instance = LLMClient._();

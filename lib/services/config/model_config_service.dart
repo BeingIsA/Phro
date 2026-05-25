@@ -42,8 +42,6 @@ class ModelConfigObject {
 }
 
 class ModelConfigService {
-  static const String configFileName = 'model_configs';
-
   static final ModelConfigService instance = ModelConfigService._();
   ModelConfigService._();
 
@@ -61,7 +59,7 @@ class ModelConfigService {
     if (_loaded) return;
 
     final directory = await getApplicationSupportDirectory();
-    _filePath = '${directory.path}/$configFileName.json';
+    _filePath = '${directory.path}/model_configs.json';
 
     final file = File(_filePath!);
 

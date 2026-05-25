@@ -318,7 +318,7 @@ class _HomePageState extends State<HomePage> {
         ),
         leading: const Icon(Icons.build, size: 20),
         title: Text(
-          '工具${message.name}调用结果',
+          '工具 ${message.name} 调用结果',
           style: TextStyle(
             fontSize: 13,
             color: Colors.grey,

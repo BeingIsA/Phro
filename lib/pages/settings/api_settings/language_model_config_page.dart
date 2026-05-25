@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:phro/pages/settings/model_settings/edit_config_card.dart';
-import 'package:phro/services/model_config/model_config_service.dart';
+import 'package:phro/pages/settings/api_settings/edit_language_model_config_card.dart';
+import 'package:phro/services/config/model_config_service.dart';
 
-class ModelConfigPage extends StatefulWidget {
-  const ModelConfigPage({super.key});
+class LanguageModelConfigPage extends StatefulWidget {
+  const LanguageModelConfigPage({super.key});
 
   @override
-  State<ModelConfigPage> createState() => _ModelConfigPageState();
+  State<LanguageModelConfigPage> createState() =>
+      _LanguageModelConfigPageState();
 }
 
-class _ModelConfigPageState extends State<ModelConfigPage> {
+class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
   final ModelConfigService modelConfigService = ModelConfigService.instance;
   List<dynamic> _configs = [];
   String? _activated;
@@ -87,7 +88,7 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                   context: context,
                   useRootNavigator: false,
                   builder: (BuildContext buildContext) {
-                    return EditModelConfigCard();
+                    return EditLanguageModelConfigCard();
                   },
                 ).then((saved) {
                   _loadConfigs();
@@ -119,7 +120,7 @@ class _ModelConfigPageState extends State<ModelConfigPage> {
                         showDialog(
                           context: context,
                           builder: (BuildContext buildContext) {
-                            return EditModelConfigCard(id: id);
+                            return EditLanguageModelConfigCard(id: id);
                           },
                         ).then((saved) {
                           _loadConfigs(); // 编辑完成后也刷新

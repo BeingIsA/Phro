@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:phro/services/model_config/model_config_service.dart';
+import 'package:phro/services/config/model_config_service.dart';
 
 /// 模型设置组件（URL、模型名称、API Key + 保存按钮）
-class EditModelConfigCard extends StatefulWidget {
+class EditLanguageModelConfigCard extends StatefulWidget {
   final String? id;
 
-  const EditModelConfigCard({super.key, this.id});
+  const EditLanguageModelConfigCard({super.key, this.id});
 
   @override
-  State<EditModelConfigCard> createState() => _EditModelConfigCardState();
+  State<EditLanguageModelConfigCard> createState() =>
+      _EditLanguageModelConfigCardState();
 }
 
-class _EditModelConfigCardState extends State<EditModelConfigCard> {
+class _EditLanguageModelConfigCardState
+    extends State<EditLanguageModelConfigCard> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _urlController = TextEditingController();
   final TextEditingController _modelController = TextEditingController();

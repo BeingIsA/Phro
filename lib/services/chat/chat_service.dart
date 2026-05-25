@@ -147,18 +147,20 @@ class ChatService {
     Chat chat,
   ) async* {
     for (final toolJson in fullToolCallsList) {
-      final function = toolJson['function'];
+      final functionName = toolJson['function']["name"];
+      final functionArgs = toolJson['function']["arguments"];
       Message toolMessage = Message(
         role: 'tool',
-        content: "正在执行工具 '${function["name"]}'...",
+        content: "正在执行工具 '$functionName'...",
         toolCallId: toolJson['id'],
+        name: functionName,
       );
       chat.addMessage(toolMessage);
       yield chat.messages.toList();
 
       final String toolResult = await _toolService.execute(
-        function['name'],
-        function['arguments'],
+        functionName,
+        functionArgs,
       );
       toolMessage.update(content: toolResult);
       yield chat.messages.toList();

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:phro/pages/settings/model_settings/model_config_page.dart';
+import 'package:phro/pages/settings/api_settings/language_model_config_page.dart';
 import 'package:phro/pages/settings/other_settings/other_settings.dart';
+import 'package:phro/pages/settings/search_api/search_api_config_page.dart'; // 新增搜索API页面
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -34,39 +35,73 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Navigator(
-      key: _navigatorKey, // 绑定 key
-      initialRoute: '/', // 默认显示主设置列表
+      key: _navigatorKey,
+      initialRoute: '/',
       onGenerateRoute: (RouteSettings settings) {
         Widget body = Column(
           children: [
             ListTile(
-              title: const Text('模型配置'),
-              onTap: () => _navigatorKey.currentState?.pushNamed('/model'),
+              leading: const Icon(Icons.language),
+              title: const Text('语言模型'),
+              onTap: () =>
+                  _navigatorKey.currentState?.pushNamed('/language_model'),
             ),
             ListTile(
+              leading: const Icon(Icons.image),
+              title: const Text('视觉模型'),
+              onTap: () =>
+                  _navigatorKey.currentState?.pushNamed('/vision_model'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.mic),
+              title: const Text('语音模型'),
+              onTap: () =>
+                  _navigatorKey.currentState?.pushNamed('/speech_model'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.search),
+              title: const Text('搜索API'),
+              onTap: () => _navigatorKey.currentState?.pushNamed('/search_api'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.settings),
               title: const Text('其他设置'),
               onTap: () => _navigatorKey.currentState?.pushNamed('/other'),
             ),
-            // 如果以后还有更多设置项，直接在这里继续添加 ListTile 即可
           ],
         );
+
         String appBarText = '设置';
         switch (settings.name) {
-          case '/model': // 模型设置子页面
-            body = const ModelConfigPage();
-            appBarText = '模型配置';
-          case '/other': // 其他设置子页面
+          case '/language_model':
+            body = const LanguageModelConfigPage();
+            appBarText = '语言模型';
+          case '/vision_model':
+            body = const Center(
+              child: Text('视觉模型配置\n开发中...', style: TextStyle(fontSize: 18)),
+            );
+            appBarText = '视觉模型';
+          case '/speech_model':
+            body = const Center(
+              child: Text('语音模型配置\n开发中...', style: TextStyle(fontSize: 18)),
+            );
+            appBarText = '语音模型';
+          case '/search_api':
+            body = const SearchApiConfigPage();
+            appBarText = '搜索API';
+          case '/other':
             body = const OtherSettings();
             appBarText = '其他设置';
         }
+
         return PageRouteBuilder(
           settings: settings,
-          transitionDuration: Duration.zero, // 正向无动画
-          reverseTransitionDuration: Duration.zero, // 返回时也无动画
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
           pageBuilder: (context, animation, secondaryAnimation) =>
               _buildMainSettings(body, appBarText),
         );
-      }, // 所有跳转走这里
+      },
     );
   }
 }
