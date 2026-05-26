@@ -1,50 +1,54 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:phro/services/config/model_config_service.dart';
 
 class LLMClient {
   static final LLMClient instance = LLMClient._();
   LLMClient._();
 
-  final modelConfigService = ModelConfigService.instance;
-
   /// 流式对话 + 实时返回 reasoning content（broadcast stream，解决重复订阅问题）
   Stream<Map<String, dynamic>> sendMessageStream(
+    String baseUrl,
+    String apiKey,
+    String modelName,
     List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>> tools,
   ) {
     final controller = StreamController<Map<String, dynamic>>.broadcast();
 
     // 在后台执行请求逻辑
-    _executeStreamRequest(controller, messages, tools);
+    _executeStreamRequest(
+      baseUrl,
+      apiKey,
+      modelName,
+      controller,
+      messages,
+      tools,
+    );
 
     return controller.stream;
   }
 
   /// 内部实际执行 HTTP 请求的逻辑
   Future<void> _executeStreamRequest(
+    String baseUrl,
+    String apiKey,
+    String modelName,
     StreamController<Map<String, dynamic>> controller,
     List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>> tools,
   ) async {
     http.Client? client;
     try {
-      // 激活配置不从前台传，永远从后台查，保证数据修改一致性
-      final config = await modelConfigService.getActivatedConfig();
-      if (config == null) throw Exception('未激活api配置');
-
-      final baseUrl = config.url;
-
       final completionsUrl = '$baseUrl/chat/completions';
 
       final headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ${config.apiKey}',
+        'Authorization': 'Bearer $apiKey',
       };
 
       final body = jsonEncode({
-        'model': config.modelName,
+        'model': modelName,
         'messages': messages,
         'tools': tools,
         'stream': true,

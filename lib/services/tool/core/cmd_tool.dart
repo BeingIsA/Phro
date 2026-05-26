@@ -38,8 +38,12 @@ class CmdTool extends Tool {
       stderrEncoding: utf8,
     ).timeout(const Duration(seconds: 30));
 
-    return 'stdout: ${result.stdout}\n'
-        'stderr: ${result.stderr}\n'
-        'returncode: ${result.exitCode}';
+    return [
+      if (result.stdout.toString().trim().isNotEmpty)
+        'stdout: ${result.stdout}',
+      if (result.stderr.toString().trim().isNotEmpty)
+        'stderr: ${result.stderr}',
+      'returncode: ${result.exitCode}',
+    ].join('\n');
   }
 }

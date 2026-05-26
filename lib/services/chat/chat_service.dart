@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:hive_ce/hive.dart';
 import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/services/agent/agent.dart';
 import 'package:phro/services/chat/chat.dart';
 import 'package:phro/services/chat/message.dart';
+import 'package:phro/services/config/model_config_service.dart';
 import 'package:phro/services/tool/tool_service.dart';
 
 class ChatService {
@@ -12,6 +15,7 @@ class ChatService {
 
   final LLMClient _llmClient;
   final ToolService _toolService;
+  final ModelConfigService _modelConfigService;
   late Box<Map<dynamic, dynamic>> _box;
   late Agent agent;
 
@@ -19,15 +23,18 @@ class ChatService {
   ChatService._()
     : _llmClient = LLMClient.instance, // ← 这里初始化
       _toolService = ToolService.instance,
+      _modelConfigService = ModelConfigService.instance,
       agent = Agent();
 
   ChatService.forTest({
     LLMClient? llmClient,
     ToolService? toolService,
+    ModelConfigService? modelConfigService,
     required Box<Map<dynamic, dynamic>> box,
     Agent? agent,
   }) : _llmClient = llmClient ?? LLMClient.instance,
        _toolService = toolService ?? ToolService.instance,
+       _modelConfigService = modelConfigService ?? ModelConfigService.instance,
        _box = box, // 测试时必须传入
        agent = agent ?? Agent();
 
@@ -90,12 +97,23 @@ class ChatService {
         final fullToolCalls = <int, Map<String, dynamic>>{};
         List<Map<String, dynamic>> fullToolCallsList = [];
         // 开始调用api，同步更新最后一条消息
-        final messages4Api = chat.messages
+
+        final modelConfig = await _modelConfigService.getActivatedConfig();
+        if (modelConfig == null) {
+          assistantMessage.update(content: '语言模型未配置，请先配置并激活');
+          yield chat.messages.toList();
+          break;
+        }
+
+        final messages = chat.messages
             .map((messaage) => messaage.toMap4Api())
             .toList();
-        messages4Api.removeLast();
+        messages.removeLast();
         await for (final chunk in _llmClient.sendMessageStream(
-          messages4Api,
+          modelConfig!.url,
+          modelConfig.apiKey,
+          modelConfig.modelName,
+          messages,
           agent.tools,
         )) {
           final error = chunk['error'];
@@ -202,7 +220,8 @@ class ChatService {
     chat.addMessage(
       Message(
         role: 'system',
-        content: agent.systemPrompt,
+        content:
+            "current operating system: ${Platform.operatingSystem}\n${agent.systemPrompt}",
         reasoningContent: null,
       ),
     );

@@ -22,7 +22,11 @@ void main() {
     mockLLMClient = MockLLMClient();
     testBox = await Hive.openBox<Map>('chats_test');
 
-    chatService = ChatService.forTest(llmClient: mockLLMClient, box: testBox);
+    chatService = ChatService.forTest(
+      llmClient: mockLLMClient,
+      modelConfigService: null,
+      box: testBox,
+    );
   });
 
   tearDown(() async {
