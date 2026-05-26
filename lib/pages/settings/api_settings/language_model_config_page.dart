@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/pages/settings/api_settings/edit_language_model_config_card.dart';
-import 'package:phro/services/config/model_config_service.dart';
+import 'package:phro/services/model_config_service.dart';
 
 class LanguageModelConfigPage extends StatefulWidget {
   const LanguageModelConfigPage({super.key});

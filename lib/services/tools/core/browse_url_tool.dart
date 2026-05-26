@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:html2md/html2md.dart' as html2md;
 import 'package:http/http.dart' as http;
-import 'package:phro/services/tool/tool.dart';
+import 'package:phro/services/tools/core/tool.dart';
 
 class BrowseUrlTool extends Tool {
   BrowseUrlTool._();

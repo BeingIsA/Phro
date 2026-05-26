@@ -1,8 +1,9 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-import 'package:phro/services/config/search_api_config_service.dart';
-import 'package:phro/services/tool/tool.dart';
+import 'package:phro/models/search_api_config.dart';
+import 'package:phro/services/search_api_config_service.dart';
+import 'package:phro/services/tools/core/tool.dart';
 
 /// 极简版统一搜索工具
 /// 直接返回 response.body（已经是字符串）
@@ -40,7 +41,7 @@ class WebSearchTool extends Tool {
     final limit = args['limit'] as int? ?? 10;
     final timeout = args['timeout'] as int? ?? 45;
 
-    SearchApiConfigObject? searchApiConfigObject = await searchApiConfigService
+    SearchApiConfig? searchApiConfigObject = await searchApiConfigService
         .getConfig();
 
     if (searchApiConfigObject == null) {

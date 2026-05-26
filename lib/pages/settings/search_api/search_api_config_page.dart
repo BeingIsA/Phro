@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phro/services/config/search_api_config_service.dart';
+import 'package:phro/services/search_api_config_service.dart';
 
 class SearchApiConfigPage extends StatefulWidget {
   const SearchApiConfigPage({super.key});

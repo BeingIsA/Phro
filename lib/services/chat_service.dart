@@ -1,22 +1,21 @@
 import 'dart:io';
 
-import 'package:hive_ce/hive.dart';
 import 'package:phro/infrastructures/llm_client.dart';
-import 'package:phro/services/agent/agent.dart';
-import 'package:phro/services/chat/chat.dart';
-import 'package:phro/services/chat/message.dart';
-import 'package:phro/services/config/model_config_service.dart';
-import 'package:phro/services/tool/tool_service.dart';
+import 'package:phro/repositories/chat_repository.dart';
+import 'package:phro/models/agent.dart';
+import 'package:phro/models/chat.dart';
+import 'package:phro/models/message.dart';
+import 'package:phro/services/model_config_service.dart';
+import 'package:phro/services/tools/tool_service.dart';
 
 class ChatService {
   static final ChatService instance = ChatService._();
 
-  static const String _boxName = 'chats';
+  final ChatRepository _chatRepository;
 
   final LLMClient _llmClient;
   final ToolService _toolService;
   final ModelConfigService _modelConfigService;
-  late Box<Map<dynamic, dynamic>> _box;
   late Agent agent;
 
   // 私有构造函数，防止外部调用构造函数
@@ -24,51 +23,36 @@ class ChatService {
     : _llmClient = LLMClient.instance, // ← 这里初始化
       _toolService = ToolService.instance,
       _modelConfigService = ModelConfigService.instance,
+      _chatRepository = ChatRepository.instance,
       agent = Agent();
 
   ChatService.forTest({
     LLMClient? llmClient,
     ToolService? toolService,
     ModelConfigService? modelConfigService,
-    required Box<Map<dynamic, dynamic>> box,
+    ChatRepository? chatRepository,
     Agent? agent,
   }) : _llmClient = llmClient ?? LLMClient.instance,
        _toolService = toolService ?? ToolService.instance,
        _modelConfigService = modelConfigService ?? ModelConfigService.instance,
-       _box = box, // 测试时必须传入
+       _chatRepository = chatRepository ?? ChatRepository.instance,
        agent = agent ?? Agent();
 
   // 存聊天记录就用Hive，别想着存文件了。性能差
-  Future<void> initHiveBox() async {
-    _box = await Hive.openBox<Map>(_boxName);
-  }
-
   Future<List<Chat>> getAllChats() async {
-    final chats = _box.values
-        .map((data) => Chat.fromMap(Map<String, dynamic>.from(data)))
-        .toList();
-    chats.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    return chats;
+    return await _chatRepository.getAllChats();
   }
 
   Future<Chat> getChatById(String id) async {
-    final data = _box.get(id);
-    if (data == null) {
-      throw Exception("ChatId $id doesn't exist");
-    }
-    return Chat.fromMap(Map<String, dynamic>.from(data));
+    return await _chatRepository.getChatById(id);
   }
 
   Future<void> updateChatTitle(String id, String newTitle) async {
-    final data = _box.get(id);
-    if (data == null) return;
-    final chatMap = Map<String, dynamic>.from(data);
-    chatMap['title'] = newTitle.trim(); // 只更新标题
-    await _box.put(id, chatMap);
+    await _chatRepository.updateChatTitle(id, newTitle);
   }
 
   Future<void> deleteChat(String id) async {
-    await _box.delete(id);
+    await _chatRepository.deleteChat(id);
   }
 
   // 每次返回完整的消息列表
@@ -155,7 +139,7 @@ class ChatService {
         yield* _executeToolCalls(fullToolCallsList, chat);
       } // 循环结束
     } finally {
-      await _saveChat(chat);
+      await _chatRepository.saveChat(chat);
     }
   }
 
@@ -225,12 +209,7 @@ class ChatService {
         reasoningContent: null,
       ),
     );
-    await _saveChat(chat);
+    await _chatRepository.saveChat(chat);
     return chat.id;
-  }
-
-  // 对话历史记录存数据库
-  Future<void> _saveChat(Chat chat) async {
-    await _box.put(chat.id, chat.toMap());
   }
 }

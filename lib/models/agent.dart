@@ -1,5 +1,5 @@
 // TODO Agent信息存数据库，以及临时判断工具是否有效
-import 'package:phro/services/tool/tool_service.dart';
+import 'package:phro/services/tools/tool_service.dart';
 
 class Agent {
   final String systemPrompt;

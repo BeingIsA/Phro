@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phro/services/config/search_api_config_service.dart';
+import 'package:phro/services/search_api_config_service.dart';
 
 /// 搜索API配置编辑弹窗（只有 URL + API Key）
 class EditSearchApiConfigCard extends StatefulWidget {
