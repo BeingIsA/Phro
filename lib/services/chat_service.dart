@@ -132,7 +132,6 @@ class ChatService {
             fullToolCalls[key]!,
         ];
         if (fullToolCallsList.isEmpty) {
-          // 普通对话，直接结束本次 while
           break;
         }
         assistantMessage.update(toolCalls: fullToolCallsList);

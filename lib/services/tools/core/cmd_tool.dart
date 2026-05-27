@@ -34,8 +34,8 @@ class CmdTool extends Tool {
       Platform.isWindows ? 'cmd.exe' : 'sh',
       Platform.isWindows ? ['/c', command] : ['-c', command],
       runInShell: true,
-      stdoutEncoding: utf8,
-      stderrEncoding: utf8,
+      stdoutEncoding: Platform.isWindows ? const SystemEncoding() : utf8,
+      stderrEncoding: Platform.isWindows ? const SystemEncoding() : utf8,
     ).timeout(const Duration(seconds: 30));
 
     return [
