@@ -9,13 +9,16 @@ class Message {
 
   List? toolCalls;
 
-  // 以下三个仅当role == tool时会出现
+  // 以下仅当role == tool时会出现
   // 工具调用ID
   String? toolCallId;
   // 已选工具名称
   String? name;
   // 工具调用的参数，
   String? argument;
+  // 新增：HITL 人类在环控制状态
+  bool isPendingConfirmation;
+  bool isRejected;
 
   String? error;
   final DateTime createdAt;
@@ -29,6 +32,8 @@ class Message {
     this.name,
     this.argument,
     this.error,
+    this.isPendingConfirmation = false,
+    this.isRejected = false,
   }) : id = const Uuid().v4(),
        createdAt = DateTime.now();
 
@@ -41,7 +46,10 @@ class Message {
       toolCalls = json['tool_calls'],
       toolCallId = json['tool_call_id'],
       name = json['name'],
+      argument = json['argument'],
       error = json['error'],
+      isPendingConfirmation = json['is_pending_confirmation'] as bool? ?? false,
+      isRejected = json['is_rejected'] as bool? ?? false,
       createdAt = DateTime.parse(json['created_at'] as String);
 
   // 用来存储本地
@@ -56,6 +64,8 @@ class Message {
       'name': name,
       'argument': argument,
       'error': error,
+      'is_pending_confirmation': isPendingConfirmation,
+      'is_rejected': isRejected,
       'created_at': createdAt.toIso8601String(),
     };
     return map;
@@ -64,10 +74,11 @@ class Message {
   // 用来调用API
   Map<String, dynamic> toMap4Api() {
     final map = toMap4Storage();
-    // TODO 思考内容是否要保留待讨论
     map.remove('reasoning_content');
     map.remove('error');
     map.remove('created_at');
+    map.remove('is_pending_confirmation');
+    map.remove('is_rejected');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
       if (value == null) return true;
@@ -84,6 +95,8 @@ class Message {
     String? content,
     List? toolCalls,
     String? error,
+    bool? isPendingConfirmation,
+    bool? isRejected,
   }) {
     if (reasoningContent != null && reasoningContent.isNotEmpty) {
       this.reasoningContent = reasoningContent;
@@ -100,6 +113,14 @@ class Message {
     // List 类型：null 或空列表都不更新
     if (toolCalls != null && toolCalls.isNotEmpty) {
       this.toolCalls = toolCalls;
+    }
+
+    if (isPendingConfirmation != null) {
+      this.isPendingConfirmation = isPendingConfirmation;
+    }
+
+    if (isRejected != null) {
+      this.isRejected = isRejected;
     }
   }
 }

@@ -11,6 +11,10 @@ class CmdTool extends Tool {
   @override
   String get name => 'cmd';
 
+  // cmd 工具执行前必须经过用户确认
+  @override
+  bool get requiresConfirmation => true;
+
   @override
   String get description =>
       "在本地执行 shell 命令（Windows 下用 cmd.exe，Linux/Mac 用 sh），返回 stdout、stderr 和 exit code";

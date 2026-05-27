@@ -4,22 +4,22 @@ import 'package:html2md/html2md.dart' as html2md;
 import 'package:http/http.dart' as http;
 import 'package:phro/services/tools/core/tool.dart';
 
-class BrowseUrlTool extends Tool {
-  BrowseUrlTool._();
+class BrowseWebUrlTool extends Tool {
+  BrowseWebUrlTool._();
 
-  static final BrowseUrlTool instance = BrowseUrlTool._();
-
-  @override
-  String get name => 'browse_url';
+  static final BrowseWebUrlTool instance = BrowseWebUrlTool._();
 
   @override
-  String get description => "访问网页并将 HTML 转换为 Markdown 返回（已过滤无关标签，支持截断）";
+  String get name => 'browse_web_url';
+
+  @override
+  String get description => "用于访问互联网上的网页并将 HTML 转换为 Markdown 返回（已过滤无关标签，支持截断）";
 
   @override
   Map<String, dynamic> get parameters => {
     "type": "object",
     "properties": {
-      "url": {"type": "string", "description": "目标网页 URL"},
+      "url": {"type": "string", "description": "远程网页的完整 HTTP/HTTPS URL"},
       "timeout": {
         "type": "integer",
         "description": "请求超时时间（秒），默认 30",

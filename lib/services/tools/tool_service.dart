@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:phro/services/tools/core/browse_url_tool.dart';
+import 'package:phro/services/tools/core/browse_web_url_tool.dart';
 import 'package:phro/services/tools/core/cmd_tool.dart';
 import 'package:phro/services/tools/core/read_file_tool.dart';
 import 'package:phro/services/tools/core/web_search_tool.dart';
@@ -10,7 +10,7 @@ import 'package:phro/services/tools/core/tool.dart';
 class ToolService {
   ToolService._() {
     registerTool(CmdTool.instance);
-    registerTool(BrowseUrlTool.instance);
+    registerTool(BrowseWebUrlTool.instance);
     registerTool(WebSearchTool.instance);
     registerTool(ReadFileTool.instance);
   }
@@ -29,6 +29,11 @@ class ToolService {
 
   List<Tool> getAllTools() {
     return _toolMap.values.toList();
+  }
+
+  // 判断某个工具名是否需要确认
+  bool requiresConfirmation(String name) {
+    return _toolMap[name]?.requiresConfirmation ?? false;
   }
 
   Future<String> execute(String name, String argsString) async {
