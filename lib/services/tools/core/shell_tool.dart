@@ -3,21 +3,20 @@ import 'dart:io';
 
 import 'package:phro/services/tools/core/tool.dart';
 
-class CmdTool extends Tool {
-  CmdTool._();
+class ShellTool extends Tool {
+  ShellTool._();
 
-  static final CmdTool instance = CmdTool._();
+  static final ShellTool instance = ShellTool._();
 
   @override
-  String get name => 'cmd';
+  String get name => 'shell';
 
   // cmd 工具执行前必须经过用户确认
   @override
   bool get requiresConfirmation => true;
 
   @override
-  String get description =>
-      "在本地执行 shell 命令（Windows 下用 cmd.exe，Linux/Mac 用 sh），返回 stdout、stderr 和 exit code";
+  String get description => "在本地执行 shell 命令。返回 stdout、stderr 和 exit code";
 
   @override
   Map<String, dynamic> get parameters => {
@@ -34,12 +33,35 @@ class CmdTool extends Tool {
     if (command == null || command!.isEmpty) {
       return "missing argument: command";
     }
+    String shell;
+    List<String> shellArgs;
+
+    if (Platform.isWindows) {
+      // Windows 使用 PowerShell
+      shell = 'powershell.exe';
+      // -NoProfile: 不加载配置文件，加快启动
+      // -ExecutionPolicy Bypass: 绕过执行策略，避免脚本限制
+      // -Command: 执行后续命令
+      shellArgs = [
+        '-NoProfile',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-Command',
+        command,
+      ];
+    } else if (Platform.isAndroid) {
+      shell = '/system/bin/sh';
+      shellArgs = ['-c', command];
+    } else {
+      // macOS, Linux 等其他类 Unix 系统
+      shell = 'sh';
+      shellArgs = ['-c', command];
+    }
+
     final result = await Process.run(
-      Platform.isWindows ? 'cmd.exe' : 'sh',
-      Platform.isWindows ? ['/c', command] : ['-c', command],
-      runInShell: true,
-      stdoutEncoding: Platform.isWindows ? const SystemEncoding() : utf8,
-      stderrEncoding: Platform.isWindows ? const SystemEncoding() : utf8,
+      shell,
+      shellArgs,
+      stdoutEncoding: utf8,
     ).timeout(const Duration(seconds: 30));
 
     return [

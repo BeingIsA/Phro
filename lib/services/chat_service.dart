@@ -226,12 +226,12 @@ class ChatService {
         // 用户拒绝逻辑：拼接反馈原因推送给模型
         final String reasonText =
             (rejectionReason != null && rejectionReason.trim().isNotEmpty)
-            ? "【用户拒绝原因】：\"$rejectionReason\"。\n"
-            : "";
+            ? "：\"$rejectionReason\"。\n"
+            : "。";
 
         toolMessage.update(
           isRejected: true,
-          content: "用户拒绝了执行该工具的请求。\n$reasonText",
+          content: "用户拒绝了执行该工具的请求\n$reasonText",
         );
         yield chat.messages.toList();
       }
@@ -269,12 +269,19 @@ class ChatService {
     chat.addMessage(
       Message(
         role: 'system',
-        content:
-            "current operating system: ${Platform.operatingSystem}\n${agent.systemPrompt}",
+        content: "${agent.systemPrompt}${buildOSSpecificPrompt()}",
         reasoningContent: null,
       ),
     );
     await _chatRepository.saveChat(chat);
     return chat.id;
+  }
+
+  String buildOSSpecificPrompt() {
+    String prompt = '当前操作系统: ${Platform.operatingSystem}\n';
+    if (Platform.isAndroid) {
+      prompt += '一切路径均须以 /storage/emulated/0/开头 \n';
+    }
+    return prompt;
   }
 }
