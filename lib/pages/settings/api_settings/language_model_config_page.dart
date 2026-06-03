@@ -66,94 +66,171 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.vertical, // 纵向滚动
-      child: DataTable(
-        headingRowColor: WidgetStateColor.resolveWith(
-          (states) => Colors.grey.shade100, // 可选：表头单独颜色
-        ),
-        columns: [
-          DataColumn(
-            label: Text('配置别名', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: Text('模型名称', style: TextStyle(fontWeight: FontWeight.bold)),
-          ),
-          DataColumn(
-            label: IconButton(
-              icon: Icon(Icons.add_circle, color: Colors.blue),
-              tooltip: '新增配置',
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  useRootNavigator: false,
-                  builder: (BuildContext buildContext) {
-                    return EditLanguageModelConfigCard();
-                  },
-                ).then((saved) {
-                  _loadConfigs();
-                  if (saved == true) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(const SnackBar(content: Text('设置已保存')));
-                  }
-                });
-              },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableWidth = constraints.maxWidth; // 关键：获取实际可用宽度
+
+        return SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Table(
+            columnWidths: {
+              0: FixedColumnWidth(availableWidth * 0.3), // 配置别名
+              1: FixedColumnWidth(availableWidth * 0.3), // 模型名称
+              2: FlexColumnWidth(1), // 操作列占剩余空间
+            },
+            border: TableBorder(
+              horizontalInside: BorderSide(
+                color: Colors.grey.shade200,
+                width: 1,
+              ),
+              top: BorderSide(color: Colors.grey.shade300, width: 1),
+              bottom: BorderSide(color: Colors.grey.shade300, width: 1),
             ),
-          ),
-        ],
-        rows: _configs.map((config) {
-          final configName = config.configName as String? ?? '';
-          final modelName = config.modelName as String? ?? '';
-          final id = config.id as String? ?? '';
-          return DataRow(
-            cells: [
-              DataCell(Text(configName)),
-              DataCell(Text(modelName)),
-              DataCell(
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext buildContext) {
-                            return EditLanguageModelConfigCard(id: id);
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              // ==================== 表头 ====================
+              TableRow(
+                decoration: const BoxDecoration(color: Colors.grey),
+                children: [
+                  const TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        '配置别名',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  const TableCell(
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        '模型名称',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                  TableCell(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 12),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.add_circle,
+                            color: Colors.blue,
+                          ),
+                          tooltip: '新增配置',
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              useRootNavigator: false,
+                              builder: (BuildContext buildContext) {
+                                return EditLanguageModelConfigCard();
+                              },
+                            ).then((saved) {
+                              _loadConfigs();
+                              if (saved == true) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('设置已保存')),
+                                );
+                              }
+                            });
                           },
-                        ).then((saved) {
-                          _loadConfigs(); // 编辑完成后也刷新
-                          if (saved == true) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('设置已保存')),
-                            );
-                          }
-                        });
-                      },
+                        ),
+                      ),
                     ),
-                    // 删除按钮
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () => _deleteCard(id, configName),
+                  ),
+                ],
+              ),
+
+              // ==================== 数据行 ====================
+              ..._configs.map((config) {
+                final configName = config.configName as String? ?? '';
+                final modelName = config.modelName as String? ?? '';
+                final id = config.id as String? ?? '';
+
+                return TableRow(
+                  children: [
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          configName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
-                    Switch(
-                      value: id == _activated,
-                      onChanged: (bool newValue) {
-                        _toggleActive(id, newValue);
-                        ScaffoldMessenger.of(
-                          context,
-                        ).showSnackBar(const SnackBar(content: Text('设置已保存')));
-                      },
-                      activeThumbColor: Colors.green,
+                    TableCell(
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(
+                          modelName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                    TableCell(
+                      child: Align(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.blue,
+                                ),
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext buildContext) {
+                                      return EditLanguageModelConfigCard(
+                                        id: id,
+                                      );
+                                    },
+                                  ).then((saved) {
+                                    _loadConfigs();
+                                    if (saved == true) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(content: Text('设置已保存')),
+                                      );
+                                    }
+                                  });
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () => _deleteCard(id, configName),
+                              ),
+                              Switch(
+                                value: id == _activated,
+                                onChanged: (bool newValue) {
+                                  _toggleActive(id, newValue);
+                                },
+                                activeThumbColor: Colors.green,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
-                ),
-              ),
+                );
+              }).toList(),
             ],
-          );
-        }).toList(),
-      ),
+          ),
+        );
+      },
     );
   }
 }
