@@ -6,6 +6,7 @@ import 'package:phro/repositories/chat_repository.dart';
 import 'package:phro/models/agent.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
+import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/model_config_service.dart';
 import 'package:phro/services/tools/tool_service.dart';
 
@@ -22,7 +23,7 @@ class ChatService {
   final LLMClient _llmClient;
   final ToolService _toolService;
   final ModelConfigService _modelConfigService;
-  late Agent agent;
+  final AgentService _agentService;
 
   // 用于执行tool call时挂起等待用户确认
   final Map<String, Completer<ToolConfirmationResult>>
@@ -34,19 +35,19 @@ class ChatService {
       _toolService = ToolService.instance,
       _modelConfigService = ModelConfigService.instance,
       _chatRepository = ChatRepository.instance,
-      agent = Agent();
+      _agentService = AgentService.instance;
 
   ChatService.forTest({
     LLMClient? llmClient,
     ToolService? toolService,
     ModelConfigService? modelConfigService,
     ChatRepository? chatRepository,
-    Agent? agent,
+    AgentService? agentService,
   }) : _llmClient = llmClient ?? LLMClient.instance,
        _toolService = toolService ?? ToolService.instance,
        _modelConfigService = modelConfigService ?? ModelConfigService.instance,
        _chatRepository = chatRepository ?? ChatRepository.instance,
-       agent = agent ?? Agent();
+       _agentService = agentService ?? AgentService.instance;
 
   // 提供给 UI 层调用的公开方法：用户点击“允许”或“拒绝”时通过此方法输入反馈
   void confirmToolCall(
@@ -119,7 +120,7 @@ class ChatService {
           modelConfig.apiKey,
           modelConfig.modelName,
           messages,
-          agent.tools,
+          _toolService.getAllToolsInJsonSchema(),
         )) {
           final error = chunk['error'];
           final content = chunk['content'];
@@ -269,7 +270,8 @@ class ChatService {
     chat.addMessage(
       Message(
         role: 'system',
-        content: "${agent.systemPrompt}${buildOSSpecificPrompt()}",
+        content:
+            "${await _agentService.getActivatedPrompt()}${buildOSSpecificPrompt()}",
         reasoningContent: null,
       ),
     );

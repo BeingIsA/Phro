@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
+import 'package:phro/pages/sidebar/agent_selector.dart';
 import 'package:phro/services/chat_service.dart';
 
-class ChatHistoryDrawer extends StatelessWidget {
+class AppDrawer extends StatelessWidget {
   final List<Chat> allChats;
   final String? currentChatId;
   final ValueChanged<String> onChatSelected;
@@ -10,7 +11,7 @@ class ChatHistoryDrawer extends StatelessWidget {
   final VoidCallback onRefreshChats;
   final VoidCallback onOpenSettings;
 
-  const ChatHistoryDrawer({
+  const AppDrawer({
     super.key,
     required this.allChats,
     required this.currentChatId,
@@ -42,6 +43,11 @@ class ChatHistoryDrawer extends StatelessWidget {
               onNewChat();
               Navigator.pop(context);
             },
+          ),
+          const Divider(height: 1),
+
+          AgentSelector(
+            onAgentChanged: onRefreshChats, // 或者你自定义的刷新回调
           ),
           const Divider(height: 1),
           Expanded(

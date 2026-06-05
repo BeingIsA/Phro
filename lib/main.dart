@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
-import 'package:phro/pages/home/home_page.dart';
+import 'package:phro/pages/home_page.dart';
 import 'package:phro/repositories/chat_repository.dart';
 
 Future<void> main() async {

@@ -115,7 +115,7 @@ class _EditLanguageModelConfigCardState
                 return null;
               },
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {

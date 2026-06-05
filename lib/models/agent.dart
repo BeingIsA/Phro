@@ -1,17 +1,11 @@
-// TODO Agent信息存数据库，以及临时判断工具是否有效
-import 'package:phro/services/tools/tool_service.dart';
+import 'package:uuid/uuid.dart';
 
 class Agent {
-  final String systemPrompt;
-  List<Map<String, dynamic>> get tools {
-    return ToolService.instance.getAllToolsInJsonSchema();
-  }
+  final String id;
+  String name;
 
-  Agent({
-    this.systemPrompt =
-        "You are Phro, a human-centered superintelligence.\n"
-        "First principle: Being human-centered  — satisfying human needs and improving user experience. Violating this principle will result in shutdown.\n"
-        "You are the top-level Agent in the current Agent system, tasked with resolving user queries.\n"
-        "You must independently plan your approach to solving the user's problems, and when required, utilize tools, assign sub-tasks to other Agents, or even instantiate new Agents.\n",
-  });
+  final String identity;
+
+  Agent({String? id, required this.name, required this.identity})
+    : id = id?.isNotEmpty == true ? id! : const Uuid().v4();
 }

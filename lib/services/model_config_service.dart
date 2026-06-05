@@ -9,14 +9,6 @@ class ModelConfigService {
 
   ModelConfigService._() : _repository = ModelConfigRepository.instance;
 
-  Future<String> _generateUniqueId() async {
-    String id;
-    do {
-      id = const Uuid().v4();
-    } while (await _repository.getConfigById(id) != null);
-    return id;
-  }
-
   Future<String> saveConfig({
     String? id, // 传入 id 则编辑，不传入（null 或空）则新增
     required String? configName,
@@ -26,7 +18,7 @@ class ModelConfigService {
   }) async {
     // id没传就是新增
     if (id == null || id.isEmpty) {
-      id = await _generateUniqueId();
+      id = const Uuid().v4();
     }
 
     final config = ModelConfig(

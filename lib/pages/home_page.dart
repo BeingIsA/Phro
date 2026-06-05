@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:phro/pages/message_input.dart';
-import 'package:phro/pages/settings/settings_page.dart';
+import 'package:phro/pages/sidebar/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
 
-import 'widgets/chat_history_drawer.dart';
-import 'widgets/message_list_view.dart';
+import 'sidebar/app_drawer.dart';
+import 'chat/message_list_view.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       // 声明式使用重构后的抽屉
-      drawer: ChatHistoryDrawer(
+      drawer: AppDrawer(
         allChats: _allChats,
         currentChatId: _currentChatId,
         onChatSelected: _selectChat,
