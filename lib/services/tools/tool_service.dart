@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:phro/services/tools/core/browse_web_url_tool.dart';
-import 'package:phro/services/tools/core/shell_tool.dart';
 import 'package:phro/services/tools/core/create_directory_tool.dart';
 import 'package:phro/services/tools/core/create_file_tool.dart';
 import 'package:phro/services/tools/core/delete_file_tool.dart';

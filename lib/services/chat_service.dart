@@ -1,9 +1,7 @@
 import 'dart:io';
-import 'dart:async'; // 确保引入了 async 包以使用 Completer
-
+import 'dart:async';
 import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/repositories/chat_repository.dart';
-import 'package:phro/models/agent.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/agent_service.dart';
@@ -266,7 +264,8 @@ class ChatService {
   }
 
   Future<String> createChat(String? title) async {
-    final chat = Chat(title: title);
+    final activatedAgentName = await _agentService.getActivatedName();
+    final chat = Chat(title: title, agentName: activatedAgentName);
     chat.addMessage(
       Message(
         role: 'system',

@@ -207,7 +207,7 @@ class AppDrawer extends StatelessWidget {
         PageRouteBuilder(
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
-          pageBuilder: (context, _, __) => const SettingsPage(),
+          pageBuilder: (context, _, _) => const SettingsPage(),
         ),
       );
     } else {

@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 class Chat {
   final String id;
+  final String? agentName;
   String title;
   final DateTime createdAt;
   DateTime updatedAt;
@@ -10,6 +11,7 @@ class Chat {
 
   Chat({
     String? id,
+    this.agentName,
     String? title,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -28,6 +30,7 @@ class Chat {
 
   Map<String, dynamic> toMap() => {
     'id': id,
+    'agentName': agentName,
     'title': title,
     'created_at': createdAt.toIso8601String(),
     'updated_at': updatedAt.toIso8601String(),
@@ -43,6 +46,7 @@ class Chat {
         <Message>[];
     return Chat(
       id: json['id'] as String,
+      agentName: json['agentName'],
       title: json['title'] as String,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'] as String)

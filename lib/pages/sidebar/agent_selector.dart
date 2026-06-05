@@ -13,12 +13,10 @@ class AgentSelector extends StatefulWidget {
 }
 
 class _AgentSelectorState extends State<AgentSelector> {
-  static const String kChiefAgentName = 'Phro';
-
   final AgentService _agentService = AgentService.instance;
   List<Agent> _agents = [];
   String? _activatedAgentId;
-  String _activatedAgentName = kChiefAgentName;
+  String _activatedAgentName = '';
   bool _isExpanded = true;
 
   @override
@@ -29,18 +27,13 @@ class _AgentSelectorState extends State<AgentSelector> {
 
   Future<void> _loadAgents() async {
     final agents = await _agentService.getAllAgentNames();
-    final activatedAgentId = _agentService.getActivatedId();
-    String activatedName = kChiefAgentName;
-
-    if (activatedAgentId != null) {
-      final activatedAgent = await _agentService.getAgentById(activatedAgentId);
-      activatedName = activatedAgent!.name;
-    }
+    final activatedAgent = _agentService.getActivatedId();
+    String activatedName = _agentService.getActivatedName();
 
     if (mounted) {
       setState(() {
         _agents = agents;
-        _activatedAgentId = activatedAgentId;
+        _activatedAgentId = activatedAgent;
         _activatedAgentName = activatedName;
       });
     }

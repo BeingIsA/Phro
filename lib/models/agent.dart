@@ -8,4 +8,8 @@ class Agent {
 
   Agent({String? id, required this.name, required this.identity})
     : id = id?.isNotEmpty == true ? id! : const Uuid().v4();
+
+  String getFullPrompt() {
+    return identity;
+  }
 }
