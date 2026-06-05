@@ -82,7 +82,7 @@ class _AgentSelectorState extends State<AgentSelector> {
               IconButton(
                 onPressed: () => setState(() => _isExpanded = !_isExpanded),
                 icon: Icon(
-                  _isExpanded ? Icons.expand_less : Icons.expand_more,
+                  _isExpanded ? Icons.expand_more : Icons.expand_less,
                   size: 20,
                 ),
               ),
