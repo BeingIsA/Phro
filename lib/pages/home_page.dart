@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/pages/message_input.dart';
+import 'package:phro/pages/sidebar/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
@@ -86,13 +87,12 @@ class _HomePageState extends State<HomePage> {
   Future<void> _selectChat(String chatId) async {
     if (chatId == _currentChatId) return;
     final chat = await _chatService.getChatById(chatId);
-    if (mounted) {
-      setState(() {
-        _currentChatId = chatId;
-        _messages = chat.messages.where((m) => m.role != 'system').toList();
-      });
-      _scrollToBottom();
-    }
+
+    setState(() {
+      _currentChatId = chatId;
+      _messages = chat.messages.where((m) => m.role != 'system').toList();
+    });
+    _scrollToBottom();
   }
 
   Future<void> _handleSendMessage(String content) async {
