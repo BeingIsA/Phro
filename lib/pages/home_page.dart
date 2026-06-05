@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:phro/pages/message_input.dart';
-import 'package:phro/pages/sidebar/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
@@ -40,7 +39,6 @@ class _HomePageState extends State<HomePage> {
         onChatSelected: _selectChat,
         onNewChat: _startNewChat,
         onRefreshChats: _loadChats,
-        onOpenSettings: _openSettings,
       ),
       body: Column(
         children: [
@@ -117,34 +115,5 @@ class _HomePageState extends State<HomePage> {
       _scrollToBottom();
     }
     await _loadChats();
-  }
-
-  void _openSettings() {
-    // 大屏幕用小弹窗，小屏幕用整个页面
-    final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
-    if (isSmallScreen) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          transitionDuration: Duration.zero,
-          reverseTransitionDuration: Duration.zero,
-          pageBuilder: (context, _, __) => const SettingsPage(),
-        ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 560, maxHeight: 680),
-            child: Padding(padding: EdgeInsets.all(24), child: SettingsPage()),
-          ),
-        ),
-      );
-    }
   }
 }

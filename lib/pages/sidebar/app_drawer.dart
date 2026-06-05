@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/pages/sidebar/agent_selector.dart';
+import 'package:phro/pages/sidebar/settings/settings_page.dart'; // ← 新增导入
 import 'package:phro/services/chat_service.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<Chat> allChats;
   final String? currentChatId;
   final ValueChanged<String> onChatSelected;
-  final VoidKeyCallBack onNewChat;
+  final VoidCallback onNewChat; // 注意：这里改回 VoidCallback
   final VoidCallback onRefreshChats;
-  final VoidCallback onOpenSettings;
 
   const AppDrawer({
     super.key,
@@ -18,7 +18,6 @@ class AppDrawer extends StatelessWidget {
     required this.onChatSelected,
     required this.onNewChat,
     required this.onRefreshChats,
-    required this.onOpenSettings,
   });
 
   @override
@@ -46,10 +45,9 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(height: 1),
 
-          AgentSelector(
-            onAgentChanged: onRefreshChats, // 或者你自定义的刷新回调
-          ),
+          AgentSelector(onAgentChanged: onRefreshChats),
           const Divider(height: 1),
+
           Expanded(
             child: allChats.isEmpty
                 ? const Center(
@@ -140,7 +138,7 @@ class AppDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: onOpenSettings,
+                  onPressed: () => _openSettings(context), // ← 直接调用内部方法
                   icon: const Icon(Icons.settings_outlined, size: 28),
                 ),
               ],
@@ -199,4 +197,34 @@ class AppDrawer extends StatelessWidget {
   }
 }
 
-typedef VoidKeyCallBack = void Function();
+void _openSettings(BuildContext context) {
+  final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
+
+  if (isSmallScreen) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, _, __) => const SettingsPage(),
+      ),
+    );
+  } else {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 680),
+          child: const Padding(
+            padding: EdgeInsets.all(24),
+            child: SettingsPage(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// _showEditDialog 和 _showDeleteConfirmDialog 保持不变...
