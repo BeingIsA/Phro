@@ -66,7 +66,16 @@ class ChatService {
   }
 
   Future<Chat> getChatById(String id) async {
-    return await _chatRepository.getChatById(id);
+    Chat? chat = await _chatRepository.getChatById(id);
+    if (chat == null) {
+      throw Exception("ChatId $id doesn't exist");
+    }
+    return chat;
+  }
+
+  Future<String> getAgentNameById(String id) async {
+    Chat chat = await getChatById(id);
+    return chat.agentName;
   }
 
   Future<void> updateChatTitle(String id, String newTitle) async {

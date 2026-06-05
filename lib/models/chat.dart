@@ -3,7 +3,7 @@ import 'package:uuid/uuid.dart';
 
 class Chat {
   final String id;
-  final String? agentName;
+  final String agentName;
   String title;
   final DateTime createdAt;
   DateTime updatedAt;
@@ -11,7 +11,7 @@ class Chat {
 
   Chat({
     String? id,
-    this.agentName,
+    required this.agentName,
     String? title,
     DateTime? createdAt,
     DateTime? updatedAt,

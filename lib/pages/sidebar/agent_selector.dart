@@ -16,8 +16,7 @@ class _AgentSelectorState extends State<AgentSelector> {
   final AgentService _agentService = AgentService.instance;
   List<Agent> _agents = [];
   String? _activatedAgentId;
-  String _activatedAgentName = '';
-  bool _isExpanded = true;
+  bool _isExpanded = false;
 
   @override
   void initState() {
@@ -28,13 +27,11 @@ class _AgentSelectorState extends State<AgentSelector> {
   Future<void> _loadAgents() async {
     final agents = await _agentService.getAllAgentNames();
     final activatedAgent = _agentService.getActivatedId();
-    String activatedName = _agentService.getActivatedName();
 
     if (mounted) {
       setState(() {
         _agents = agents;
         _activatedAgentId = activatedAgent;
-        _activatedAgentName = activatedName;
       });
     }
   }
@@ -65,18 +62,10 @@ class _AgentSelectorState extends State<AgentSelector> {
           padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
           child: Row(
             children: [
-              const Text(
-                '当前 Agent：',
-                style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15),
-              ),
               Expanded(
-                child: Text(
-                  _activatedAgentName,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                  overflow: TextOverflow.ellipsis,
+                child: const Text(
+                  'Agent管理',
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
                 ),
               ),
               IconButton(
@@ -85,6 +74,7 @@ class _AgentSelectorState extends State<AgentSelector> {
                   _isExpanded ? Icons.expand_more : Icons.expand_less,
                   size: 20,
                 ),
+                tooltip: '展开 Agent列表',
               ),
               IconButton(
                 onPressed: _createNewAgent,

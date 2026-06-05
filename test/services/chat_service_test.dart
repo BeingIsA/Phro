@@ -31,7 +31,9 @@ void main() {
     registerFallbackValue(<Map<String, dynamic>>[]);
     registerFallbackValue(<String, dynamic>{});
     // === 新增：必须注册的模型类 fallback ===
-    registerFallbackValue(Chat(title: 'fallback chat')); // 解决当前 Chat 报错
+    registerFallbackValue(
+      Chat(title: 'fallback chat', agentName: 'test'),
+    ); // 解决当前 Chat 报错
     registerFallbackValue(Message(role: 'user', content: ''));
   });
 
@@ -49,7 +51,7 @@ void main() {
     );
 
     // 准备一个测试用的 Chat（真实模型类）
-    testChat = Chat(title: 'Test Chat');
+    testChat = Chat(title: 'Test Chat', agentName: 'test agent');
   });
 
   group('ChatService.sendMessage - Tool Call 流式拼接', () {

@@ -19,6 +19,7 @@ class _HomePageState extends State<HomePage> {
   final ScrollController _scrollController = ScrollController();
 
   String? _currentChatId;
+  String? _currentAgentName;
   List<Message> _messages = [];
   List<Chat> _allChats = [];
 
@@ -42,6 +43,25 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Column(
         children: [
+          if (_currentAgentName != null && _currentAgentName!.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+                vertical: 8.0,
+              ),
+              color: Theme.of(
+                context,
+              ).colorScheme.surfaceContainer.withValues(alpha: 0.85),
+              child: Text(
+                '当前对话Agent：$_currentAgentName',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
           // 声明式使用重构后的消息列表
           Expanded(
             child: MessageListView(
@@ -75,9 +95,11 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() => _allChats = chats);
   }
 
+  // 先把UI上面的消息刷新掉，不调用后台接口
   void _startNewChat() {
     setState(() {
       _currentChatId = null;
+      _currentAgentName = null;
       _messages = [];
     });
     _scrollToBottom();
@@ -86,7 +108,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _selectChat(String chatId) async {
     if (chatId == _currentChatId) return;
     final chat = await _chatService.getChatById(chatId);
-
+    _currentAgentName = await _chatService.getAgentNameById(chatId);
     setState(() {
       _currentChatId = chatId;
       _messages = chat.messages.where((m) => m.role != 'system').toList();
@@ -97,7 +119,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
     _currentChatId ??= await _chatService.createChat(content);
-
+    _currentAgentName = await _chatService.getAgentNameById(_currentChatId!);
     _scrollToBottom();
     setState(() {
       _messages.add(Message(role: 'assistant', content: ''));

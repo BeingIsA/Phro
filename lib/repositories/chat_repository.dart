@@ -23,10 +23,10 @@ class ChatRepository {
     return chats;
   }
 
-  Future<Chat> getChatById(String id) async {
+  Future<Chat?> getChatById(String id) async {
     final data = _box.get(id);
     if (data == null) {
-      throw Exception("ChatId $id doesn't exist");
+      return null;
     }
     return Chat.fromMap(Map<String, dynamic>.from(data));
   }

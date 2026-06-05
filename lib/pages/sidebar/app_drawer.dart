@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/pages/sidebar/agent_selector.dart';
 import 'package:phro/pages/sidebar/settings/settings_page.dart';
+import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/chat_service.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -23,7 +24,8 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final chatService = ChatService.instance;
-
+    final agentService = AgentService.instance;
+    final activatedAgentName = agentService.getActivatedName();
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -37,7 +39,24 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.add),
-            title: const Text('新对话'),
+            title: RichText(
+              text: TextSpan(
+                style: const TextStyle(
+                  fontFamily: 'Noto Sans SC',
+                  fontSize: 17,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ), // 默认颜色
+                children: [
+                  const TextSpan(text: '新对话（'),
+                  TextSpan(
+                    text: activatedAgentName,
+                    style: TextStyle(color: Colors.blue),
+                  ),
+                  const TextSpan(text: '）'),
+                ],
+              ),
+            ),
             onTap: () {
               onNewChat();
               Navigator.pop(context);
