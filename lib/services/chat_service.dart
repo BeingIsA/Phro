@@ -264,7 +264,7 @@ class ChatService {
   }
 
   Future<String> createChat(String? title) async {
-    final activatedAgentName = await _agentService.getActivatedName();
+    final activatedAgentName = _agentService.getActivatedName();
     final chat = Chat(title: title, agentName: activatedAgentName);
     chat.addMessage(
       Message(

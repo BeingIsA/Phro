@@ -70,7 +70,6 @@ class WebSearchTool extends Tool {
       );
     }
 
-    ;
     final formattedJson = JsonEncoder.withIndent(
       '  ',
     ).convert(json.decode(response.body));

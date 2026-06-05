@@ -48,7 +48,7 @@ class AgentService {
   /// 4. 删除 Agent
   Future<void> deleteAgent(String id) async {
     // 如果删除的是当前激活的 Agent，则取消激活
-    if (_activatedAgent == id) {
+    if (_activatedAgent != null && _activatedAgent!.id == id) {
       _activatedAgent = null;
     }
 
