@@ -96,7 +96,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    _currentChatId ??= await _chatService.createChat();
+    _currentChatId ??= await _chatService.createChat(content);
 
     _scrollToBottom();
     setState(() {

@@ -13,9 +13,12 @@ class AgentSelector extends StatefulWidget {
 }
 
 class _AgentSelectorState extends State<AgentSelector> {
+  static const String kChiefAgentName = 'Phro';
+
   final AgentService _agentService = AgentService.instance;
   List<Agent> _agents = [];
-  String? _activatedAgentName;
+  String? _activatedAgentId;
+  String _activatedAgentName = kChiefAgentName;
   bool _isExpanded = true;
 
   @override
@@ -26,17 +29,18 @@ class _AgentSelectorState extends State<AgentSelector> {
 
   Future<void> _loadAgents() async {
     final agents = await _agentService.getAllAgentNames();
-    final activatedId = _agentService.getActivatedId();
-    String? activatedName = '默认Agent';
+    final activatedAgentId = _agentService.getActivatedId();
+    String activatedName = kChiefAgentName;
 
-    if (activatedId != null) {
-      final activatedAgent = await _agentService.getAgentById(activatedId);
-      activatedName = activatedAgent?.name;
+    if (activatedAgentId != null) {
+      final activatedAgent = await _agentService.getAgentById(activatedAgentId);
+      activatedName = activatedAgent!.name;
     }
 
     if (mounted) {
       setState(() {
         _agents = agents;
+        _activatedAgentId = activatedAgentId;
         _activatedAgentName = activatedName;
       });
     }
@@ -74,12 +78,10 @@ class _AgentSelectorState extends State<AgentSelector> {
               ),
               Expanded(
                 child: Text(
-                  _activatedAgentName ?? '未激活',
+                  _activatedAgentName,
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: _activatedAgentName != null
-                        ? Colors.blue
-                        : Colors.grey,
+                    color: Colors.blue,
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -119,7 +121,7 @@ class _AgentSelectorState extends State<AgentSelector> {
                     itemCount: _agents.length,
                     itemBuilder: (context, index) {
                       final agent = _agents[index];
-                      final isActive = agent.name == _activatedAgentName;
+                      final isActive = agent.id == _activatedAgentId;
 
                       return ListTile(
                         dense: true,
@@ -140,7 +142,11 @@ class _AgentSelectorState extends State<AgentSelector> {
                               )
                             : null,
                         onTap: () async {
-                          await _agentService.activate(agent.id);
+                          if (isActive) {
+                            await _agentService.deactivate();
+                          } else {
+                            await _agentService.activate(agent.id);
+                          }
                           await _loadAgents();
                           widget.onAgentChanged();
                         },

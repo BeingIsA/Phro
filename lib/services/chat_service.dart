@@ -265,7 +265,7 @@ class ChatService {
     }
   }
 
-  Future<String> createChat({String? title}) async {
+  Future<String> createChat(String? title) async {
     final chat = Chat(title: title);
     chat.addMessage(
       Message(

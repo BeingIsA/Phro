@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/pages/sidebar/agent_selector.dart';
-import 'package:phro/pages/sidebar/settings/settings_page.dart'; // ← 新增导入
+import 'package:phro/pages/sidebar/settings/settings_page.dart';
 import 'package:phro/services/chat_service.dart';
 
 class AppDrawer extends StatelessWidget {
@@ -45,7 +45,7 @@ class AppDrawer extends StatelessWidget {
           ),
           const Divider(height: 1),
 
-          AgentSelector(onAgentChanged: onRefreshChats),
+          AgentSelector(onAgentChanged: onNewChat),
           const Divider(height: 1),
 
           Expanded(
@@ -138,7 +138,7 @@ class AppDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  onPressed: () => _openSettings(context), // ← 直接调用内部方法
+                  onPressed: () => _openSettings(context),
                   icon: const Icon(Icons.settings_outlined, size: 28),
                 ),
               ],
@@ -175,6 +175,7 @@ class AppDrawer extends StatelessWidget {
     );
   }
 
+  // 删除确认弹窗
   Future<bool?> _showDeleteConfirmDialog(BuildContext context, String title) {
     return showDialog<bool>(
       context: context,
@@ -195,34 +196,37 @@ class AppDrawer extends StatelessWidget {
       ),
     );
   }
-}
 
-void _openSettings(BuildContext context) {
-  final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
+  // 设置页面
+  void _openSettings(BuildContext context) {
+    final bool isSmallScreen = MediaQuery.sizeOf(context).shortestSide < 600;
 
-  if (isSmallScreen) {
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        pageBuilder: (context, _, __) => const SettingsPage(),
-      ),
-    );
-  } else {
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 560, maxHeight: 680),
-          child: const Padding(
-            padding: EdgeInsets.all(24),
-            child: SettingsPage(),
+    if (isSmallScreen) {
+      Navigator.push(
+        context,
+        PageRouteBuilder(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (context, _, __) => const SettingsPage(),
+        ),
+      );
+    } else {
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560, maxHeight: 680),
+            child: const Padding(
+              padding: EdgeInsets.all(24),
+              child: SettingsPage(),
+            ),
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 }
