@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:phro/pages/sidebar/agent_selector.dart';
 
-class ConfigAgentDialog extends StatefulWidget {
-  const ConfigAgentDialog({super.key});
+class ConfigAgentCard extends StatefulWidget {
+  const ConfigAgentCard({super.key});
 
   @override
-  State<ConfigAgentDialog> createState() => _ConfigAgentDialogState();
+  State<ConfigAgentCard> createState() => _ConfigAgentCardState();
 }
 
-class _ConfigAgentDialogState extends State<ConfigAgentDialog> {
+class _ConfigAgentCardState extends State<ConfigAgentCard> {
   final _nameController = TextEditingController();
   final _identityController = TextEditingController();
   final _formKey = GlobalKey<FormState>();

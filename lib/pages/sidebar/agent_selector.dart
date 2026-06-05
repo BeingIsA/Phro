@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/agent.dart';
-import 'package:phro/pages/sidebar/config_agent_dialog.dart';
+import 'package:phro/pages/sidebar/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 
 class AgentSelector extends StatefulWidget {
@@ -45,7 +45,7 @@ class _AgentSelectorState extends State<AgentSelector> {
   Future<void> _createNewAgent() async {
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (context) => const ConfigAgentDialog(),
+      builder: (context) => const ConfigAgentCard(),
     );
 
     if (result != null) {
