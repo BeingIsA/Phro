@@ -4,9 +4,7 @@ import 'package:phro/pages/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 
 class AgentSelector extends StatefulWidget {
-  final VoidCallback onAgentChanged; // Agent 变化后通知父组件刷新
-
-  const AgentSelector({super.key, required this.onAgentChanged});
+  const AgentSelector({super.key});
 
   @override
   State<AgentSelector> createState() => _AgentSelectorState();
@@ -48,7 +46,6 @@ class _AgentSelectorState extends State<AgentSelector> {
         identity: result['identity']!,
       );
       await _loadAgents();
-      widget.onAgentChanged();
     }
   }
 
@@ -131,7 +128,6 @@ class _AgentSelectorState extends State<AgentSelector> {
                             await _agentService.activate(agent.id);
                           }
                           await _loadAgents();
-                          widget.onAgentChanged();
                         },
                       );
                     },

@@ -4,20 +4,25 @@ import 'package:phro/pages/home_page.dart';
 import 'package:phro/repositories/chat_repository.dart';
 
 Future<void> main() async {
-  await Hive.initFlutter(); // 必须第一步！
+  await Hive.initFlutter();
   await ChatRepository.instance.initHiveBox();
+
   runApp(
     MaterialApp(
-      title: 'Flutter Internal Send Button',
+      title: 'Phro',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blue, // ← 全局 AppBar 颜色
-          foregroundColor: Colors.white, // 全局文字和图标颜色
-          elevation: 2,
-          centerTitle: true,
-          // systemOverlayStyle: SystemUiOverlayStyle.light, // 状态栏颜色
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue, // 主色调：蓝色
+          brightness: Brightness.light, // 亮色模式（蓝白干净）
         ),
+        appBarTheme: const AppBarTheme(
+          elevation: 0,
+          centerTitle: true,
+          backgroundColor: Colors.white, // AppBar 白色
+          foregroundColor: Colors.black87, // 标题和图标用深色
+        ),
+        scaffoldBackgroundColor: Colors.white,
       ),
       home: const HomePage(),
     ),

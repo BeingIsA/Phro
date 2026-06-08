@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/pages/chat/tool_message_tile.dart';
 import 'package:phro/services/chat_service.dart';
@@ -33,13 +34,13 @@ class MessageListView extends StatelessWidget {
         List<Widget> columnChildren = [];
 
         if (message.role == 'user') {
-          columnChildren.add(_buildBasicBubble(context, message));
+          columnChildren.add(_buildUserBubble(context, message));
         } else if (message.role == 'assistant') {
           if (message.reasoningContent != null &&
               message.reasoningContent!.trim().isNotEmpty) {
             columnChildren.add(_buildReasoningBubble(message));
           }
-          columnChildren.add(_buildBasicBubble(context, message));
+          columnChildren.add(_buildAssistantContent(context, message));
         } else if (message.role == 'tool') {
           columnChildren.add(
             ToolMessageTile(
@@ -64,14 +65,29 @@ class MessageListView extends StatelessWidget {
     );
   }
 
-  Widget _buildBasicBubble(BuildContext context, Message message) {
-    final bool isUser = message.role == 'user';
+  Widget _buildAssistantContent(BuildContext context, Message message) {
     final bool hasError =
         message.error != null && message.error!.trim().isNotEmpty;
     final String displayText = hasError ? message.error! : message.content;
 
     if (displayText.trim().isEmpty) return const SizedBox.shrink();
 
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+      child: hasError
+          ? SelectableText(
+              displayText,
+              style: const TextStyle(
+                color: Colors.red,
+                fontSize: 16,
+                height: 1.5,
+              ),
+            )
+          : MarkdownBody(data: displayText, selectable: true),
+    );
+  }
+
+  Widget _buildUserBubble(BuildContext context, Message message) {
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.sizeOf(context).width * 0.75,
@@ -79,22 +95,17 @@ class MessageListView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
-        color: isUser ? Colors.blue[500] : Colors.grey[200],
+        color: Colors.blue[500],
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(18),
           topRight: const Radius.circular(18),
-          bottomLeft: isUser ? const Radius.circular(18) : Radius.zero,
-          bottomRight: isUser ? Radius.zero : const Radius.circular(18),
+          bottomLeft: const Radius.circular(18),
+          bottomRight: Radius.zero,
         ),
       ),
       child: SelectableText(
-        displayText,
-        style: TextStyle(
-          color: isUser
-              ? Colors.white
-              : (hasError ? Colors.red : Colors.black87),
-          fontSize: 16,
-        ),
+        message.content,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
     );
   }

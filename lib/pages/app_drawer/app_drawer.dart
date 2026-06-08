@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/pages/app_drawer/agent_selector.dart';
+import 'package:phro/pages/app_drawer/chat_history_list.dart';
 import 'package:phro/pages/app_drawer/settings/settings_page.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/chat_service.dart';
@@ -63,92 +64,13 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           const Divider(height: 1),
-
-          AgentSelector(onAgentChanged: onNewChat),
+          AgentSelector(),
           const Divider(height: 1),
-
-          Expanded(
-            child: allChats.isEmpty
-                ? const Center(
-                    child: Text('暂无历史对话', style: TextStyle(color: Colors.grey)),
-                  )
-                : ListView.builder(
-                    itemCount: allChats.length,
-                    itemBuilder: (context, index) {
-                      final chat = allChats[index];
-                      return ListTile(
-                        leading: const Icon(Icons.chat_bubble_outline),
-                        title: Text(
-                          chat.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        selected: chat.id == currentChatId,
-                        onTap: () {
-                          onChatSelected(chat.id);
-                          Navigator.pop(context);
-                        },
-                        trailing: PopupMenuButton<String>(
-                          icon: const Icon(Icons.more_vert, size: 20),
-                          onSelected: (value) async {
-                            if (value == 'edit') {
-                              final newTitle = await _showEditDialog(
-                                context,
-                                chat.title,
-                              );
-                              if (newTitle != null &&
-                                  newTitle.trim().isNotEmpty &&
-                                  newTitle != chat.title) {
-                                await chatService.updateChatTitle(
-                                  chat.id,
-                                  newTitle,
-                                );
-                                onRefreshChats();
-                              }
-                            } else if (value == 'delete') {
-                              final confirm = await _showDeleteConfirmDialog(
-                                context,
-                                chat.title,
-                              );
-                              if (confirm == true) {
-                                await chatService.deleteChat(chat.id);
-                                onRefreshChats();
-                              }
-                            }
-                          },
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('编辑'),
-                                ],
-                              ),
-                            ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(
-                                    Icons.delete,
-                                    size: 20,
-                                    color: Colors.red,
-                                  ),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    '删除',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+          ChatHistoryList(
+            allChats: allChats,
+            currentChatId: currentChatId,
+            onChatSelected: onChatSelected,
+            onRefreshChats: onRefreshChats,
           ),
           const Divider(height: 1),
           Padding(
