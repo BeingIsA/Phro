@@ -12,17 +12,38 @@ Future<void> main() async {
       title: 'Phro',
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue, // 主色调：蓝色
-          brightness: Brightness.light, // 亮色模式（蓝白干净）
+        colorScheme: ColorScheme.light(
+          primary: Colors.blue,
+          onPrimary: Colors.white,
+          primaryContainer: Colors.blue.shade50,
+          onPrimaryContainer: Colors.blue.shade900,
+
+          secondary: Colors.blue.shade700,
+          onSecondary: Colors.white,
+
+          surface: Colors.white,
+          onSurface: Colors.black87,
+
+          surfaceContainerHighest: Colors.grey.shade100, // 替代 surfaceVariant
+          onSurfaceVariant: Colors.grey.shade700,
+          outlineVariant: Colors.grey.shade200, // 表格边框
+          outline: Colors.grey[400]!,
+
+          error: Colors.red,
+          onError: Colors.white,
         ),
-        appBarTheme: const AppBarTheme(
-          elevation: 0,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          elevation: 1,
           centerTitle: true,
-          backgroundColor: Colors.white, // AppBar 白色
-          foregroundColor: Colors.black87, // 标题和图标用深色
+          titleTextStyle: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         scaffoldBackgroundColor: Colors.white,
+        cardColor: Colors.white,
       ),
       home: const HomePage(),
     ),

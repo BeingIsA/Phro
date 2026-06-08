@@ -25,8 +25,8 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
     final configs = await modelConfigService.getAllConfigs();
     final activated = await modelConfigService.getActivatedId();
     setState(() {
-      _configs = configs; // 原有代码
-      _activated = activated; // ← 新增这一行
+      _configs = configs;
+      _activated = activated;
     });
   }
 
@@ -36,7 +36,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
     } else {
       await modelConfigService.deactivate(id);
     }
-    await _loadConfigs(); // 切换后刷新列表
+    await _loadConfigs();
   }
 
   Future<void> _deleteCard(String id, String configName) async {
@@ -52,7 +52,10 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('删除'),
           ),
         ],
       ),
@@ -60,53 +63,63 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
 
     if (confirmed == true) {
       await modelConfigService.deleteConfig(id);
-      await _loadConfigs(); // 刷新列表
+      await _loadConfigs();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        final availableWidth = constraints.maxWidth; // 关键：获取实际可用宽度
+        final availableWidth = constraints.maxWidth;
 
         return SingleChildScrollView(
           scrollDirection: Axis.vertical,
           child: Table(
             columnWidths: {
-              0: FixedColumnWidth(availableWidth * 0.3), // 配置别名
-              1: FixedColumnWidth(availableWidth * 0.3), // 模型名称
-              2: FlexColumnWidth(1), // 操作列占剩余空间
+              0: FixedColumnWidth(availableWidth * 0.3),
+              1: FixedColumnWidth(availableWidth * 0.3),
+              2: FlexColumnWidth(1),
             },
             border: TableBorder(
               horizontalInside: BorderSide(
-                color: Colors.grey.shade200,
+                color: colorScheme.outlineVariant,
                 width: 1,
               ),
-              top: BorderSide(color: Colors.grey.shade300, width: 1),
-              bottom: BorderSide(color: Colors.grey.shade300, width: 1),
+              top: BorderSide(color: colorScheme.outlineVariant, width: 1),
+              bottom: BorderSide(color: colorScheme.outlineVariant, width: 1),
             ),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
               // ==================== 表头 ====================
               TableRow(
-                decoration: const BoxDecoration(color: Colors.grey),
+                decoration: BoxDecoration(
+                  color: colorScheme
+                      .surfaceContainerHighest, // ✅ 替换 surfaceVariant
+                ),
                 children: [
-                  const TableCell(
+                  TableCell(
                     child: Padding(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       child: Text(
                         '配置别名',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                  const TableCell(
+                  TableCell(
                     child: Padding(
-                      padding: EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(12),
                       child: Text(
                         '模型名称',
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
@@ -116,9 +129,9 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: IconButton(
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.add_circle,
-                            color: Colors.blue,
+                            color: colorScheme.primary,
                           ),
                           tooltip: '新增配置',
                           onPressed: () {
@@ -126,7 +139,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                               context: context,
                               useRootNavigator: false,
                               builder: (BuildContext buildContext) {
-                                return EditLanguageModelConfigCard();
+                                return const EditLanguageModelConfigCard();
                               },
                             ).then((saved) {
                               _loadConfigs();
@@ -181,9 +194,9 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.edit,
-                                  color: Colors.blue,
+                                  color: colorScheme.primary,
                                 ),
                                 onPressed: () {
                                   showDialog(
@@ -206,9 +219,9 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(
+                                icon: Icon(
                                   Icons.delete,
-                                  color: Colors.red,
+                                  color: colorScheme.error,
                                 ),
                                 onPressed: () => _deleteCard(id, configName),
                               ),
@@ -217,7 +230,8 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                 onChanged: (bool newValue) {
                                   _toggleActive(id, newValue);
                                 },
-                                activeThumbColor: Colors.green,
+                                activeColor: colorScheme.primary,
+                                activeTrackColor: colorScheme.primaryContainer,
                               ),
                             ],
                           ),

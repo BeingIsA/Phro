@@ -34,29 +34,36 @@ class ToolMessageTileState extends State<ToolMessageTile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final message = widget.message;
     final bool isPending = message.isPendingConfirmation;
     final bool isRejected = message.isRejected;
 
-    // 根据高危工具的不同拦截状态动态定制图标和主题色
+    // 根据状态动态选择颜色
+    final Color statusColor = isPending
+        ? colorScheme
+              .tertiary // 警告/待确认
+        : isRejected
+        ? colorScheme.error
+        : colorScheme.outline;
+
     IconData iconData = Icons.build;
-    Color statusColor = Colors.grey;
     String titleText = '工具 ${message.name} 调用结果';
 
     if (isPending) {
       iconData = Icons.gpp_maybe_outlined;
-      statusColor = Colors.orange;
       titleText = '安全警告：工具 ${message.name} 请求授权';
     } else if (isRejected) {
       iconData = Icons.block;
-      statusColor = Colors.red;
       titleText = '工具 ${message.name} 已被拒绝';
     }
 
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: ExpansionTile(
-        initiallyExpanded: isPending, // 如果处于高危拦截等待状态，默认直接展开
+        initiallyExpanded: isPending,
         tilePadding: EdgeInsets.zero,
         childrenPadding: const EdgeInsets.symmetric(
           horizontal: 16.0,
@@ -65,8 +72,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
         leading: Icon(iconData, size: 20, color: statusColor),
         title: Text(
           titleText,
-          style: TextStyle(
-            fontSize: 13,
+          style: theme.textTheme.labelLarge?.copyWith(
             color: statusColor,
             fontWeight: FontWeight.w500,
           ),
@@ -80,38 +86,40 @@ class ToolMessageTileState extends State<ToolMessageTile> {
             child: SelectableText(
               "参数：${message.argument}\n\n"
               "${isPending ? '状态：等待安全授权...' : (isRejected ? '拒绝详情：\n' : '调用结果：\n')}${message.content}",
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.black87,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurface,
                 height: 1.4,
               ),
             ),
           ),
 
-          // 如果是高危工具且正在等待确认，直接在下方展示输入行，无需弹窗
+          // 如果是高危工具且正在等待确认，直接在下方展示输入行
           if (isPending) ...[
             const SizedBox(height: 12),
             Row(
               children: [
-                // 输入框吃满左侧剩余空间
+                // 输入框
                 Expanded(
                   child: TextField(
                     controller: _reasonController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: '输入拒绝原因或修正反馈（可选）...',
-                      hintStyle: TextStyle(fontSize: 13, color: Colors.grey),
+                      hintStyle: theme.textTheme.bodySmall?.copyWith(
+                        color: colorScheme.onSurfaceVariant,
+                      ),
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 10,
                         vertical: 10,
                       ),
-                      border: OutlineInputBorder(),
+                      border: const OutlineInputBorder(),
                     ),
-                    style: const TextStyle(fontSize: 13),
+                    style: theme.textTheme.bodyMedium,
                   ),
                 ),
                 const SizedBox(width: 8),
-                // 拒绝按钮紧贴输入框右侧
+
+                // 拒绝按钮
                 TextButton.icon(
                   onPressed: () {
                     widget.chatService.confirmToolCall(
@@ -120,15 +128,16 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                       reason: _reasonController.text.trim(),
                     );
                   },
-                  icon: const Icon(Icons.close, size: 16),
+                  icon: Icon(Icons.close, size: 16, color: colorScheme.error),
                   label: const Text('拒绝'),
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
+                    foregroundColor: colorScheme.error,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                   ),
                 ),
                 const SizedBox(width: 4),
-                // 允许按钮放在最后
+
+                // 允许按钮
                 ElevatedButton.icon(
                   onPressed: () {
                     widget.chatService.confirmToolCall(
@@ -139,8 +148,8 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                   icon: const Icon(Icons.check, size: 16),
                   label: const Text('允许'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                    foregroundColor: Colors.white,
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),

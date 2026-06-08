@@ -16,11 +16,17 @@ class MessageListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     if (messages.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           '开始新的对话吧！',
-          style: TextStyle(fontSize: 18, color: Colors.grey),
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: colorScheme.onSurfaceVariant,
+            fontSize: 18,
+          ),
         ),
       );
     }
@@ -38,7 +44,7 @@ class MessageListView extends StatelessWidget {
         } else if (message.role == 'assistant') {
           if (message.reasoningContent != null &&
               message.reasoningContent!.trim().isNotEmpty) {
-            columnChildren.add(_buildReasoningBubble(message));
+            columnChildren.add(_buildReasoningBubble(context, message));
           }
           columnChildren.add(_buildAssistantContent(context, message));
         } else if (message.role == 'tool') {
@@ -66,6 +72,9 @@ class MessageListView extends StatelessWidget {
   }
 
   Widget _buildAssistantContent(BuildContext context, Message message) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final bool hasError =
         message.error != null && message.error!.trim().isNotEmpty;
     final String displayText = hasError ? message.error! : message.content;
@@ -77,17 +86,29 @@ class MessageListView extends StatelessWidget {
       child: hasError
           ? SelectableText(
               displayText,
-              style: const TextStyle(
-                color: Colors.red,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colorScheme.error,
                 fontSize: 16,
                 height: 1.5,
               ),
             )
-          : MarkdownBody(data: displayText, selectable: true),
+          : MarkdownBody(
+              data: displayText,
+              selectable: true,
+              styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
+                p: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
+                code: theme.textTheme.bodyMedium?.copyWith(
+                  backgroundColor: colorScheme.surfaceContainerHighest,
+                ),
+              ),
+            ),
     );
   }
 
   Widget _buildUserBubble(BuildContext context, Message message) {
+    final theme = Theme.of(context);
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       constraints: BoxConstraints(
         maxWidth: MediaQuery.sizeOf(context).width * 0.75,
@@ -95,22 +116,29 @@ class MessageListView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
-        color: Colors.blue[500],
-        borderRadius: BorderRadius.only(
-          topLeft: const Radius.circular(18),
-          topRight: const Radius.circular(18),
-          bottomLeft: const Radius.circular(18),
+        color: colorScheme.primary, // 使用主题 primary
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(18),
+          topRight: Radius.circular(18),
+          bottomLeft: Radius.circular(18),
           bottomRight: Radius.zero,
         ),
       ),
       child: SelectableText(
         message.content,
-        style: const TextStyle(color: Colors.white, fontSize: 16),
+        style: theme.textTheme.bodyLarge?.copyWith(
+          // 统一使用 textTheme
+          color: colorScheme.onPrimary,
+          fontSize: 16,
+        ),
       ),
     );
   }
 
-  Widget _buildReasoningBubble(Message message) {
+  Widget _buildReasoningBubble(BuildContext context, Message message) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+
     return Padding(
       padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
       child: ExpansionTile(
@@ -119,21 +147,23 @@ class MessageListView extends StatelessWidget {
           horizontal: 16.0,
           vertical: 8.0,
         ),
-        leading: const Icon(Icons.psychology_outlined, size: 20),
-        title: const Text(
+        leading: Icon(
+          Icons.psychology_outlined,
+          size: 20,
+          color: colorScheme.onSurfaceVariant,
+        ),
+        title: Text(
           '思考过程',
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey,
+          style: theme.textTheme.labelLarge?.copyWith(
+            color: colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w500,
           ),
         ),
         children: [
           SelectableText(
             message.reasoningContent!,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Colors.black87,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colorScheme.onSurface,
               height: 1.4,
             ),
           ),

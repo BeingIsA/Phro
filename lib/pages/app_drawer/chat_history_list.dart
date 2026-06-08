@@ -1,4 +1,3 @@
-// 新文件建议：lib/pages/app_drawer/chat_history_list.dart
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/services/chat_service.dart';
@@ -19,12 +18,17 @@ class ChatHistoryList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
     final chatService = ChatService.instance;
 
     return Expanded(
       child: allChats.isEmpty
-          ? const Center(
-              child: Text('暂无历史对话', style: TextStyle(color: Colors.grey)),
+          ? Center(
+              child: Text(
+                '暂无历史对话',
+                style: TextStyle(color: colorScheme.onSurfaceVariant),
+              ),
             )
           : ListView.builder(
               itemCount: allChats.length,
@@ -78,13 +82,20 @@ class ChatHistoryList extends StatelessWidget {
                           ],
                         ),
                       ),
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 'delete',
                         child: Row(
                           children: [
-                            Icon(Icons.delete, size: 20, color: Colors.red),
-                            SizedBox(width: 8),
-                            Text('删除', style: TextStyle(color: Colors.red)),
+                            Icon(
+                              Icons.delete,
+                              size: 20,
+                              color: colorScheme.error,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '删除',
+                              style: TextStyle(color: colorScheme.error),
+                            ),
                           ],
                         ),
                       ),
@@ -124,6 +135,8 @@ class ChatHistoryList extends StatelessWidget {
 
   // 删除确认对话框
   Future<bool?> _showDeleteConfirmDialog(BuildContext context, String title) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -136,7 +149,7 @@ class ChatHistoryList extends StatelessWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
             child: const Text('删除'),
           ),
         ],

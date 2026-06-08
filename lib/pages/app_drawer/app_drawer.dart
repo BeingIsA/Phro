@@ -4,7 +4,6 @@ import 'package:phro/pages/app_drawer/agent_selector.dart';
 import 'package:phro/pages/app_drawer/chat_history_list.dart';
 import 'package:phro/pages/app_drawer/settings/settings_page.dart';
 import 'package:phro/services/agent_service.dart';
-import 'package:phro/services/chat_service.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<Chat> allChats;
@@ -24,7 +23,6 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chatService = ChatService.instance;
     final agentService = AgentService.instance;
     final activatedAgentName = agentService.getActivatedName();
     return Drawer(
@@ -84,54 +82,6 @@ class AppDrawer extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 移入内部的辅助弹窗逻辑
-  Future<String?> _showEditDialog(BuildContext context, String currentTitle) {
-    final controller = TextEditingController(text: currentTitle);
-    return showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('编辑标题'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入新标题'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('保存'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 删除确认弹窗
-  Future<bool?> _showDeleteConfirmDialog(BuildContext context, String title) {
-    return showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除对话'),
-        content: Text('确定删除 "$title" 吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('删除'),
           ),
         ],
       ),
