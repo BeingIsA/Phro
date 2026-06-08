@@ -4,7 +4,7 @@ import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
 
-import 'sidebar/app_drawer.dart';
+import 'app_drawer/app_drawer.dart';
 import 'chat/message_list_view.dart';
 
 class HomePage extends StatefulWidget {

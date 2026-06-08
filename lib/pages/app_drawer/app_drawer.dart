@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
-import 'package:phro/pages/sidebar/agent_selector.dart';
-import 'package:phro/pages/sidebar/settings/settings_page.dart';
+import 'package:phro/pages/app_drawer/agent_selector.dart';
+import 'package:phro/pages/app_drawer/settings/settings_page.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/chat_service.dart';
 

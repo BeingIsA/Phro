@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:phro/pages/sidebar/settings/api_settings/language_model_config_page.dart';
-import 'package:phro/pages/sidebar/settings/other_settings/other_settings.dart';
-import 'package:phro/pages/sidebar/settings/search_api/search_api_config_page.dart'; // 新增搜索API页面
+import 'package:phro/pages/app_drawer/settings/api_settings/language_model_config_page.dart';
+import 'package:phro/pages/app_drawer/settings/other_settings/other_settings.dart';
+import 'package:phro/pages/app_drawer/settings/search_api/search_api_config_page.dart'; // 新增搜索API页面
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
