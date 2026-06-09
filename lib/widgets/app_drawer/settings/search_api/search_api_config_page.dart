@@ -74,7 +74,6 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final Color progressColor = colorScheme.onPrimary;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -82,12 +81,7 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              '搜索API 配置',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Text('搜索API 配置', style: theme.textTheme.headlineSmall),
             const SizedBox(height: 8),
             Text(
               '支持 Tavily / Firecrawl',

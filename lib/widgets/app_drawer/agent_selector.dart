@@ -4,8 +4,9 @@ import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 
 class AgentSelector extends StatefulWidget {
-  const AgentSelector({super.key});
+  final TextStyle? titleStyle;
 
+  const AgentSelector({super.key, this.titleStyle});
   @override
   State<AgentSelector> createState() => _AgentSelectorState();
 }
@@ -59,16 +60,11 @@ class _AgentSelectorState extends State<AgentSelector> {
           padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
           child: Row(
             children: [
-              Expanded(
-                child: const Text(
-                  'Agent管理',
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
-                ),
-              ),
+              Expanded(child: Text('Agent管理', style: widget.titleStyle)),
               IconButton(
                 onPressed: () => setState(() => _isExpanded = !_isExpanded),
                 icon: Icon(
-                  _isExpanded ? Icons.expand_more : Icons.expand_less,
+                  _isExpanded ? Icons.expand_less : Icons.expand_more,
                   size: 20,
                 ),
                 tooltip: '展开 Agent列表',

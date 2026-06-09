@@ -31,6 +31,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       // 声明式使用重构后的抽屉
@@ -50,15 +51,11 @@ class _HomePageState extends State<HomePage> {
                 horizontal: 16.0,
                 vertical: 8.0,
               ),
-              color: Theme.of(
-                context,
-              ).colorScheme.surfaceContainer.withValues(alpha: 0.85),
+              color: theme.colorScheme.surfaceContainerHighest,
               child: Text(
                 '当前对话Agent：$_currentAgentName',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                style: theme.textTheme.labelLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),

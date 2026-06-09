@@ -23,9 +23,8 @@ class MessageListView extends StatelessWidget {
       return Center(
         child: Text(
           '开始新的对话吧！',
-          style: theme.textTheme.bodyLarge?.copyWith(
+          style: theme.textTheme.headlineMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
-            fontSize: 18,
           ),
         ),
       );
@@ -150,13 +149,12 @@ class MessageListView extends StatelessWidget {
         leading: Icon(
           Icons.psychology_outlined,
           size: 20,
-          color: colorScheme.onSurfaceVariant,
+          color: colorScheme.primary,
         ),
         title: Text(
           '思考过程',
           style: theme.textTheme.labelLarge?.copyWith(
             color: colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w500,
           ),
         ),
         children: [

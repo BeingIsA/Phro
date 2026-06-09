@@ -39,10 +39,7 @@ Future<void> main() async {
           foregroundColor: Colors.white,
           elevation: 1,
           centerTitle: true,
-          titleTextStyle: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w600,
-          ),
+          titleTextStyle: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
         ),
         scaffoldBackgroundColor: Colors.white,
         cardColor: Colors.white,
@@ -51,3 +48,19 @@ Future<void> main() async {
     ),
   );
 }
+// Theme.of(context). 可以获取到的各种预设样式以及使用场景
+// displayLarge,57,w400 (regular),超大展示标题（如欢迎页主标题）
+// displayMedium,45,w400,大展示标题
+// displaySmall,36,w400,中等展示标题
+// headlineLarge,32,w400,大标题（页面主标题）
+// headlineMedium,28,w400,中标题
+// headlineSmall,24,w400,小标题
+// titleLarge,22,w400,卡片/对话框大标题
+// titleMedium,16,w500 (medium),卡片标题、AppBar 标题（最常用标题之一）
+// titleSmall,14,w500,小标题、辅助标题
+// bodyLarge,16,w400,主要正文文字（最常用正文）
+// bodyMedium,14,w400,普通正文、列表内容
+// bodySmall,12,w400,辅助文字、描述、次要信息
+// labelLarge,14,w500,较大标签（按钮文字、大 Chip）
+// labelMedium,12,w500,普通标签、中等按钮文字
+// labelSmall,11,w500,小标签、徽章、输入提示

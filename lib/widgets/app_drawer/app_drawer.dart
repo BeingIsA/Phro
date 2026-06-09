@@ -25,7 +25,10 @@ class AppDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-
+    final titleTextTheme = theme.textTheme.titleMedium?.copyWith(
+      fontSize: 17,
+      fontWeight: FontWeight.w600,
+    );
     final agentService = AgentService.instance;
     final activatedAgentName = agentService.getActivatedName();
 
@@ -39,7 +42,7 @@ class AppDrawer extends StatelessWidget {
             ),
             child: Text(
               'Phro',
-              style: theme.textTheme.headlineMedium?.copyWith(
+              style: theme.textTheme.headlineLarge?.copyWith(
                 color: colorScheme.onPrimary,
                 fontWeight: FontWeight.w600,
               ),
@@ -54,13 +57,10 @@ class AppDrawer extends StatelessWidget {
                   color: colorScheme.onSurface,
                 ),
                 children: [
-                  const TextSpan(text: '新对话（'),
+                  TextSpan(text: '新对话（', style: titleTextTheme),
                   TextSpan(
                     text: activatedAgentName,
-                    style: TextStyle(
-                      color: colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: titleTextTheme?.copyWith(color: colorScheme.primary),
                   ),
                   const TextSpan(text: '）'),
                 ],
@@ -72,7 +72,7 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           const Divider(height: 1),
-          AgentSelector(),
+          AgentSelector(titleStyle: titleTextTheme),
           const Divider(height: 1),
           ChatHistoryList(
             allChats: allChats,

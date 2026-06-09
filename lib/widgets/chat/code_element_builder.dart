@@ -22,7 +22,6 @@ class CodeElementBuilder extends MarkdownElementBuilder {
       margin: const EdgeInsets.symmetric(vertical: 8.0),
       padding: const EdgeInsets.all(12.0),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(8.0),
         border: Border.all(color: colorScheme.outline.withValues(alpha: 0.3)),
       ),

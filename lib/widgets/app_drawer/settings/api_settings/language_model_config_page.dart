@@ -104,23 +104,13 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                   TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Text(
-                        '配置别名',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: Text('配置别名', style: theme.textTheme.titleSmall),
                     ),
                   ),
                   TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Text(
-                        '模型名称',
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: Text('模型名称', style: theme.textTheme.titleSmall),
                     ),
                   ),
                   TableCell(
@@ -230,7 +220,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                 onChanged: (bool newValue) {
                                   _toggleActive(id, newValue);
                                 },
-                                activeColor: colorScheme.primary,
+                                activeThumbColor: colorScheme.primary,
                                 activeTrackColor: colorScheme.primaryContainer,
                               ),
                             ],

@@ -46,7 +46,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
         ? colorScheme.tertiary
         : isRejected
         ? colorScheme.error
-        : colorScheme.outline;
+        : colorScheme.onSurfaceVariant;
 
     IconData iconData = Icons.build;
     String titleText = '工具 ${message.name} 调用结果';
@@ -68,13 +68,10 @@ class ToolMessageTileState extends State<ToolMessageTile> {
           horizontal: 16.0,
           vertical: 8.0,
         ),
-        leading: Icon(iconData, size: 20, color: statusColor),
+        leading: Icon(iconData, size: 20, color: colorScheme.primary),
         title: Text(
           titleText,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: statusColor,
-            fontWeight: FontWeight.w500,
-          ),
+          style: theme.textTheme.labelLarge?.copyWith(color: statusColor),
         ),
         collapsedBackgroundColor: Colors.transparent,
         backgroundColor: Colors.transparent,
