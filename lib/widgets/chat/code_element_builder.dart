@@ -29,16 +29,17 @@ class CodeElementBuilder extends MarkdownElementBuilder {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-              child: Row(
-                children: [
-                  Text(language.toUpperCase()),
-                  const Spacer(),
-                  _CopyButton(codeText: codeText),
-                ],
+            if (language != 'plaintext')
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                child: Row(
+                  children: [
+                    Text(language.toUpperCase()),
+                    const Spacer(),
+                    _CopyButton(codeText: codeText),
+                  ],
+                ),
               ),
-            ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: HighlightView(
