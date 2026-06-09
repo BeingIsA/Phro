@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/chat.dart';
+import 'package:phro/services/agent_service.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
 import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
 import 'package:phro/providers/agent_providers.dart';
 
-class AppDrawer extends StatelessWidget {
+class AppDrawer extends ConsumerStatefulWidget {
   final List<Chat> allChats;
   final String? currentChatId;
   final ValueChanged<String> onChatSelected;
@@ -23,6 +24,11 @@ class AppDrawer extends StatelessWidget {
   });
 
   @override
+  ConsumerState<AppDrawer> createState() => _AppDrawerState();
+}
+
+class _AppDrawerState extends ConsumerState<AppDrawer> {
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
@@ -31,6 +37,9 @@ class AppDrawer extends StatelessWidget {
       fontWeight: FontWeight.w600,
     );
 
+    final activatedAgent = ref.watch(activatedAgentProvider);
+    final activatedAgentName =
+        activatedAgent?.name ?? AgentService.kChiefAgentName;
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -45,44 +54,30 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-
-          // 使用 Consumer 只监听 activatedAgentName
-          Consumer(
-            builder: (context, ref, child) {
-              final activatedAgentName = ref.watch(activatedAgentNameProvider);
-
-              return ListTile(
-                title: RichText(
-                  text: TextSpan(
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontFamily: 'Noto Sans SC',
-                      color: colorScheme.onSurface,
-                    ),
-                    children: [
-                      TextSpan(text: '新对话（', style: titleTextTheme),
-                      TextSpan(
-                        text: activatedAgentName,
-                        style: titleTextTheme?.copyWith(
-                          color: colorScheme.primary,
-                        ),
-                      ),
-                      const TextSpan(text: '）'),
-                    ],
-                  ),
+          ListTile(
+            title: RichText(
+              text: TextSpan(
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontFamily: 'Noto Sans SC',
+                  color: colorScheme.onSurface,
                 ),
-                trailing: SizedBox(
-                  width: 40,
-                  child: Icon(
-                    Icons.add,
-                    size: 22,
-                    color: colorScheme.onSurface,
+                children: [
+                  TextSpan(text: '新对话（', style: titleTextTheme),
+                  TextSpan(
+                    text: activatedAgentName,
+                    style: titleTextTheme?.copyWith(color: colorScheme.primary),
                   ),
-                ),
-                onTap: () {
-                  onNewChat();
-                  Navigator.pop(context);
-                },
-              );
+                  const TextSpan(text: '）'),
+                ],
+              ),
+            ),
+            trailing: SizedBox(
+              width: 40,
+              child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
+            ),
+            onTap: () {
+              widget.onNewChat();
+              Navigator.pop(context);
             },
           ),
 
@@ -90,10 +85,10 @@ class AppDrawer extends StatelessWidget {
           AgentManager(titleStyle: titleTextTheme),
           Divider(height: 1, color: colorScheme.outline),
           ChatHistoryList(
-            allChats: allChats,
-            currentChatId: currentChatId,
-            onChatSelected: onChatSelected,
-            onRefreshChats: onRefreshChats,
+            allChats: widget.allChats,
+            currentChatId: widget.currentChatId,
+            onChatSelected: widget.onChatSelected,
+            onRefreshChats: widget.onRefreshChats,
             titleStyle: titleTextTheme,
           ),
           Divider(height: 1, color: colorScheme.outline),

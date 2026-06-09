@@ -5,18 +5,18 @@ import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/providers/agent_providers.dart';
 
-class AgentManager extends StatefulWidget {
+class AgentManager extends ConsumerStatefulWidget {
   final TextStyle? titleStyle;
 
   const AgentManager({super.key, this.titleStyle});
+
   @override
-  State<AgentManager> createState() => _AgentManagerState();
+  ConsumerState<AgentManager> createState() => _AgentManagerState();
 }
 
-class _AgentManagerState extends State<AgentManager> {
+class _AgentManagerState extends ConsumerState<AgentManager> {
   final AgentService _agentService = AgentService.instance;
   List<Agent> _agents = [];
-  String? _activatedAgentId;
   bool _isExpanded = false;
 
   @override
@@ -27,17 +27,11 @@ class _AgentManagerState extends State<AgentManager> {
 
   Future<void> _loadAgents() async {
     final agents = await _agentService.getAllAgentNames();
-    final activatedAgent = _agentService.getActivatedId();
 
     if (mounted) {
       setState(() {
         _agents = agents;
-        _activatedAgentId = activatedAgent;
       });
-
-      // 修复：使用 ProviderContainer 正确调用 notifier
-      final container = ProviderScope.containerOf(context);
-      container.read(activatedAgentNameProvider.notifier).refresh();
     }
   }
 
@@ -79,7 +73,10 @@ class _AgentManagerState extends State<AgentManager> {
 
   @override
   Widget build(BuildContext context) {
+    final activatedAgent = ref.watch(activatedAgentProvider);
+    final activatedAgentId = activatedAgent?.id;
     final colorScheme = Theme.of(context).colorScheme;
+
     return Column(
       children: [
         ListTile(
@@ -120,7 +117,7 @@ class _AgentManagerState extends State<AgentManager> {
                     itemCount: _agents.length,
                     itemBuilder: (context, index) {
                       final agent = _agents[index];
-                      final isActive = agent.id == _activatedAgentId;
+                      final isActive = agent.id == activatedAgentId;
 
                       return ListTile(
                         dense: true,
@@ -151,11 +148,14 @@ class _AgentManagerState extends State<AgentManager> {
                         ),
                         onTap: () async {
                           if (isActive) {
-                            await _agentService.deactivate();
+                            await ref
+                                .read(activatedAgentProvider.notifier)
+                                .deactivate();
                           } else {
-                            await _agentService.activate(agent.id);
+                            await ref
+                                .read(activatedAgentProvider.notifier)
+                                .activate(agent.id);
                           }
-                          await _loadAgents(); // 刷新 + 通知 Provider
                         },
                       );
                     },
