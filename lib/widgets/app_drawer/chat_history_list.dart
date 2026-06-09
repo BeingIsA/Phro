@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/services/chat_service.dart';
+import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
 class ChatHistoryList extends StatefulWidget {
   final List<Chat> allChats;
@@ -170,20 +171,9 @@ class _ChatHistoryListState extends State<ChatHistoryList> {
 
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('删除对话'),
-        content: Text('确定删除 "$title" 吗？此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(foregroundColor: colorScheme.error),
-            child: const Text('删除'),
-          ),
-        ],
+      builder: (context) => DeleteAlertDialog(
+        colorScheme: colorScheme,
+        content: '确定删除会话 "$title" 吗？此操作无法撤销。',
       ),
     );
   }

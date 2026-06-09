@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:phro/widgets/app_drawer/settings/api_settings/edit_language_model_config_card.dart';
 import 'package:phro/services/model_config_service.dart';
+import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
 class LanguageModelConfigPage extends StatefulWidget {
   const LanguageModelConfigPage({super.key});
@@ -40,24 +41,12 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
   }
 
   Future<void> _deleteCard(String id, String configName) async {
+    final colorScheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('确认删除'),
-        content: Text('确定要删除配置 "$configName" 吗？'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: const Text('删除'),
-          ),
-        ],
+      builder: (context) => DeleteAlertDialog(
+        colorScheme: colorScheme,
+        content: '确定删除配置 "$configName" 吗？此操作无法撤销。',
       ),
     );
 
