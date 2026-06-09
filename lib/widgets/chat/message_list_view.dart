@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:phro/models/message.dart';
-import 'package:phro/pages/chat/tool_message_tile.dart';
+import 'package:phro/widgets/chat/tool_message_tile.dart';
 import 'package:phro/services/chat_service.dart';
 
 class MessageListView extends StatelessWidget {

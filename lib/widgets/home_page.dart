@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:phro/pages/message_input.dart';
+import 'package:phro/widgets/message_input.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';

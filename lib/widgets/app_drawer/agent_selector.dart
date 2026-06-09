@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/agent.dart';
-import 'package:phro/pages/app_drawer/config_agent_card.dart';
+import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 
 class AgentSelector extends StatefulWidget {

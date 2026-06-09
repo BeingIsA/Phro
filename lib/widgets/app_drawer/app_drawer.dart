@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
-import 'package:phro/pages/app_drawer/agent_selector.dart';
-import 'package:phro/pages/app_drawer/chat_history_list.dart';
-import 'package:phro/pages/app_drawer/settings/settings_page.dart';
+import 'package:phro/widgets/app_drawer/agent_selector.dart';
+import 'package:phro/widgets/app_drawer/chat_history_list.dart';
+import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
 import 'package:phro/services/agent_service.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<Chat> allChats;
   final String? currentChatId;
   final ValueChanged<String> onChatSelected;
-  final VoidCallback onNewChat; // 注意：这里改回 VoidCallback
+  final VoidCallback onNewChat;
   final VoidCallback onRefreshChats;
 
   const AppDrawer({
@@ -23,34 +23,44 @@ class AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     final agentService = AgentService.instance;
     final activatedAgentName = agentService.getActivatedName();
+
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: colorScheme.primary, // 使用主题主色
+            ),
             child: Text(
               'Phro',
-              style: TextStyle(color: Colors.white, fontSize: 24),
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: colorScheme.onPrimary,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.add),
+            leading: Icon(Icons.add, color: colorScheme.onSurface),
             title: RichText(
               text: TextSpan(
-                style: const TextStyle(
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontFamily: 'Noto Sans SC',
-                  fontSize: 17,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ), // 默认颜色
+                  color: colorScheme.onSurface,
+                ),
                 children: [
                   const TextSpan(text: '新对话（'),
                   TextSpan(
                     text: activatedAgentName,
-                    style: TextStyle(color: Colors.blue),
+                    style: TextStyle(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const TextSpan(text: '）'),
                 ],
@@ -78,7 +88,11 @@ class AppDrawer extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: () => _openSettings(context),
-                  icon: const Icon(Icons.settings_outlined, size: 28),
+                  icon: Icon(
+                    Icons.settings_outlined,
+                    size: 28,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ),

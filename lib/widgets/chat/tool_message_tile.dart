@@ -43,8 +43,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
 
     // 根据状态动态选择颜色
     final Color statusColor = isPending
-        ? colorScheme
-              .tertiary // 警告/待确认
+        ? colorScheme.tertiary
         : isRejected
         ? colorScheme.error
         : colorScheme.outline;
@@ -112,7 +111,12 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                         horizontal: 10,
                         vertical: 10,
                       ),
-                      border: const OutlineInputBorder(),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.outline),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: colorScheme.outline),
+                      ),
                     ),
                     style: theme.textTheme.bodyMedium,
                   ),

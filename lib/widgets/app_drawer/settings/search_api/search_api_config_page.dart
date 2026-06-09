@@ -72,6 +72,9 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final Color progressColor = colorScheme.onPrimary;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -79,24 +82,31 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
+            Text(
               '搜索API 配置',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               '支持 Tavily / Firecrawl',
-              style: TextStyle(fontSize: 13, color: Colors.grey),
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 24),
 
             // URL 输入
             TextFormField(
               controller: _urlController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'API Endpoint URL',
                 hintText: 'https://api.tavily.com/search',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.outline),
+                ),
               ),
               validator: (value) =>
                   (value == null || value.trim().isEmpty) ? 'URL 不能为空' : null,
@@ -107,10 +117,13 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
             TextFormField(
               controller: _apiKeyController,
               obscureText: true,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'API Key',
                 hintText: 'tvly-xxxx 或 fc-xxxx',
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: colorScheme.outline),
+                ),
               ),
               validator: (value) => (value == null || value.trim().isEmpty)
                   ? 'API Key 不能为空'
@@ -124,9 +137,18 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
               onPressed: _isLoading ? null : _saveConfig,
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 52),
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
               ),
               child: _isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: colorScheme.onPrimary, // 或
+                        strokeWidth: 2.5,
+                      ),
+                    )
                   : const Text('保存配置'),
             ),
           ],

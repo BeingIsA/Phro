@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class MessageInput extends StatefulWidget {
-  final void Function(String) onSend; // 回调函数，父页面决定
+  final void Function(String) onSend;
 
   const MessageInput({super.key, required this.onSend});
 
@@ -23,11 +23,10 @@ class _MessageInputState extends State<MessageInput> {
     });
   }
 
-  // 清空输入框，执行发送
   void _send() {
     if (_hasText) {
       final String text = _controller.text.trim();
-      widget.onSend(text); // 通知父页面
+      widget.onSend(text);
       _controller.clear();
     }
   }
@@ -40,36 +39,47 @@ class _MessageInputState extends State<MessageInput> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return DecoratedBox(
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
+        border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
         borderRadius: BorderRadius.circular(20.0),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
               controller: _controller,
               decoration: InputDecoration(
                 hintText: '请输入内容...',
-                border: InputBorder.none, // 去掉内部边框
+                border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 0,
                   vertical: 0,
                 ),
+                hintStyle: theme.textTheme.bodyLarge?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
               ),
+              style: theme.textTheme.bodyLarge,
               onSubmitted: (_) => _send(),
+              maxLines: null, // 支持多行输入
             ),
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
                 icon: Icon(
                   Icons.send,
-                  color: _hasText ? Colors.blue : Colors.grey,
+                  color: _hasText
+                      ? colorScheme.primary
+                      : colorScheme.onSurfaceVariant,
                 ),
                 onPressed: _send,
-                splashRadius: 10,
+                splashRadius: 20,
               ),
             ),
           ],
