@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
 import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
-import 'package:phro/services/agent_service.dart';
+import 'package:phro/providers/agent_providers.dart';
 
 class AppDrawer extends StatelessWidget {
   final List<Chat> allChats;
@@ -29,17 +30,13 @@ class AppDrawer extends StatelessWidget {
       fontSize: 17,
       fontWeight: FontWeight.w600,
     );
-    final agentService = AgentService.instance;
-    final activatedAgentName = agentService.getActivatedName();
 
     return Drawer(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           DrawerHeader(
-            decoration: BoxDecoration(
-              color: colorScheme.primary, // 使用主题主色
-            ),
+            decoration: BoxDecoration(color: colorScheme.primary),
             child: Text(
               'Phro',
               style: theme.textTheme.headlineLarge?.copyWith(
@@ -48,32 +45,47 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          ListTile(
-            title: RichText(
-              text: TextSpan(
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontFamily: 'Noto Sans SC',
-                  color: colorScheme.onSurface,
-                ),
-                children: [
-                  TextSpan(text: '新对话（', style: titleTextTheme),
-                  TextSpan(
-                    text: activatedAgentName,
-                    style: titleTextTheme?.copyWith(color: colorScheme.primary),
+
+          // 使用 Consumer 只监听 activatedAgentName
+          Consumer(
+            builder: (context, ref, child) {
+              final activatedAgentName = ref.watch(activatedAgentNameProvider);
+
+              return ListTile(
+                title: RichText(
+                  text: TextSpan(
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontFamily: 'Noto Sans SC',
+                      color: colorScheme.onSurface,
+                    ),
+                    children: [
+                      TextSpan(text: '新对话（', style: titleTextTheme),
+                      TextSpan(
+                        text: activatedAgentName,
+                        style: titleTextTheme?.copyWith(
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      const TextSpan(text: '）'),
+                    ],
                   ),
-                  const TextSpan(text: '）'),
-                ],
-              ),
-            ),
-            trailing: SizedBox(
-              width: 40, //Icon要和其他行的IconButton对齐，外面要包一层宽度40的box
-              child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
-            ),
-            onTap: () {
-              onNewChat();
-              Navigator.pop(context);
+                ),
+                trailing: SizedBox(
+                  width: 40,
+                  child: Icon(
+                    Icons.add,
+                    size: 22,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  onNewChat();
+                  Navigator.pop(context);
+                },
+              );
             },
           ),
+
           Divider(height: 1, color: colorScheme.outline),
           AgentManager(titleStyle: titleTextTheme),
           Divider(height: 1, color: colorScheme.outline),

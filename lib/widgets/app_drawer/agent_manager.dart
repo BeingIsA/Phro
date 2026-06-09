@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/agent.dart';
 import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
+import 'package:phro/providers/agent_providers.dart';
 
 class AgentManager extends StatefulWidget {
   final TextStyle? titleStyle;
@@ -32,6 +34,10 @@ class _AgentManagerState extends State<AgentManager> {
         _agents = agents;
         _activatedAgentId = activatedAgent;
       });
+
+      // 修复：使用 ProviderContainer 正确调用 notifier
+      final container = ProviderScope.containerOf(context);
+      container.read(activatedAgentNameProvider.notifier).refresh();
     }
   }
 
@@ -54,7 +60,6 @@ class _AgentManagerState extends State<AgentManager> {
     agent = await _agentService.getAgentById(agent.id);
 
     final result = await showDialog<Map<String, String>>(
-      // ignore: use_build_context_synchronously
       context: context,
       builder: (context) => ConfigAgentCard(
         initialName: agent.name,
@@ -87,7 +92,6 @@ class _AgentManagerState extends State<AgentManager> {
                 size: 22,
                 color: colorScheme.onSurface,
               ),
-              // const SizedBox(width: 8),
               IconButton(
                 onPressed: _createNewAgent,
                 icon: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
@@ -98,7 +102,6 @@ class _AgentManagerState extends State<AgentManager> {
           onTap: () => setState(() => _isExpanded = !_isExpanded),
         ),
 
-        // 可展开的 Agent 列表
         if (_isExpanded)
           Container(
             constraints: const BoxConstraints(maxHeight: 260),
@@ -152,7 +155,7 @@ class _AgentManagerState extends State<AgentManager> {
                           } else {
                             await _agentService.activate(agent.id);
                           }
-                          await _loadAgents();
+                          await _loadAgents(); // 刷新 + 通知 Provider
                         },
                       );
                     },
