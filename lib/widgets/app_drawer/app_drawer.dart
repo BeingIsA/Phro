@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:phro/models/chat.dart';
-import 'package:phro/widgets/app_drawer/agent_selector.dart';
+import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
 import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
 import 'package:phro/services/agent_service.dart';
@@ -72,13 +72,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           const Divider(height: 1),
-          AgentSelector(titleStyle: titleTextTheme),
+          AgentManager(titleStyle: titleTextTheme),
           const Divider(height: 1),
           ChatHistoryList(
             allChats: allChats,
             currentChatId: currentChatId,
             onChatSelected: onChatSelected,
             onRefreshChats: onRefreshChats,
+            titleStyle: titleTextTheme,
           ),
           const Divider(height: 1),
           Padding(

@@ -3,15 +3,15 @@ import 'package:phro/models/agent.dart';
 import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
 
-class AgentSelector extends StatefulWidget {
+class AgentManager extends StatefulWidget {
   final TextStyle? titleStyle;
 
-  const AgentSelector({super.key, this.titleStyle});
+  const AgentManager({super.key, this.titleStyle});
   @override
-  State<AgentSelector> createState() => _AgentSelectorState();
+  State<AgentManager> createState() => _AgentManagerState();
 }
 
-class _AgentSelectorState extends State<AgentSelector> {
+class _AgentManagerState extends State<AgentManager> {
   final AgentService _agentService = AgentService.instance;
   List<Agent> _agents = [];
   String? _activatedAgentId;
