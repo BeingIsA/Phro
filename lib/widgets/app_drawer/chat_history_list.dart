@@ -38,7 +38,14 @@ class _ChatHistoryListState extends State<ChatHistoryList> {
           // 可折叠标题栏
           ListTile(
             title: Text('聊天历史', style: widget.titleStyle),
-            trailing: Icon(_isExpanded ? Icons.expand_less : Icons.expand_more),
+            trailing: SizedBox(
+              width: 40,
+              child: Icon(
+                _isExpanded ? Icons.expand_less : Icons.expand_more,
+                size: 22,
+                color: colorScheme.onSurface,
+              ),
+            ),
             onTap: () {
               setState(() => _isExpanded = !_isExpanded);
             },

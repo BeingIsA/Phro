@@ -49,7 +49,6 @@ class AppDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: Icon(Icons.add, color: colorScheme.onSurface),
             title: RichText(
               text: TextSpan(
                 style: theme.textTheme.titleMedium?.copyWith(
@@ -66,14 +65,18 @@ class AppDrawer extends StatelessWidget {
                 ],
               ),
             ),
+            trailing: SizedBox(
+              width: 40, //Icon要和其他行的IconButton对齐，外面要包一层宽度40的box
+              child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
+            ),
             onTap: () {
               onNewChat();
               Navigator.pop(context);
             },
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: colorScheme.outline),
           AgentManager(titleStyle: titleTextTheme),
-          const Divider(height: 1),
+          Divider(height: 1, color: colorScheme.outline),
           ChatHistoryList(
             allChats: allChats,
             currentChatId: currentChatId,
@@ -81,7 +84,7 @@ class AppDrawer extends StatelessWidget {
             onRefreshChats: onRefreshChats,
             titleStyle: titleTextTheme,
           ),
-          const Divider(height: 1),
+          Divider(height: 1, color: colorScheme.outline),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             child: Row(
@@ -94,6 +97,7 @@ class AppDrawer extends StatelessWidget {
                     size: 28,
                     color: colorScheme.onSurfaceVariant,
                   ),
+                  tooltip: '设置',
                 ),
               ],
             ),

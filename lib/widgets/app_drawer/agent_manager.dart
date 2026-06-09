@@ -74,31 +74,28 @@ class _AgentManagerState extends State<AgentManager> {
 
   @override
   Widget build(BuildContext context) {
-    final colorTheme = Theme.of(context).colorScheme;
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Header Row
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
-          child: Row(
+        ListTile(
+          title: Text('Agent管理', style: widget.titleStyle),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(child: Text('Agent管理', style: widget.titleStyle)),
-              IconButton(
-                onPressed: () => setState(() => _isExpanded = !_isExpanded),
-                icon: Icon(
-                  _isExpanded ? Icons.expand_less : Icons.expand_more,
-                  size: 20,
-                ),
-                tooltip: '展开 Agent列表',
+              Icon(
+                _isExpanded ? Icons.expand_less : Icons.expand_more,
+                size: 22,
+                color: colorScheme.onSurface,
               ),
+              // const SizedBox(width: 8),
               IconButton(
                 onPressed: _createNewAgent,
-                icon: const Icon(Icons.add, size: 20),
+                icon: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
                 tooltip: '新建 Agent',
               ),
             ],
           ),
+          onTap: () => setState(() => _isExpanded = !_isExpanded),
         ),
 
         // 可展开的 Agent 列表
@@ -127,8 +124,8 @@ class _AgentManagerState extends State<AgentManager> {
                         leading: Icon(
                           Icons.smart_toy_outlined,
                           color: isActive
-                              ? colorTheme.primary
-                              : colorTheme.onSurfaceVariant,
+                              ? colorScheme.primary
+                              : colorScheme.onSurfaceVariant,
                         ),
                         title: Text(
                           agent.name,
@@ -139,7 +136,11 @@ class _AgentManagerState extends State<AgentManager> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit, size: 18),
+                              icon: Icon(
+                                Icons.edit,
+                                size: 18,
+                                color: colorScheme.primary,
+                              ),
                               onPressed: () => _editAgent(agent),
                               tooltip: '编辑 Agent',
                             ),
@@ -157,8 +158,6 @@ class _AgentManagerState extends State<AgentManager> {
                     },
                   ),
           ),
-
-        const Divider(height: 1),
       ],
     );
   }
