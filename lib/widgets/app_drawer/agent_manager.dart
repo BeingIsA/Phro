@@ -50,8 +50,31 @@ class _AgentManagerState extends State<AgentManager> {
     }
   }
 
+  Future<void> _editAgent(Agent agent) async {
+    agent = await _agentService.getAgentById(agent.id);
+
+    final result = await showDialog<Map<String, String>>(
+      // ignore: use_build_context_synchronously
+      context: context,
+      builder: (context) => ConfigAgentCard(
+        initialName: agent.name,
+        initialIdentity: agent.identity,
+      ),
+    );
+
+    if (result != null) {
+      await _agentService.saveAgent(
+        id: agent.id,
+        name: result['name']!,
+        identity: result['identity']!,
+      );
+      await _loadAgents();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final colorTheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -103,20 +126,25 @@ class _AgentManagerState extends State<AgentManager> {
                         dense: true,
                         leading: Icon(
                           Icons.smart_toy_outlined,
-                          color: isActive ? Colors.blue : null,
+                          color: isActive
+                              ? colorTheme.primary
+                              : colorTheme.onSurfaceVariant,
                         ),
                         title: Text(
                           agent.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                        trailing: isActive
-                            ? const Icon(
-                                Icons.check,
-                                color: Colors.blue,
-                                size: 18,
-                              )
-                            : null,
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, size: 18),
+                              onPressed: () => _editAgent(agent),
+                              tooltip: '编辑 Agent',
+                            ),
+                          ],
+                        ),
                         onTap: () async {
                           if (isActive) {
                             await _agentService.deactivate();
