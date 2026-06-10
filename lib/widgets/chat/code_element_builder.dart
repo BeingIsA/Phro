@@ -31,17 +31,25 @@ class CustomCodeBlock extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (!isPlainText)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-                child: Row(
-                  children: [
-                    Text(
-                      language.toUpperCase(),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const Spacer(),
-                    _CopyButton(codeText: codeText),
-                  ],
+              Container(
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+                  child: Row(
+                    children: [
+                      Text(
+                        language.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      const Spacer(),
+                      _CopyButton(codeText: codeText),
+                    ],
+                  ),
                 ),
               ),
 
