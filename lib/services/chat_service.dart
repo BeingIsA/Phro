@@ -73,11 +73,6 @@ class ChatService {
     return chat;
   }
 
-  Future<String> getAgentNameById(String id) async {
-    Chat chat = await getChatById(id);
-    return chat.agentName;
-  }
-
   Future<void> updateChatTitle(String id, String newTitle) async {
     await _chatRepository.updateChatTitle(id, newTitle);
   }
@@ -86,7 +81,7 @@ class ChatService {
     await _chatRepository.deleteChat(id);
   }
 
-  Stream<List<Message>> sendMessage({
+  Stream<Chat> sendMessage({
     required String chatId,
     required String content,
   }) async* {
@@ -104,7 +99,7 @@ class ChatService {
         // 先搞一个空会话，前端展示空气泡
         Message assistantMessage = Message(role: 'assistant', content: '');
         chat.addMessage(assistantMessage);
-        yield chat.messages.toList();
+        yield chat;
 
         String fullContent = '';
         String fullReasoningContent = '';
@@ -114,7 +109,7 @@ class ChatService {
         final modelConfig = await _modelConfigService.getActivatedConfig();
         if (modelConfig == null) {
           assistantMessage.update(content: '语言模型未配置，请先配置并激活');
-          yield chat.messages.toList();
+          yield chat;
           break;
         }
 
@@ -135,7 +130,7 @@ class ChatService {
           final toolCalls = chunk['tool_calls'];
           if (error != null) {
             assistantMessage.update(error: error as String);
-            yield chat.messages.toList();
+            yield chat;
             return;
           }
           if (content != null) {
@@ -152,7 +147,7 @@ class ChatService {
             content: fullContent,
             reasoningContent: fullReasoningContent,
           );
-          yield chat.messages.toList();
+          yield chat;
         }
 
         fullToolCallsList = [
@@ -173,7 +168,7 @@ class ChatService {
   }
 
   // 核心改造：修改 _executeToolCalls 方法
-  Stream<List<Message>> _executeToolCalls(
+  Stream<Chat> _executeToolCalls(
     List<Map<String, dynamic>> fullToolCallsList,
     Chat chat,
   ) async* {
@@ -195,7 +190,7 @@ class ChatService {
         isPendingConfirmation: needsAuth,
       );
       chat.addMessage(toolMessage);
-      yield chat.messages.toList();
+      yield chat;
 
       bool shouldExecute = true;
       String? rejectionReason;
@@ -220,7 +215,7 @@ class ChatService {
         if (needsAuth) {
           // 如果曾被挂起，通过授权后更新一下中间执行状态
           toolMessage.update(content: "正在执行工具 '$functionName'...");
-          yield chat.messages.toList();
+          yield chat;
         }
 
         // 真正物理执行工具代码
@@ -229,7 +224,7 @@ class ChatService {
           functionArgs,
         );
         toolMessage.update(content: toolResult);
-        yield chat.messages.toList();
+        yield chat;
       } else {
         // 用户拒绝逻辑：拼接反馈原因推送给模型
         final String reasonText =
@@ -241,7 +236,7 @@ class ChatService {
           isRejected: true,
           content: "用户拒绝了执行该工具的请求\n$reasonText",
         );
-        yield chat.messages.toList();
+        yield chat;
       }
     }
   }
@@ -272,7 +267,7 @@ class ChatService {
     }
   }
 
-  Future<String> createChat(String? title) async {
+  Future<Chat> createChat(String? title) async {
     final activatedAgentName = _agentService.getActivatedName();
     final chat = Chat(title: title, agentName: activatedAgentName);
     chat.addMessage(
@@ -284,7 +279,7 @@ class ChatService {
       ),
     );
     await _chatRepository.saveChat(chat);
-    return chat.id;
+    return chat;
   }
 
   String buildOSSpecificPrompt() {

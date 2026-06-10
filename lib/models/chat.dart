@@ -23,6 +23,17 @@ class Chat {
     if (messages != null) this.messages.addAll(messages);
   }
 
+  Chat copy() {
+    return Chat(
+      id: id,
+      agentName: agentName,
+      title: title,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      messages: List.from(messages),
+    );
+  }
+
   void addMessage(Message message) {
     messages.add(message);
     updatedAt = DateTime.now();

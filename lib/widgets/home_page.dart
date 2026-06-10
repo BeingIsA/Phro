@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phro/providers/chat_providers.dart';
 import 'package:phro/widgets/message_input.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
@@ -7,20 +9,17 @@ import 'package:phro/models/message.dart';
 import 'app_drawer/app_drawer.dart';
 import 'chat/message_list_view.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   final ChatService _chatService = ChatService.instance;
   final ScrollController _scrollController = ScrollController();
 
-  String? _currentChatId;
-  String? _currentAgentName;
-  List<Message> _messages = [];
   List<Chat> _allChats = [];
 
   @override
@@ -32,19 +31,28 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // 当切换到新的聊天时，滚动到底部
+    ref.listen(selectedChatProvider, (previous, next) {
+      _scrollToBottom();
+    });
+
+    final currentChat = ref.watch(selectedChatProvider);
+    final List<Message> messages = currentChat != null
+        ? currentChat.messages.where((m) => m.role != 'system').toList()
+        : [];
+
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       // 声明式使用重构后的抽屉
       drawer: AppDrawer(
         allChats: _allChats,
-        currentChatId: _currentChatId,
-        onChatSelected: _selectChat,
-        onNewChat: _startNewChat,
+        currentChatId: currentChat?.id,
         onRefreshChats: _loadChats,
       ),
       body: Column(
         children: [
-          if (_currentAgentName != null && _currentAgentName!.isNotEmpty)
+          if (currentChat != null)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(
@@ -53,16 +61,17 @@ class _HomePageState extends State<HomePage> {
               ),
               color: theme.colorScheme.surfaceContainerHighest,
               child: Text(
-                '当前对话Agent：$_currentAgentName',
+                '当前对话Agent：${currentChat.agentName}',
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
+
           // 声明式使用重构后的消息列表
           Expanded(
             child: MessageListView(
-              messages: _messages,
+              messages: messages,
               scrollController: _scrollController,
             ),
           ),
@@ -92,44 +101,21 @@ class _HomePageState extends State<HomePage> {
     if (mounted) setState(() => _allChats = chats);
   }
 
-  // 先把UI上面的消息刷新掉，不调用后台接口
-  void _startNewChat() {
-    setState(() {
-      _currentChatId = null;
-      _currentAgentName = null;
-      _messages = [];
-    });
-    _scrollToBottom();
-  }
-
-  Future<void> _selectChat(String chatId) async {
-    if (chatId == _currentChatId) return;
-    final chat = await _chatService.getChatById(chatId);
-    _currentAgentName = await _chatService.getAgentNameById(chatId);
-    setState(() {
-      _currentChatId = chatId;
-      _messages = chat.messages.where((m) => m.role != 'system').toList();
-    });
-    _scrollToBottom();
-  }
-
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    _currentChatId ??= await _chatService.createChat(content);
-    _currentAgentName = await _chatService.getAgentNameById(_currentChatId!);
-    _scrollToBottom();
-    setState(() {
-      _messages.add(Message(role: 'assistant', content: ''));
-    });
-    _scrollToBottom();
+    final notifier = ref.read(selectedChatProvider.notifier);
+    Chat? currentChat = ref.read(selectedChatProvider);
 
-    await for (final currentMessages in _chatService.sendMessage(
-      chatId: _currentChatId!,
+    if (currentChat == null) {
+      currentChat = await _chatService.createChat(content);
+      await notifier.select(currentChat.id);
+    }
+
+    await for (final updatedChat in _chatService.sendMessage(
+      chatId: currentChat.id,
       content: content,
     )) {
-      setState(() {
-        _messages = currentMessages.where((m) => m.role != 'system').toList();
-      });
+      ref.read(selectedChatProvider.notifier).update(updatedChat);
       _scrollToBottom();
     }
     await _loadChats();

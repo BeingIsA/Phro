@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/chat.dart';
+import 'package:phro/providers/chat_providers.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
@@ -10,16 +11,12 @@ import 'package:phro/providers/agent_providers.dart';
 class AppDrawer extends ConsumerStatefulWidget {
   final List<Chat> allChats;
   final String? currentChatId;
-  final ValueChanged<String> onChatSelected;
-  final VoidCallback onNewChat;
   final VoidCallback onRefreshChats;
 
   const AppDrawer({
     super.key,
     required this.allChats,
     required this.currentChatId,
-    required this.onChatSelected,
-    required this.onNewChat,
     required this.onRefreshChats,
   });
 
@@ -76,7 +73,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
               child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
             ),
             onTap: () {
-              widget.onNewChat();
+              ref.read(selectedChatProvider.notifier).clear();
               Navigator.pop(context);
             },
           ),
@@ -87,7 +84,6 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
           ChatHistoryList(
             allChats: widget.allChats,
             currentChatId: widget.currentChatId,
-            onChatSelected: widget.onChatSelected,
             onRefreshChats: widget.onRefreshChats,
             titleStyle: titleTextTheme,
           ),

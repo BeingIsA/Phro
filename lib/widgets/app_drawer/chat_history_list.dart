@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/chat.dart';
+import 'package:phro/providers/chat_providers.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
-class ChatHistoryList extends StatefulWidget {
+class ChatHistoryList extends ConsumerStatefulWidget {
   final List<Chat> allChats;
   final String? currentChatId;
-  final ValueChanged<String> onChatSelected;
   final VoidCallback onRefreshChats;
   final TextStyle? titleStyle;
 
@@ -14,16 +15,15 @@ class ChatHistoryList extends StatefulWidget {
     super.key,
     required this.allChats,
     required this.currentChatId,
-    required this.onChatSelected,
     required this.onRefreshChats,
     this.titleStyle,
   });
 
   @override
-  State<ChatHistoryList> createState() => _ChatHistoryListState();
+  ConsumerState<ChatHistoryList> createState() => _ChatHistoryListState();
 }
 
-class _ChatHistoryListState extends State<ChatHistoryList> {
+class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
   bool _isExpanded = true;
 
   @override
@@ -73,8 +73,10 @@ class _ChatHistoryListState extends State<ChatHistoryList> {
                             style: theme.textTheme.titleSmall,
                           ),
                           selected: chat.id == widget.currentChatId,
-                          onTap: () {
-                            widget.onChatSelected(chat.id);
+                          onTap: () async {
+                            await ref
+                                .read(selectedChatProvider.notifier)
+                                .select(chat.id);
                             Navigator.pop(context);
                           },
                           trailing: PopupMenuButton<String>(
