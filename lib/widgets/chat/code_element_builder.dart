@@ -2,22 +2,23 @@ import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
 import 'package:flutter_highlighter/flutter_highlighter.dart';
 import 'package:flutter_highlighter/themes/github.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:markdown/markdown.dart' hide Text;
 
-class CodeElementBuilder extends MarkdownElementBuilder {
-  final BuildContext context; // 用于获取 Theme
+class CustomCodeBlock extends StatelessWidget {
+  final String codeText;
+  final String language;
+  final bool closed;
 
-  CodeElementBuilder(this.context);
+  const CustomCodeBlock({
+    super.key,
+    required this.codeText,
+    required this.language,
+    this.closed = true,
+  });
 
   @override
-  Widget? visitElementAfter(Element element, TextStyle? preferredStyle) {
-    final String language =
-        element.attributes['class']?.replaceAll('language-', '') ?? 'plaintext';
-
-    final String codeText = element.textContent;
-
+  Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isPlainText = language == 'plaintext' || language.isEmpty;
 
     return IntrinsicWidth(
       child: Container(
@@ -29,25 +30,26 @@ class CodeElementBuilder extends MarkdownElementBuilder {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (language != 'plaintext')
+            if (!isPlainText)
               Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
                 child: Row(
                   children: [
-                    Text(language.toUpperCase()),
+                    Text(
+                      language.toUpperCase(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     const Spacer(),
                     _CopyButton(codeText: codeText),
                   ],
                 ),
               ),
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: HighlightView(
+
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Text(
                 codeText,
-                language: language,
-                theme: githubTheme,
-                padding: const EdgeInsets.all(8.0),
-                textStyle: const TextStyle(
+                style: const TextStyle(
                   fontSize: 15.0,
                   fontFamily: 'monospace',
                   height: 1.55,

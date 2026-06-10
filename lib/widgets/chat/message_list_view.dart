@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/widgets/chat/code_element_builder.dart';
 import 'package:phro/widgets/chat/tool_message_tile.dart';
@@ -92,17 +92,16 @@ class MessageListView extends StatelessWidget {
                 height: 1.5,
               ),
             )
-          : MarkdownBody(
-              data: displayText,
-              selectable: true,
-              builders: {
-                'code': CodeElementBuilder(context), // ← 关键：在这里注册
-              },
-              styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-                p: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-                code: theme.textTheme.bodyMedium?.copyWith(
-                  backgroundColor: colorScheme.surfaceContainerHighest,
+          : SelectionArea(
+              child: GptMarkdown(
+                displayText,
+
+                codeBuilder: (context, name, code, closed) => CustomCodeBlock(
+                  language: name,
+                  codeText: code,
+                  closed: closed,
                 ),
+                style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
               ),
             ),
     );
