@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/notifiers/chat_history_notifier.dart';
-import 'package:phro/notifiers/selected_chat_notifier.dart';
+import 'package:phro/notifiers/active_chat_notifier.dart';
 import 'package:phro/widgets/message_input.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
@@ -26,11 +26,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     final theme = Theme.of(context);
 
     // 当切换到新的聊天时，滚动到底部
-    ref.listen(selectedChatNotifierProvider, (previous, next) {
+    ref.listen(activeChatNotifierProvider, (previous, next) {
       _scrollToBottom();
     });
 
-    final currentChat = ref.watch(selectedChatNotifierProvider);
+    final currentChat = ref.watch(activeChatNotifierProvider);
     final List<Message> messages = currentChat != null
         ? currentChat.messages.where((m) => m.role != 'system').toList()
         : [];
@@ -87,12 +87,12 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    Chat? currentChat = ref.read(selectedChatNotifierProvider);
+    Chat? currentChat = ref.read(activeChatNotifierProvider);
 
     if (currentChat == null) {
       currentChat = await _chatService.createChat(content);
       await ref
-          .read(selectedChatNotifierProvider.notifier)
+          .read(activeChatNotifierProvider.notifier)
           .select(currentChat.id);
       await ref.read(chatHistoryNotifierProvider.notifier).refresh();
     }
@@ -101,7 +101,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       chatId: currentChat.id,
       content: content,
     )) {
-      ref.read(selectedChatNotifierProvider.notifier).update(updatedChat);
+      ref.read(activeChatNotifierProvider.notifier).update(updatedChat);
       _scrollToBottom();
     }
   }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phro/notifiers/selected_chat_notifier.dart';
+import 'package:phro/notifiers/active_chat_notifier.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
 import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
-import 'package:phro/notifiers/activated_agent_notifier.dart';
+import 'package:phro/notifiers/active_agent_notifier.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
   const AppDrawer({super.key});
@@ -24,7 +24,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
       fontWeight: FontWeight.w600,
     );
 
-    final activatedAgent = ref.watch(activatedAgentNotifierProvider);
+    final activatedAgent = ref.watch(activeAgentNotifierProvider);
     final activatedAgentName =
         activatedAgent?.name ?? AgentService.kChiefAgentName;
     return Drawer(
@@ -63,7 +63,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
               child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
             ),
             onTap: () {
-              ref.read(selectedChatNotifierProvider.notifier).clear();
+              ref.read(activeChatNotifierProvider.notifier).clear();
               Navigator.pop(context);
             },
           ),

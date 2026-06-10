@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/models/agent.dart';
 import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
-import 'package:phro/notifiers/activated_agent_notifier.dart';
+import 'package:phro/notifiers/active_agent_notifier.dart';
 
 class AgentManager extends ConsumerStatefulWidget {
   final TextStyle? titleStyle;
@@ -73,7 +73,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
 
   @override
   Widget build(BuildContext context) {
-    final activatedAgent = ref.watch(activatedAgentNotifierProvider);
+    final activatedAgent = ref.watch(activeAgentNotifierProvider);
     final activatedAgentId = activatedAgent?.id;
     final colorScheme = Theme.of(context).colorScheme;
 
@@ -149,11 +149,11 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
                         onTap: () async {
                           if (isActive) {
                             await ref
-                                .read(activatedAgentNotifierProvider.notifier)
+                                .read(activeAgentNotifierProvider.notifier)
                                 .deactivate();
                           } else {
                             await ref
-                                .read(activatedAgentNotifierProvider.notifier)
+                                .read(activeAgentNotifierProvider.notifier)
                                 .activate(agent.id);
                           }
                         },

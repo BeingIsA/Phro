@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/notifiers/chat_history_notifier.dart';
-import 'package:phro/notifiers/selected_chat_notifier.dart';
+import 'package:phro/notifiers/active_chat_notifier.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
@@ -21,8 +21,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final chatService = ChatService.instance;
-    final currentChat = ref.watch(selectedChatNotifierProvider);
+    final currentChat = ref.watch(activeChatNotifierProvider);
     final chatHistoryList = ref.watch(chatHistoryNotifierProvider).value ?? [];
 
     return Expanded(
@@ -68,7 +67,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                           selected: chat.id == currentChat?.id,
                           onTap: () async {
                             await ref
-                                .read(selectedChatNotifierProvider.notifier)
+                                .read(activeChatNotifierProvider.notifier)
                                 .select(chat.id);
                             Navigator.pop(context);
                           },
@@ -83,16 +82,11 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                 if (newTitle != null &&
                                     newTitle.trim().isNotEmpty &&
                                     newTitle != chat.title) {
-                                  await chatService.updateChatTitle(
-                                    chat.id,
-                                    newTitle,
-                                  );
-
                                   await ref
                                       .read(
                                         chatHistoryNotifierProvider.notifier,
                                       )
-                                      .refresh();
+                                      .updateChatTitle(chat.id, newTitle);
                                 }
                               } else if (value == 'delete') {
                                 final confirm = await _showDeleteConfirmDialog(
@@ -104,16 +98,15 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                   if (chat.id == currentChat?.id) {
                                     ref
                                         .read(
-                                          selectedChatNotifierProvider.notifier,
+                                          activeChatNotifierProvider.notifier,
                                         )
                                         .clear();
                                   }
-                                  await chatService.deleteChat(chat.id);
                                   await ref
                                       .read(
                                         chatHistoryNotifierProvider.notifier,
                                       )
-                                      .refresh();
+                                      .deleteChat(chat.id);
                                 }
                               }
                             },

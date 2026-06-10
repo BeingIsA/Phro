@@ -19,6 +19,16 @@ class ChatHistoryNotifier extends AsyncNotifier<List<Chat>?> {
       () => ChatService.instance.getAllChats(),
     );
   }
+
+  Future<void> deleteChat(String id) async {
+    await _chatService.deleteChat(id);
+    refresh();
+  }
+
+  Future<void> updateChatTitle(String id, String title) async {
+    await _chatService.updateChatTitle(id, title);
+    refresh();
+  }
 }
 
 final chatHistoryNotifierProvider =
