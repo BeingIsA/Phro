@@ -7,14 +7,12 @@ import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
 class ChatHistoryList extends ConsumerStatefulWidget {
   final List<Chat> allChats;
-  final String? currentChatId;
   final VoidCallback onRefreshChats;
   final TextStyle? titleStyle;
 
   const ChatHistoryList({
     super.key,
     required this.allChats,
-    required this.currentChatId,
     required this.onRefreshChats,
     this.titleStyle,
   });
@@ -31,7 +29,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final chatService = ChatService.instance;
-
+    final currentChat = ref.watch(selectedChatProvider);
     return Expanded(
       child: Column(
         children: [
@@ -72,7 +70,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                             overflow: TextOverflow.ellipsis,
                             style: theme.textTheme.titleSmall,
                           ),
-                          selected: chat.id == widget.currentChatId,
+                          selected: chat.id == currentChat?.id,
                           onTap: () async {
                             await ref
                                 .read(selectedChatProvider.notifier)
@@ -103,6 +101,12 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                 );
                                 if (confirm == true) {
                                   await chatService.deleteChat(chat.id);
+                                  // 如果删掉的是当前对话，则更新状态
+                                  if (chat.id == currentChat?.id) {
+                                    ref
+                                        .read(selectedChatProvider.notifier)
+                                        .clear();
+                                  }
                                   widget.onRefreshChats();
                                 }
                               }

@@ -45,11 +45,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       // 声明式使用重构后的抽屉
-      drawer: AppDrawer(
-        allChats: _allChats,
-        currentChatId: currentChat?.id,
-        onRefreshChats: _loadChats,
-      ),
+      drawer: AppDrawer(allChats: _allChats, onRefreshChats: _loadChats),
       body: Column(
         children: [
           if (currentChat != null)
@@ -103,12 +99,11 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    final notifier = ref.read(selectedChatProvider.notifier);
     Chat? currentChat = ref.read(selectedChatProvider);
 
     if (currentChat == null) {
       currentChat = await _chatService.createChat(content);
-      await notifier.select(currentChat.id);
+      await ref.read(selectedChatProvider.notifier).select(currentChat.id);
     }
 
     await for (final updatedChat in _chatService.sendMessage(

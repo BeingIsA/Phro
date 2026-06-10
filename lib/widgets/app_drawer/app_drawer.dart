@@ -10,13 +10,11 @@ import 'package:phro/providers/agent_providers.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
   final List<Chat> allChats;
-  final String? currentChatId;
   final VoidCallback onRefreshChats;
 
   const AppDrawer({
     super.key,
     required this.allChats,
-    required this.currentChatId,
     required this.onRefreshChats,
   });
 
@@ -83,7 +81,6 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
           Divider(height: 1, color: colorScheme.outline),
           ChatHistoryList(
             allChats: widget.allChats,
-            currentChatId: widget.currentChatId,
             onRefreshChats: widget.onRefreshChats,
             titleStyle: titleTextTheme,
           ),
