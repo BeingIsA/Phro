@@ -119,7 +119,7 @@ class MessageListView extends StatelessWidget {
       margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       decoration: BoxDecoration(
-        color: colorScheme.primary, // 使用主题 primary
+        color: colorScheme.primaryContainer, // 使用主题 primary
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(18),
           topRight: Radius.circular(18),
@@ -131,9 +131,11 @@ class MessageListView extends StatelessWidget {
         message.content,
         style: theme.textTheme.bodyLarge?.copyWith(
           // 统一使用 textTheme
-          color: colorScheme.onPrimary,
+          color: colorScheme.onPrimaryContainer,
           fontSize: 16,
         ),
+        selectionColor: colorScheme.surfaceContainerHighest,
+        cursorColor: colorScheme.onPrimaryContainer,
       ),
     );
   }

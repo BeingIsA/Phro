@@ -18,20 +18,21 @@ Future<void> main() async {
             // 品牌主色
             primary: Colors.blue, // 主色 - AppBar、主要按钮、主题强调色
             onPrimary: Colors.white, // 主色上的文字/图标颜色
-            primaryContainer: Colors.blue.shade50, // 主色容器 - 卡片、输入框等浅背景
-            onPrimaryContainer: Colors.blue.shade900, // 主色容器上的文字/图标（深色）
             // 次要色
             secondary: Colors.blue.shade700, // 次要色 - 次要按钮、Tab选中、辅助强调
             onSecondary: Colors.white, // 次要色上的文字/图标颜色
+            // 容器颜色
+            primaryContainer: Colors.blue.shade50, // 气泡和滑动开关背景
+            onPrimaryContainer: Colors.blue.shade900, // 气泡上的文字
             // 强调/功能色
             tertiary: Colors.orange.shade700, // 三级色 - 警告、重要标签、特殊操作
             error: Colors.red, // 错误色 - 错误提示、删除按钮等
             onError: Colors.white, // 错误色上的文字/图标颜色
             // 表面与背景
             surface: Colors.white, // 主要表面颜色 - 卡片、对话框背景
-            onSurface: Colors.black87, // 表面上的主要文字颜色（正文、标题）
             surfaceContainerHighest:
                 Colors.grey.shade100, // 较高层次表面 - 列表项、卡片轻微区分
+            onSurface: Colors.black87, // 表面上的主要文字颜色（正文、标题）
             onSurfaceVariant: Colors.grey.shade700, // 次要文字、提示文本、图标颜色
             // 边框与分割线
             outline: Colors.grey[400]!, // 常规边框、分隔线、输入框边框
