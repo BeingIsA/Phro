@@ -3,7 +3,7 @@ import 'package:phro/models/chat.dart';
 import 'package:phro/services/chat_service.dart';
 
 /// 管理当前激活的完整 Agent 对象
-class ChatNotifier extends Notifier<Chat?> {
+class SelectedChatNotifier extends Notifier<Chat?> {
   final ChatService _chatService = ChatService.instance;
 
   @override
@@ -27,6 +27,5 @@ class ChatNotifier extends Notifier<Chat?> {
 }
 
 // Provider
-final selectedChatProvider = NotifierProvider<ChatNotifier, Chat?>(
-  () => ChatNotifier(),
-);
+final selectedChatNotifierProvider =
+    NotifierProvider<SelectedChatNotifier, Chat?>(() => SelectedChatNotifier());

@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phro/models/chat.dart';
-import 'package:phro/providers/chat_providers.dart';
+import 'package:phro/notifiers/chat_history_notifier.dart';
+import 'package:phro/notifiers/selected_chat_notifier.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
 class ChatHistoryList extends ConsumerStatefulWidget {
-  final List<Chat> allChats;
-  final VoidCallback onRefreshChats;
   final TextStyle? titleStyle;
 
-  const ChatHistoryList({
-    super.key,
-    required this.allChats,
-    required this.onRefreshChats,
-    this.titleStyle,
-  });
+  const ChatHistoryList({super.key, this.titleStyle});
 
   @override
   ConsumerState<ChatHistoryList> createState() => _ChatHistoryListState();
@@ -29,7 +22,9 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final chatService = ChatService.instance;
-    final currentChat = ref.watch(selectedChatProvider);
+    final currentChat = ref.watch(selectedChatNotifierProvider);
+    final chatHistoryList = ref.watch(chatHistoryNotifierProvider).value ?? [];
+
     return Expanded(
       child: Column(
         children: [
@@ -51,7 +46,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
           // 可折叠内容
           if (_isExpanded)
             Expanded(
-              child: widget.allChats.isEmpty
+              child: chatHistoryList.isEmpty
                   ? Center(
                       child: Text(
                         '暂无历史对话',
@@ -59,9 +54,9 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                       ),
                     )
                   : ListView.builder(
-                      itemCount: widget.allChats.length,
+                      itemCount: chatHistoryList.length,
                       itemBuilder: (context, index) {
-                        final chat = widget.allChats[index];
+                        final chat = chatHistoryList[index];
                         return ListTile(
                           leading: const Icon(Icons.chat_bubble_outline),
                           title: Text(
@@ -73,7 +68,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                           selected: chat.id == currentChat?.id,
                           onTap: () async {
                             await ref
-                                .read(selectedChatProvider.notifier)
+                                .read(selectedChatNotifierProvider.notifier)
                                 .select(chat.id);
                             Navigator.pop(context);
                           },
@@ -92,7 +87,12 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                     chat.id,
                                     newTitle,
                                   );
-                                  widget.onRefreshChats();
+
+                                  await ref
+                                      .read(
+                                        chatHistoryNotifierProvider.notifier,
+                                      )
+                                      .refresh();
                                 }
                               } else if (value == 'delete') {
                                 final confirm = await _showDeleteConfirmDialog(
@@ -100,14 +100,20 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                   chat.title,
                                 );
                                 if (confirm == true) {
-                                  await chatService.deleteChat(chat.id);
                                   // 如果删掉的是当前对话，则更新状态
                                   if (chat.id == currentChat?.id) {
                                     ref
-                                        .read(selectedChatProvider.notifier)
+                                        .read(
+                                          selectedChatNotifierProvider.notifier,
+                                        )
                                         .clear();
                                   }
-                                  widget.onRefreshChats();
+                                  await chatService.deleteChat(chat.id);
+                                  await ref
+                                      .read(
+                                        chatHistoryNotifierProvider.notifier,
+                                      )
+                                      .refresh();
                                 }
                               }
                             },

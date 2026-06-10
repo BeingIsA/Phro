@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phro/providers/chat_providers.dart';
+import 'package:phro/notifiers/chat_history_notifier.dart';
+import 'package:phro/notifiers/selected_chat_notifier.dart';
 import 'package:phro/widgets/message_input.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
@@ -20,24 +21,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   final ChatService _chatService = ChatService.instance;
   final ScrollController _scrollController = ScrollController();
 
-  List<Chat> _allChats = [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadChats();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     // 当切换到新的聊天时，滚动到底部
-    ref.listen(selectedChatProvider, (previous, next) {
+    ref.listen(selectedChatNotifierProvider, (previous, next) {
       _scrollToBottom();
     });
 
-    final currentChat = ref.watch(selectedChatProvider);
+    final currentChat = ref.watch(selectedChatNotifierProvider);
     final List<Message> messages = currentChat != null
         ? currentChat.messages.where((m) => m.role != 'system').toList()
         : [];
@@ -45,7 +38,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
       // 声明式使用重构后的抽屉
-      drawer: AppDrawer(allChats: _allChats, onRefreshChats: _loadChats),
+      drawer: AppDrawer(),
       body: Column(
         children: [
           if (currentChat != null)
@@ -92,27 +85,24 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  Future<void> _loadChats() async {
-    final chats = await _chatService.getAllChats();
-    if (mounted) setState(() => _allChats = chats);
-  }
-
   Future<void> _handleSendMessage(String content) async {
     if (content.trim().isEmpty) return;
-    Chat? currentChat = ref.read(selectedChatProvider);
+    Chat? currentChat = ref.read(selectedChatNotifierProvider);
 
     if (currentChat == null) {
       currentChat = await _chatService.createChat(content);
-      await ref.read(selectedChatProvider.notifier).select(currentChat.id);
+      await ref
+          .read(selectedChatNotifierProvider.notifier)
+          .select(currentChat.id);
+      await ref.read(chatHistoryNotifierProvider.notifier).refresh();
     }
 
     await for (final updatedChat in _chatService.sendMessage(
       chatId: currentChat.id,
       content: content,
     )) {
-      ref.read(selectedChatProvider.notifier).update(updatedChat);
+      ref.read(selectedChatNotifierProvider.notifier).update(updatedChat);
       _scrollToBottom();
     }
-    await _loadChats();
   }
 }

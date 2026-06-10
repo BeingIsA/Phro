@@ -1,22 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:phro/models/chat.dart';
-import 'package:phro/providers/chat_providers.dart';
+import 'package:phro/notifiers/selected_chat_notifier.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
 import 'package:phro/widgets/app_drawer/chat_history_list.dart';
 import 'package:phro/widgets/app_drawer/settings/settings_page.dart';
-import 'package:phro/providers/agent_providers.dart';
+import 'package:phro/notifiers/activated_agent_notifier.dart';
 
 class AppDrawer extends ConsumerStatefulWidget {
-  final List<Chat> allChats;
-  final VoidCallback onRefreshChats;
-
-  const AppDrawer({
-    super.key,
-    required this.allChats,
-    required this.onRefreshChats,
-  });
+  const AppDrawer({super.key});
 
   @override
   ConsumerState<AppDrawer> createState() => _AppDrawerState();
@@ -32,7 +24,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
       fontWeight: FontWeight.w600,
     );
 
-    final activatedAgent = ref.watch(activatedAgentProvider);
+    final activatedAgent = ref.watch(activatedAgentNotifierProvider);
     final activatedAgentName =
         activatedAgent?.name ?? AgentService.kChiefAgentName;
     return Drawer(
@@ -71,7 +63,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
               child: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
             ),
             onTap: () {
-              ref.read(selectedChatProvider.notifier).clear();
+              ref.read(selectedChatNotifierProvider.notifier).clear();
               Navigator.pop(context);
             },
           ),
@@ -79,11 +71,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
           Divider(height: 1, color: colorScheme.outline),
           AgentManager(titleStyle: titleTextTheme),
           Divider(height: 1, color: colorScheme.outline),
-          ChatHistoryList(
-            allChats: widget.allChats,
-            onRefreshChats: widget.onRefreshChats,
-            titleStyle: titleTextTheme,
-          ),
+          ChatHistoryList(titleStyle: titleTextTheme),
           Divider(height: 1, color: colorScheme.outline),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),

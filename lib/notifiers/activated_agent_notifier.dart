@@ -3,7 +3,7 @@ import 'package:phro/models/agent.dart';
 import 'package:phro/services/agent_service.dart';
 
 /// 管理当前激活的完整 Agent 对象
-class AgentNotifier extends Notifier<Agent?> {
+class ActivatedAgentNotifier extends Notifier<Agent?> {
   final AgentService _agentService = AgentService.instance;
 
   @override
@@ -25,6 +25,7 @@ class AgentNotifier extends Notifier<Agent?> {
 }
 
 // Provider
-final activatedAgentProvider = NotifierProvider<AgentNotifier, Agent?>(
-  () => AgentNotifier(),
-);
+final activatedAgentNotifierProvider =
+    NotifierProvider<ActivatedAgentNotifier, Agent?>(
+      () => ActivatedAgentNotifier(),
+    );
