@@ -66,8 +66,10 @@ class _MessageInputState extends State<MessageInput> {
                 ),
               ),
               style: theme.textTheme.bodyLarge,
+              minLines: 1,
+              maxLines: 10, // 达到10行后，内部滚动，不再撑大容器
+              textInputAction: TextInputAction.newline,
               onSubmitted: (_) => _send(),
-              maxLines: null, // 支持多行输入
             ),
             Align(
               alignment: Alignment.centerRight,
