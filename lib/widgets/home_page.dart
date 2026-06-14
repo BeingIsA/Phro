@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/notifiers/chat_history_notifier.dart';
 import 'package:phro/notifiers/active_chat_notifier.dart';
-import 'package:phro/widgets/message_input.dart';
+import 'package:phro/widgets/chat/message_input.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
