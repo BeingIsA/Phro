@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/widgets/chat/code_element_builder.dart';
+import 'package:phro/widgets/chat/editable_user_bubble.dart';
 import 'package:phro/widgets/chat/tool_message_tile.dart';
 import 'package:phro/services/chat_service.dart';
 
@@ -40,7 +41,7 @@ class MessageListView extends StatelessWidget {
         List<Widget> columnChildren = [];
 
         if (message.role == 'user') {
-          columnChildren.add(_buildUserBubble(context, message));
+          columnChildren.add(EditableUserBubble(message: message));
         } else if (message.role == 'assistant') {
           if (message.reasoningContent != null &&
               message.reasoningContent!.trim().isNotEmpty) {
@@ -104,38 +105,6 @@ class MessageListView extends StatelessWidget {
                 style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
               ),
             ),
-    );
-  }
-
-  Widget _buildUserBubble(BuildContext context, Message message) {
-    final theme = Theme.of(context);
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Container(
-      constraints: BoxConstraints(
-        maxWidth: MediaQuery.sizeOf(context).width * 0.75,
-      ),
-      margin: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 12.0),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: BoxDecoration(
-        color: colorScheme.primaryContainer, // 使用主题 primary
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(18),
-          topRight: Radius.circular(18),
-          bottomLeft: Radius.circular(18),
-          bottomRight: Radius.zero,
-        ),
-      ),
-      child: SelectableText(
-        message.content,
-        style: theme.textTheme.bodyLarge?.copyWith(
-          // 统一使用 textTheme
-          color: colorScheme.onPrimaryContainer,
-          fontSize: 16,
-        ),
-        selectionColor: colorScheme.surfaceContainerHighest,
-        cursorColor: colorScheme.onPrimaryContainer,
-      ),
     );
   }
 

@@ -94,6 +94,10 @@ class ChatService {
       reasoningContent: null,
     );
     chat.addMessage(userMsg);
+    yield* _continueGeneration(chat);
+  }
+
+  Stream<Chat> _continueGeneration(Chat chat) async* {
     try {
       while (true) {
         // 先搞一个空会话，前端展示空气泡
@@ -165,6 +169,42 @@ class ChatService {
     } finally {
       await _chatRepository.saveChat(chat);
     }
+  }
+
+  Stream<Chat> editAndSendMessag({
+    required String chatId,
+    required String messageId, // 要编辑的消息 ID
+    required String newContent,
+  }) async* {
+    Chat chat = await getChatById(chatId);
+
+    // 1. 找到要编辑的消息并校验
+    final messageIndex = chat.messages.indexWhere((m) => m.id == messageId);
+    if (messageIndex == -1) {
+      // yield error 或 throw
+      return;
+    }
+
+    final targetMessage = chat.messages[messageIndex];
+    if (targetMessage.role != 'user') {
+      // 目前只允许编辑 user 消息
+      return;
+    }
+
+    // 2. 更新消息内容
+    targetMessage.update(content: newContent);
+
+    // 3. 截断历史
+    if (messageIndex + 1 < chat.messages.length) {
+      chat.messages.removeRange(messageIndex + 1, chat.messages.length);
+    }
+
+    // 4. 保存一次（防止中途崩溃）
+    await _chatRepository.saveChat(chat);
+    yield chat; // 前端立即看到修改后的状态
+
+    // 5. 继续走原有的生成流程（复用代码！）
+    yield* _continueGeneration(chat);
   }
 
   // 核心改造：修改 _executeToolCalls 方法
