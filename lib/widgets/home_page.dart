@@ -18,7 +18,6 @@ class HomePage extends ConsumerStatefulWidget {
 }
 
 class _HomePageState extends ConsumerState<HomePage> {
-  final ChatService _chatService = ChatService.instance;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -66,7 +65,13 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),
-            child: MessageInput(onSend: _handleSendMessage),
+            child: MessageInput(
+              onSend: (content) {
+                ref
+                    .read(activeChatNotifierProvider.notifier)
+                    .sendMessage(content);
+              },
+            ),
           ),
         ],
       ),
@@ -83,26 +88,5 @@ class _HomePageState extends ConsumerState<HomePage> {
         );
       }
     });
-  }
-
-  Future<void> _handleSendMessage(String content) async {
-    if (content.trim().isEmpty) return;
-    Chat? currentChat = ref.read(activeChatNotifierProvider);
-
-    if (currentChat == null) {
-      currentChat = await _chatService.createChat(content);
-      await ref
-          .read(activeChatNotifierProvider.notifier)
-          .select(currentChat.id);
-      await ref.read(chatHistoryNotifierProvider.notifier).refresh();
-    }
-
-    await for (final updatedChat in _chatService.sendMessage(
-      chatId: currentChat.id,
-      content: content,
-    )) {
-      ref.read(activeChatNotifierProvider.notifier).update(updatedChat);
-      _scrollToBottom();
-    }
   }
 }
