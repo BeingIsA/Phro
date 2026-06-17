@@ -4,5 +4,13 @@
   "cancel": "取消",
   "delete": "删除",
   "language": "语言",
-  "version": "版本"
+  "version": "版本",
+  "currentChatAgent": "当前对话Agent：{agentName}",
+  "@currentChatAgent": {
+    "placeholders": {
+      "agentName": {
+        "type": "String"
+      }
+    }
+  }
 }

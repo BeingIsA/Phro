@@ -127,6 +127,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'version'**
   String get version;
+
+  /// No description provided for @currentChatAgent.
+  ///
+  /// In en, this message translates to:
+  /// **'Current chat agent: {agentName}'**
+  String currentChatAgent(String agentName);
 }
 
 class _AppLocalizationsDelegate

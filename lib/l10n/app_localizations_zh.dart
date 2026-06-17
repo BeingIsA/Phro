@@ -22,4 +22,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get version => '版本';
+
+  @override
+  String currentChatAgent(String agentName) {
+    return '当前对话Agent：$agentName';
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/notifiers/active_chat_notifier.dart';
 import 'package:phro/widgets/chat/message_input.dart';
 import 'package:phro/models/message.dart';
@@ -46,7 +47,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               color: theme.colorScheme.surfaceContainerHighest,
               child: Text(
-                '当前对话Agent：${currentChat.agentName}',
+                AppLocalizations.of(context)!.currentChatAgent(currentChat.agentName),
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),

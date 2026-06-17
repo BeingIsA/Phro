@@ -5,13 +5,9 @@ import 'package:phro/services/chat_service.dart';
 /// 新增：内嵌式工具消息卡片组件（免弹窗，直接输入并拒绝）
 class ToolMessageTile extends StatefulWidget {
   final Message message;
-  final ChatService chatService;
+  final ChatService chatService = ChatService.instance;
 
-  const ToolMessageTile({
-    super.key,
-    required this.message,
-    required this.chatService,
-  });
+  ToolMessageTile({super.key, required this.message});
 
   @override
   State<ToolMessageTile> createState() => ToolMessageTileState();

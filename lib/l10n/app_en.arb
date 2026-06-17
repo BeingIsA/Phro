@@ -4,5 +4,13 @@
   "cancel": "Cancel",
   "delete": "Delete",
   "language": "Language",
-  "version": "version"
+  "version": "version",
+  "currentChatAgent": "Current chat agent: {agentName}",
+  "@currentChatAgent": {
+    "placeholders": {
+      "agentName": {
+        "type": "String"
+      }
+    }
+  }
 }

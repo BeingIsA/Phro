@@ -22,4 +22,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get version => 'version';
+
+  @override
+  String currentChatAgent(String agentName) {
+    return 'Current chat agent: $agentName';
+  }
 }

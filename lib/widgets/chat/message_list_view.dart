@@ -4,7 +4,6 @@ import 'package:phro/models/message.dart';
 import 'package:phro/widgets/chat/code_element_builder.dart';
 import 'package:phro/widgets/chat/editable_user_bubble.dart';
 import 'package:phro/widgets/chat/tool_message_tile.dart';
-import 'package:phro/services/chat_service.dart';
 
 class MessageListView extends StatelessWidget {
   final List<Message> messages;
@@ -49,12 +48,7 @@ class MessageListView extends StatelessWidget {
           }
           columnChildren.add(_buildAssistantContent(context, message));
         } else if (message.role == 'tool') {
-          columnChildren.add(
-            ToolMessageTile(
-              message: message,
-              chatService: ChatService.instance,
-            ),
-          );
+          columnChildren.add(ToolMessageTile(message: message));
         }
 
         return Align(
