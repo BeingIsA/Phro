@@ -12,20 +12,24 @@ class LocaleNotifier extends AsyncNotifier<Locale> {
     return await _loadLocale();
   }
 
-  // 加载语言（文件 → 系统语言）
-  Future<Locale> _loadLocale() async {
+  static Future<Locale> _loadLocale() async {
     try {
       final dir = await getApplicationSupportDirectory();
       final file = File('${dir.path}/locale.txt');
       if (await file.exists()) {
         final content = await file.readAsString();
         if (content.isNotEmpty) {
-          return Locale(content);
+          // 解析字符串，格式如 "zh_CN" 或 "zh"
+          final parts = content.split('_');
+          if (parts.length == 2) {
+            return Locale(parts[0], parts[1]);
+          } else {
+            return Locale(parts[0]);
+          }
         }
       }
     } catch (_) {}
-    // 无文件或出错 → 系统语言
-    return PlatformDispatcher.instance.locale;
+    return Locale(PlatformDispatcher.instance.locale.languageCode);
   }
 
   // 切换语言：写入文件并更新状态
@@ -37,13 +41,11 @@ class LocaleNotifier extends AsyncNotifier<Locale> {
     try {
       final dir = await getApplicationSupportDirectory();
       final file = File('${dir.path}/locale.txt');
-      await file.writeAsString(newLocale.languageCode);
+      await file.writeAsString(newLocale.toString());
     } catch (_) {}
 
     state = AsyncValue.data(newLocale);
   }
-
-  Locale? get currentLocale => state.value;
 }
 
 // 提供器
