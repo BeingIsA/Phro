@@ -118,7 +118,7 @@ class ChatService {
         }
 
         final messages = chat.messages
-            .map((messaage) => messaage.toMap4Api())
+            .map((message) => message.toMap4Api())
             .toList();
         messages.removeLast();
         await for (final chunk in _llmClient.sendMessageStream(
