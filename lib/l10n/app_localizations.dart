@@ -98,23 +98,35 @@ abstract class AppLocalizations {
     Locale('zh'),
   ];
 
-  /// 删除确认对话框的标题
+  /// No description provided for @deleteConfirmationTitle.
   ///
   /// In en, this message translates to:
   /// **'Delete Confirmation'**
   String get deleteConfirmationTitle;
 
-  /// 取消按钮
+  /// No description provided for @cancel.
   ///
   /// In en, this message translates to:
   /// **'Cancel'**
   String get cancel;
 
-  /// 删除按钮
+  /// No description provided for @delete.
   ///
   /// In en, this message translates to:
   /// **'Delete'**
   String get delete;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'version'**
+  String get version;
 }
 
 class _AppLocalizationsDelegate

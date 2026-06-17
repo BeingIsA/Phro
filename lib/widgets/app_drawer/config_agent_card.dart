@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ConfigAgentCard extends StatefulWidget {
-  final String? initialName;
+  final String? initialName;W
   final String? initialIdentity;
 
   const ConfigAgentCard({super.key, this.initialName, this.initialIdentity});

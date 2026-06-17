@@ -9,62 +9,50 @@ class OtherSettings extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // 1. 监听当前语言（异步状态）
+    final l10n = AppLocalizations.of(context)!; // ← 获取本地化实例
     final locale = ref.watch(localeProvider).value;
 
-    // 2. 获取支持的语言列表（从 AppLocalizations 中定义）
-    final supportedLocales = AppLocalizations.supportedLocales;
-    final items = supportedLocales.map((Locale locale) {
-      String label = _getLanguageName(locale);
-      return DropdownMenuItem<Locale>(value: locale, child: Text(label));
-    }).toList();
-
     return ListView(
+      padding: const EdgeInsets.all(16),
       children: [
-        // 语言选择卡片
-        Card(
-          margin: const EdgeInsets.all(16),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '语言',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 8),
-                DropdownButton<Locale>(
-                  value: locale,
-                  isExpanded: true,
-                  items: items,
-                  onChanged: (Locale? newLocale) {
-                    if (newLocale != null) {
-                      // 切换语言
-                      ref.read(localeProvider.notifier).setLocale(newLocale);
-                    }
-                  },
-                ),
-              ],
+        // 语言选择行：标签 + 下拉框
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                l10n.language,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
             ),
-          ),
+            const SizedBox(width: 16),
+            SizedBox(
+              width: 120,
+              child: DropdownButton<Locale>(
+                value: locale,
+                isExpanded: true,
+                items: AppLocalizations.supportedLocales.map((Locale locale) {
+                  String label = _getLanguageName(locale);
+                  return DropdownMenuItem<Locale>(
+                    value: locale,
+                    child: Text(label),
+                  );
+                }).toList(),
+                onChanged: (Locale? newLocale) {
+                  if (newLocale != null) {
+                    ref.read(localeProvider.notifier).setLocale(newLocale);
+                  }
+                },
+              ),
+            ),
+          ],
         ),
-        // 关于信息
-        const Card(
-          margin: EdgeInsets.all(16),
-          child: Padding(
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '关于',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-                SizedBox(height: 8),
-                Text('Phro 版本 1.0.0'),
-              ],
-            ),
+        const SizedBox(height: 16),
+        // 关于信息（小字显示）
+        Text(
+          'Phro ${l10n.version} 1.0.0',
+          style: TextStyle(
+            fontSize: 12,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
         ),
       ],

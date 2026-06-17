@@ -1,15 +1,8 @@
 {
   "@@locale": "zh",
   "deleteConfirmationTitle": "删除确认",
-  "@deleteConfirmationTitle": {
-    "description": "删除确认对话框的标题"
-  },
   "cancel": "取消",
-  "@cancel": {
-    "description": "取消按钮"
-  },
   "delete": "删除",
-  "@delete": {
-    "description": "删除按钮"
-  }
+  "language": "语言",
+  "version": "版本"
 }
