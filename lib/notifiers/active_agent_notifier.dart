@@ -26,4 +26,4 @@ class ActiveAgentNotifier extends Notifier<Agent?> {
 
 // Provider
 final activeAgentNotifierProvider =
-    NotifierProvider<ActiveAgentNotifier, Agent?>(() => ActiveAgentNotifier());
+    NotifierProvider<ActiveAgentNotifier, Agent?>(ActiveAgentNotifier.new);

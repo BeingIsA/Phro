@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart' hide Element;
 import 'package:flutter/services.dart';
-import 'package:flutter_highlighter/flutter_highlighter.dart';
-import 'package:flutter_highlighter/themes/github.dart';
 
 class CustomCodeBlock extends StatelessWidget {
   final String codeText;

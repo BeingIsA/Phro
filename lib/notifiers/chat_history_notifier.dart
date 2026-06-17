@@ -33,5 +33,5 @@ class ChatHistoryNotifier extends AsyncNotifier<List<Chat>?> {
 
 final chatHistoryNotifierProvider =
     AsyncNotifierProvider<ChatHistoryNotifier, List<Chat>?>(
-      () => ChatHistoryNotifier(),
+      ChatHistoryNotifier.new,
     );

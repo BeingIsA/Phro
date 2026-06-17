@@ -67,5 +67,5 @@ class ActiveChatNotifier extends Notifier<Chat?> {
 
 // Provider
 final activeChatNotifierProvider = NotifierProvider<ActiveChatNotifier, Chat?>(
-  () => ActiveChatNotifier(),
+  ActiveChatNotifier.new,
 );

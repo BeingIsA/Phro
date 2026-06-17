@@ -9,11 +9,8 @@ class OtherSettings extends StatefulWidget {
 }
 
 class _OtherSettingsState extends State<OtherSettings> {
-
   @override
   Widget build(BuildContext context) {
-    return 
-        Text('关于'
-    );
+    return Text('关于');
   }
 }
