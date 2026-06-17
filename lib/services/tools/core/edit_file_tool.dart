@@ -37,6 +37,14 @@ class EditFileTool extends Tool {
     final newString = args['newString'] as String;
     final replaceAll = args['replaceAll'] as bool? ?? false;
 
+    // 参数校验：空的 oldString 会导致 replaceFirst/replaceAll 在每处插入，需拦截
+    if (oldString.isEmpty) {
+      throw ArgumentError('oldString 不能为空');
+    }
+    if (oldString == newString) {
+      throw ArgumentError('oldString 与 newString 相同，无需替换');
+    }
+
     final file = File(path);
 
     // 检查文件是否存在
@@ -44,17 +52,28 @@ class EditFileTool extends Tool {
       throw FileSystemException('文件不存在', path);
     }
 
-    String content = await file.readAsString();
+    final content = await file.readAsString();
 
-    if (replaceAll) {
-      content = content.replaceAll(oldString, newString);
-    } else {
-      content = content.replaceFirst(oldString, newString);
+    // 统计匹配次数，避免静默失败（无匹配）或改错位置（多匹配但未启用 replaceAll）
+    final matchCount = oldString.allMatches(content).length;
+    if (matchCount == 0) {
+      throw StateError('未找到要替换的文本（oldString），文件未做任何修改');
+    }
+    if (matchCount > 1 && !replaceAll) {
+      throw StateError(
+        'oldString 在文件中出现了 $matchCount 次，无法确定替换哪一处。'
+        '请提供更长、唯一的上下文，或设置 replaceAll=true 以替换全部。',
+      );
     }
 
-    // 写回文件
-    await file.writeAsString(content);
+    final newContent = replaceAll
+        ? content.replaceAll(oldString, newString)
+        : content.replaceFirst(oldString, newString);
 
-    return '文件修改成功！\n路径: $path\n替换方式: ${replaceAll ? "全部替换" : "替换第一个匹配项"}';
+    // 写回文件
+    await file.writeAsString(newContent);
+
+    final replacedCount = replaceAll ? matchCount : 1;
+    return '文件修改成功！\n路径: $path\n替换处数: $replacedCount';
   }
 }
