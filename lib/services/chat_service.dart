@@ -162,7 +162,7 @@ class ChatService {
           break;
         }
         assistantMessage.update(toolCalls: fullToolCallsList);
-
+        await _chatRepository.saveChat(chat);
         // 核心修改：利用 yield* 托管带有 HITL 拦截的工具流
         yield* _executeToolCalls(fullToolCallsList, chat);
       }

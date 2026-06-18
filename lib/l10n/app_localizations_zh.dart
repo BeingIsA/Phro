@@ -27,4 +27,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String currentChatAgent(String agentName) {
     return '当前对话Agent：$agentName';
   }
+
+  @override
+  String get newChatPrefix => '新对话（';
+
+  @override
+  String get newChatSuffix => '）';
+
+  @override
+  String get settings => '设置';
 }

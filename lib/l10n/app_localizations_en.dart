@@ -27,4 +27,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String currentChatAgent(String agentName) {
     return 'Current chat agent: $agentName';
   }
+
+  @override
+  String get newChatPrefix => 'New chat (';
+
+  @override
+  String get newChatSuffix => ')';
+
+  @override
+  String get settings => 'Settings';
 }

@@ -12,5 +12,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "newChatPrefix": "New chat (",
+  "newChatSuffix": ")",
+  "settings": "Settings"
 }

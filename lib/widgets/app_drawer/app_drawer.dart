@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/notifiers/active_chat_notifier.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/widgets/app_drawer/agent_manager.dart';
@@ -49,12 +50,12 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                   color: colorScheme.onSurface,
                 ),
                 children: [
-                  TextSpan(text: '新对话（', style: titleTextTheme),
+                  TextSpan(text: AppLocalizations.of(context)!.newChatPrefix, style: titleTextTheme),
                   TextSpan(
                     text: activatedAgentName,
                     style: titleTextTheme?.copyWith(color: colorScheme.primary),
                   ),
-                  const TextSpan(text: '）'),
+                  TextSpan(text: AppLocalizations.of(context)!.newChatSuffix, style: titleTextTheme),
                 ],
               ),
             ),
@@ -85,7 +86,7 @@ class _AppDrawerState extends ConsumerState<AppDrawer> {
                     size: 28,
                     color: colorScheme.onSurfaceVariant,
                   ),
-                  tooltip: '设置',
+                  tooltip: AppLocalizations.of(context)!.settings,
                 ),
               ],
             ),

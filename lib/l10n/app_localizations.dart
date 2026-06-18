@@ -133,6 +133,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current chat agent: {agentName}'**
   String currentChatAgent(String agentName);
+
+  /// No description provided for @newChatPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat ('**
+  String get newChatPrefix;
+
+  /// No description provided for @newChatSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **')'**
+  String get newChatSuffix;
+
+  /// No description provided for @settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settings;
 }
 
 class _AppLocalizationsDelegate

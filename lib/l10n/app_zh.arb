@@ -12,5 +12,8 @@
         "type": "String"
       }
     }
-  }
+  },
+  "newChatPrefix": "新对话（",
+  "newChatSuffix": "）",
+  "settings": "设置"
 }

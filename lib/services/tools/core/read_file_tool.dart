@@ -28,7 +28,7 @@ class ReadFileTool extends Tool {
   @override
   Future<String> execute(Map args) async {
     final path = args['path'] as String;
-    final contextLength = args['contextLength'] as int? ?? 3000;
+    final contextLength = args['contextLength'] as int? ?? 20000;
 
     final file = File(path);
 
