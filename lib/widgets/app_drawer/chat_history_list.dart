@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/notifiers/chat_history_notifier.dart';
 import 'package:phro/notifiers/active_chat_notifier.dart';
@@ -18,6 +19,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final currentChat = ref.watch(activeChatNotifierProvider);
@@ -28,7 +30,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
         children: [
           // 可折叠标题栏
           ListTile(
-            title: Text('聊天历史', style: widget.titleStyle),
+            title: Text(l10n!.chatHistoryTitle, style: widget.titleStyle),
             trailing: SizedBox(
               width: 40,
               child: Icon(
@@ -47,7 +49,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
               child: chatHistoryList.isEmpty
                   ? Center(
                       child: Text(
-                        '暂无历史对话',
+                        l10n.noChatHistoryText,
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     )
@@ -110,13 +112,13 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                               }
                             },
                             itemBuilder: (context) => [
-                              const PopupMenuItem(
+                              PopupMenuItem(
                                 value: 'edit',
                                 child: Row(
                                   children: [
                                     Icon(Icons.edit, size: 20),
                                     SizedBox(width: 8),
-                                    Text('编辑'),
+                                    Text(l10n.editButton),
                                   ],
                                 ),
                               ),
@@ -131,7 +133,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      '删除',
+                                      l10n.deleteButton,
                                       style: TextStyle(
                                         color: colorScheme.error,
                                       ),
@@ -152,24 +154,25 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
 
   // 编辑对话框
   Future<String?> _showEditDialog(BuildContext context, String currentTitle) {
+    final l10n = AppLocalizations.of(context)!;
     final controller = TextEditingController(text: currentTitle);
     return showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('编辑标题'),
+        title: Text(l10n.editChatTitleTitle),
         content: TextField(
           controller: controller,
           autofocus: true,
-          decoration: const InputDecoration(hintText: '请输入新标题'),
+          decoration: InputDecoration(hintText: l10n.editChatTitleHint),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('取消'),
+            child: Text(l10n.cancelButtonMsg),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('保存'),
+            child: Text(l10n.saveButton),
           ),
         ],
       ),
@@ -184,7 +187,7 @@ class _ChatHistoryListState extends ConsumerState<ChatHistoryList> {
       context: context,
       builder: (context) => DeleteAlertDialog(
         colorScheme: colorScheme,
-        content: '确定删除会话 "$title" 吗？此操作无法撤销。',
+        content: AppLocalizations.of(context)!.deleteChatConfirmation(title),
       ),
     );
   }
