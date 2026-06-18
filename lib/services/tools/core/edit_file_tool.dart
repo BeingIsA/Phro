@@ -33,8 +33,8 @@ class EditFileTool extends Tool {
   @override
   Future<String> execute(Map args) async {
     final path = args['path'] as String;
-    final oldString = args['oldString'] as String;
-    final newString = args['newString'] as String;
+    final oldString = args['oldString'].replaceAll('\r\n', '\n') as String;
+    final newString = args['newString'].replaceAll('\r\n', '\n') as String;
     final replaceAll = args['replaceAll'] as bool? ?? false;
 
     // 参数校验：空的 oldString 会导致 replaceFirst/replaceAll 在每处插入，需拦截
@@ -51,7 +51,6 @@ class EditFileTool extends Tool {
     if (!await file.exists()) {
       throw FileSystemException('文件不存在', path);
     }
-
     final content = await file.readAsString();
 
     // 统计匹配次数，避免静默失败（无匹配）或改错位置（多匹配但未启用 replaceAll）
