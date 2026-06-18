@@ -52,13 +52,12 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
               controller: _urlController,
               decoration: InputDecoration(
                 labelText: l10n.apiEndpointUrlLabel,
-                hintText: ,
+                hintText: 'https://api.tavily.com/search',
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty)
-                      ? l10n.requiredField
-                      : null,
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? l10n.requiredField
+                  : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -69,10 +68,9 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
                 hintText: l10n.searchApiKeyHint,
                 border: const OutlineInputBorder(),
               ),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty)
-                      ? l10n.requiredField
-                      : null,
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? l10n.requiredField
+                  : null,
             ),
           ],
         ),
