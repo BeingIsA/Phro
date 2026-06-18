@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:phro/widgets/app_drawer/settings/api_settings/edit_language_model_config_card.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/services/model_config_service.dart';
+import 'package:phro/widgets/app_drawer/settings/api_settings/edit_language_model_config_card.dart';
 import 'package:phro/widgets/common/delete_alert_dialog.dart';
 
 class LanguageModelConfigPage extends StatefulWidget {
@@ -58,6 +59,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -71,7 +73,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
             columnWidths: {
               0: FixedColumnWidth(availableWidth * 0.3),
               1: FixedColumnWidth(availableWidth * 0.3),
-              2: FlexColumnWidth(1),
+              2: const FlexColumnWidth(1),
             },
             border: TableBorder(
               horizontalInside: BorderSide(
@@ -83,23 +85,27 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
             ),
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
-              // ==================== 表头 ====================
               TableRow(
                 decoration: BoxDecoration(
-                  color: colorScheme
-                      .surfaceContainerHighest, // ✅ 替换 surfaceVariant
+                  color: colorScheme.surfaceContainerHighest,
                 ),
                 children: [
                   TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Text('配置别名', style: theme.textTheme.titleSmall),
+                      child: Text(
+                        l10n.configAliasTitle,
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                   ),
                   TableCell(
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Text('模型名称', style: theme.textTheme.titleSmall),
+                      child: Text(
+                        l10n.modelNameTitle,
+                        style: theme.textTheme.titleSmall,
+                      ),
                     ),
                   ),
                   TableCell(
@@ -112,7 +118,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                             Icons.add_circle,
                             color: colorScheme.primary,
                           ),
-                          tooltip: '新增配置',
+                          tooltip: l10n.addConfigTooltip,
                           onPressed: () {
                             showDialog(
                               context: context,
@@ -124,7 +130,9 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                               _loadConfigs();
                               if (saved == true) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('设置已保存')),
+                                  SnackBar(
+                                    content: Text(l10n.settingsSavedMessage),
+                                  ),
                                 );
                               }
                             });
@@ -177,6 +185,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                   Icons.edit,
                                   color: colorScheme.primary,
                                 ),
+                                tooltip: l10n.editButton,
                                 onPressed: () {
                                   showDialog(
                                     context: context,
@@ -191,7 +200,11 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
-                                        const SnackBar(content: Text('设置已保存')),
+                                        SnackBar(
+                                          content: Text(
+                                            l10n.settingsSavedMessage,
+                                          ),
+                                        ),
                                       );
                                     }
                                   });
@@ -202,6 +215,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                                   Icons.delete,
                                   color: colorScheme.error,
                                 ),
+                                tooltip: l10n.deleteButton,
                                 onPressed: () => _deleteCard(id, configName),
                               ),
                               Switch(
@@ -219,7 +233,7 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
             ],
           ),
         );

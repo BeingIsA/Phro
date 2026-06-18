@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/notifiers/active_chat_notifier.dart';
 
@@ -35,9 +36,8 @@ class _EditableUserBubbleState extends ConsumerState<EditableUserBubble> {
       return;
     }
 
-    setState(() => _isEditing = false); // 乐观退出编辑模式
+    setState(() => _isEditing = false);
 
-    // 通过 Notifier 调用
     await ref
         .read(activeChatNotifierProvider.notifier)
         .editMessageAndContinue(
@@ -53,6 +53,7 @@ class _EditableUserBubbleState extends ConsumerState<EditableUserBubble> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -107,7 +108,7 @@ class _EditableUserBubbleState extends ConsumerState<EditableUserBubble> {
               icon: const Icon(Icons.edit, size: 18),
               color: colorScheme.primary,
               onPressed: () => setState(() => _isEditing = true),
-              tooltip: '编辑消息',
+              tooltip: l10n.editMessageTooltip,
             ),
           ),
 
@@ -117,9 +118,15 @@ class _EditableUserBubbleState extends ConsumerState<EditableUserBubble> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextButton(onPressed: _cancelEdit, child: const Text('取消')),
+                TextButton(
+                  onPressed: _cancelEdit,
+                  child: Text(l10n.cancelButtonMsg),
+                ),
                 const SizedBox(width: 8),
-                FilledButton(onPressed: _saveEdit, child: const Text('重新发送')),
+                FilledButton(
+                  onPressed: _saveEdit,
+                  child: Text(l10n.resendButton),
+                ),
               ],
             ),
           ),
