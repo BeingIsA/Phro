@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpt_markdown/gpt_markdown.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/widgets/chat/code_element_builder.dart';
 import 'package:phro/widgets/chat/editable_user_bubble.dart';
@@ -17,13 +18,14 @@ class MessageListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
     if (messages.isEmpty) {
       return Center(
         child: Text(
-          '开始新的对话吧！',
+          l10n.startNewChatText,
           style: theme.textTheme.headlineMedium?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
@@ -103,6 +105,7 @@ class MessageListView extends StatelessWidget {
   }
 
   Widget _buildReasoningBubble(BuildContext context, Message message) {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
 
@@ -120,7 +123,7 @@ class MessageListView extends StatelessWidget {
           color: colorScheme.primary,
         ),
         title: Text(
-          '思考过程',
+          l10n.thinkingProcessTitle,
           style: theme.textTheme.labelLarge?.copyWith(
             color: colorScheme.onSurfaceVariant,
           ),
