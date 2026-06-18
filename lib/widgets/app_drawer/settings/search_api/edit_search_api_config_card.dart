@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/services/search_api_config_service.dart';
 
-/// 搜索API配置编辑弹窗（只有 URL + API Key）
 class EditSearchApiConfigCard extends StatefulWidget {
   const EditSearchApiConfigCard({super.key});
 
@@ -39,8 +39,10 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
-      title: const Text('搜索API 配置'),
+      title: Text(l10n.searchApiConfigTitle),
       content: Form(
         key: _formKey,
         child: Column(
@@ -48,25 +50,29 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
           children: [
             TextFormField(
               controller: _urlController,
-              decoration: const InputDecoration(
-                labelText: 'API Endpoint URL',
-                hintText: 'https://api.tavily.com/search',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.apiEndpointUrlLabel,
+                hintText: ,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? '必填' : null,
+                  (value == null || value.trim().isEmpty)
+                      ? l10n.requiredField
+                      : null,
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _apiKeyController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'API Key',
-                hintText: 'tvly-xxxx 或 fc-xxxx',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.apiKeyLabel,
+                hintText: l10n.searchApiKeyHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? '必填' : null,
+                  (value == null || value.trim().isEmpty)
+                      ? l10n.requiredField
+                      : null,
             ),
           ],
         ),
@@ -74,7 +80,7 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('取消'),
+          child: Text(l10n.cancelButtonMsg),
         ),
         ElevatedButton(
           onPressed: () async {
@@ -88,7 +94,7 @@ class _EditSearchApiConfigCardState extends State<EditSearchApiConfigCard> {
               }
             }
           },
-          child: const Text('保存'),
+          child: Text(l10n.saveButton),
         ),
       ],
     );

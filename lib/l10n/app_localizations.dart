@@ -529,6 +529,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Other Settings'**
   String get otherSettingsAppBar;
+
+  /// No description provided for @urlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'URL'**
+  String get urlLabel;
+
+  /// No description provided for @modelNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., gpt-4'**
+  String get modelNameHint;
+
+  /// No description provided for @apiEndpointUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API Endpoint URL'**
+  String get apiEndpointUrlLabel;
+
+  /// No description provided for @searchApiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'tvly-xxxx or fc-xxxx'**
+  String get searchApiKeyHint;
+
+  /// No description provided for @deleteConfigConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete config \"{configName}\"? This operation cannot be undone.'**
+  String deleteConfigConfirmation(String configName);
+
+  /// No description provided for @visionModelComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Vision model configuration\nComing soon...'**
+  String get visionModelComingSoon;
+
+  /// No description provided for @speechModelComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech model configuration\nComing soon...'**
+  String get speechModelComingSoon;
+
+  /// No description provided for @languageNameChinese.
+  ///
+  /// In en, this message translates to:
+  /// **'简体中文'**
+  String get languageNameChinese;
+
+  /// No description provided for @languageNameEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get languageNameEnglish;
+
+  /// No description provided for @languageNameJapanese.
+  ///
+  /// In en, this message translates to:
+  /// **'日本語'**
+  String get languageNameJapanese;
 }
 
 class _AppLocalizationsDelegate

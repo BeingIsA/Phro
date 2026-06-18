@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/widgets/app_drawer/settings/api_settings/language_model_config_page.dart';
 import 'package:phro/widgets/app_drawer/settings/other_settings/other_settings.dart';
-import 'package:phro/widgets/app_drawer/settings/search_api/search_api_config_page.dart'; // 新增搜索API页面
+import 'package:phro/widgets/app_drawer/settings/search_api/search_api_config_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -34,6 +35,8 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Navigator(
       key: _navigatorKey,
       initialRoute: '/',
@@ -42,56 +45,56 @@ class _SettingsPageState extends State<SettingsPage> {
           children: [
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('语言模型'),
+              title: Text(l10n.languageModelMenu),
               onTap: () =>
                   _navigatorKey.currentState?.pushNamed('/language_model'),
             ),
             ListTile(
               leading: const Icon(Icons.image),
-              title: const Text('视觉模型'),
+              title: Text(l10n.visionModelMenu),
               onTap: () =>
                   _navigatorKey.currentState?.pushNamed('/vision_model'),
             ),
             ListTile(
               leading: const Icon(Icons.mic),
-              title: const Text('语音模型'),
+              title: Text(l10n.speechModelMenu),
               onTap: () =>
                   _navigatorKey.currentState?.pushNamed('/speech_model'),
             ),
             ListTile(
               leading: const Icon(Icons.search),
-              title: const Text('搜索API'),
+              title: Text(l10n.searchApiMenu),
               onTap: () => _navigatorKey.currentState?.pushNamed('/search_api'),
             ),
             ListTile(
               leading: const Icon(Icons.settings),
-              title: const Text('其他设置'),
+              title: Text(l10n.otherSettingsMenu),
               onTap: () => _navigatorKey.currentState?.pushNamed('/other'),
             ),
           ],
         );
 
-        String appBarText = '设置';
+        String appBarText = l10n.settingsTitle;
         switch (settings.name) {
           case '/language_model':
             body = const LanguageModelConfigPage();
-            appBarText = '语言模型';
+            appBarText = l10n.languageModelAppBar;
           case '/vision_model':
             body = const Center(
               child: Text('视觉模型配置\n开发中...', style: TextStyle(fontSize: 18)),
             );
-            appBarText = '视觉模型';
+            appBarText = l10n.visionModelAppBar;
           case '/speech_model':
             body = const Center(
               child: Text('语音模型配置\n开发中...', style: TextStyle(fontSize: 18)),
             );
-            appBarText = '语音模型';
+            appBarText = l10n.speechModelAppBar;
           case '/search_api':
             body = const SearchApiConfigPage();
-            appBarText = '搜索API';
+            appBarText = l10n.searchApiAppBar;
           case '/other':
             body = const OtherSettings();
-            appBarText = '其他设置';
+            appBarText = l10n.otherSettingsAppBar;
         }
 
         return PageRouteBuilder(

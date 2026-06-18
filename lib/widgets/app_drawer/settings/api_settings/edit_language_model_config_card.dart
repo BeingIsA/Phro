@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/services/model_config_service.dart';
 
-/// 模型设置组件（URL、模型名称、API Key + 保存按钮）
 class EditLanguageModelConfigCard extends StatefulWidget {
   final String? id;
 
@@ -33,7 +33,6 @@ class _EditLanguageModelConfigCardState
     final config = await modelConfigService.getConfigById(widget.id!);
 
     if (config != null) {
-      // 同时支持对象属性和 Map 两种常见写法（任选其一，推荐根据实际 Model 统一使用）
       _nameController.text = config.configName;
       _urlController.text = config.url;
       _modelController.text = config.modelName;
@@ -52,6 +51,8 @@ class _EditLanguageModelConfigCardState
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return AlertDialog(
       content: Form(
         key: _formKey,
@@ -61,23 +62,22 @@ class _EditLanguageModelConfigCardState
           children: [
             TextFormField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: '配置名称',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.configNameLabel,
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _urlController,
-              decoration: const InputDecoration(
-                labelText: 'URL',
-                hintText: '例如：https://api.openai.com/v1',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.urlLabel,
+                hintText: l10n.urlExampleHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
-                // ← 必填校验
                 if (value == null || value.trim().isEmpty) {
-                  return '必填';
+                  return l10n.requiredField;
                 }
                 return null;
               },
@@ -85,15 +85,14 @@ class _EditLanguageModelConfigCardState
             const SizedBox(height: 16),
             TextFormField(
               controller: _modelController,
-              decoration: const InputDecoration(
-                labelText: 'Model Name',
-                hintText: '例如：gpt-4',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.modelNameTitle,
+                hintText: l10n.modelNameHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
-                // ← 必填校验
                 if (value == null || value.trim().isEmpty) {
-                  return '必填';
+                  return l10n.requiredField;
                 }
                 return null;
               },
@@ -102,15 +101,14 @@ class _EditLanguageModelConfigCardState
             TextFormField(
               controller: _apiKeyController,
               obscureText: true,
-              decoration: const InputDecoration(
-                labelText: 'API Key',
-                hintText: '请输入您的 API Key',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: l10n.apiKeyLabel,
+                hintText: l10n.apiKeyHint,
+                border: const OutlineInputBorder(),
               ),
               validator: (value) {
-                // ← 必填校验
                 if (value == null || value.trim().isEmpty) {
-                  return '必填';
+                  return l10n.requiredField;
                 }
                 return null;
               },
@@ -124,9 +122,9 @@ class _EditLanguageModelConfigCardState
                   final model = _modelController.text;
                   final apiKey = _apiKeyController.text;
 
-                  debugPrint('配置名称: $name');
+                  debugPrint('${l10n.configNameLabel}: $name');
                   debugPrint('URL: $url');
-                  debugPrint('Model: $model');
+                  debugPrint('${l10n.modelNameTitle}: $model');
                   debugPrint('API Key: $apiKey');
                   modelConfigService.saveConfig(
                     id: widget.id,
@@ -138,7 +136,7 @@ class _EditLanguageModelConfigCardState
                   Navigator.of(context).pop(true);
                 }
               },
-              child: const Text('保存'),
+              child: Text(l10n.saveButton),
             ),
           ],
         ),

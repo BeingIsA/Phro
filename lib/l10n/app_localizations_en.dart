@@ -237,4 +237,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get otherSettingsAppBar => 'Other Settings';
+
+  @override
+  String get urlLabel => 'URL';
+
+  @override
+  String get modelNameHint => 'e.g., gpt-4';
+
+  @override
+  String get apiEndpointUrlLabel => 'API Endpoint URL';
+
+  @override
+  String get searchApiKeyHint => 'tvly-xxxx or fc-xxxx';
+
+  @override
+  String deleteConfigConfirmation(String configName) {
+    return 'Are you sure you want to delete config \"$configName\"? This operation cannot be undone.';
+  }
+
+  @override
+  String get visionModelComingSoon =>
+      'Vision model configuration\nComing soon...';
+
+  @override
+  String get speechModelComingSoon =>
+      'Speech model configuration\nComing soon...';
+
+  @override
+  String get languageNameChinese => '简体中文';
+
+  @override
+  String get languageNameEnglish => 'English';
+
+  @override
+  String get languageNameJapanese => '日本語';
 }

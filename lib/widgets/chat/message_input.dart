@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 
 class MessageInput extends StatefulWidget {
   final void Function(String) onSend;
@@ -39,6 +40,7 @@ class _MessageInputState extends State<MessageInput> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -55,7 +57,7 @@ class _MessageInputState extends State<MessageInput> {
             TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: '请输入内容...',
+                hintText: l10n.messageInputHint,
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 0,

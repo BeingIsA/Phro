@@ -42,12 +42,13 @@ class _LanguageModelConfigPageState extends State<LanguageModelConfigPage> {
   }
 
   Future<void> _deleteCard(String id, String configName) async {
+    final l10n = AppLocalizations.of(context)!;
     final colorScheme = Theme.of(context).colorScheme;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => DeleteAlertDialog(
         colorScheme: colorScheme,
-        content: '确定删除配置 "$configName" 吗？此操作无法撤销。',
+        content: l10n.deleteConfigConfirmation(configName),
       ),
     );
 

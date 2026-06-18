@@ -103,5 +103,20 @@
   "visionModelAppBar": "Vision Model",
   "speechModelAppBar": "Speech Model",
   "searchApiAppBar": "Search API",
-  "otherSettingsAppBar": "Other Settings"
+  "otherSettingsAppBar": "Other Settings",
+  "urlLabel": "URL",
+  "modelNameHint": "e.g., gpt-4",
+  "apiEndpointUrlLabel": "API Endpoint URL",
+  "searchApiKeyHint": "tvly-xxxx or fc-xxxx",
+  "deleteConfigConfirmation": "Are you sure you want to delete config \"{configName}\"? This operation cannot be undone.",
+  "@deleteConfigConfirmation": {
+    "placeholders": {
+      "configName": { "type": "String" }
+    }
+  },
+  "visionModelComingSoon": "Vision model configuration\nComing soon...",
+  "speechModelComingSoon": "Speech model configuration\nComing soon...",
+  "languageNameChinese": "简体中文",
+  "languageNameEnglish": "English",
+  "languageNameJapanese": "日本語"
 }

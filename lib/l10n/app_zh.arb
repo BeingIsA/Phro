@@ -103,5 +103,20 @@
   "visionModelAppBar": "视觉模型",
   "speechModelAppBar": "语音模型",
   "searchApiAppBar": "搜索API",
-  "otherSettingsAppBar": "其他设置"
+  "otherSettingsAppBar": "其他设置",
+  "urlLabel": "URL",
+  "modelNameHint": "例如：gpt-4",
+  "apiEndpointUrlLabel": "API Endpoint URL",
+  "searchApiKeyHint": "tvly-xxxx 或 fc-xxxx",
+  "deleteConfigConfirmation": "确定删除配置 \"{configName}\" 吗？此操作无法撤销。",
+  "@deleteConfigConfirmation": {
+    "placeholders": {
+      "configName": { "type": "String" }
+    }
+  },
+  "visionModelComingSoon": "视觉模型配置\n开发中...",
+  "speechModelComingSoon": "语音模型配置\n开发中...",
+  "languageNameChinese": "简体中文",
+  "languageNameEnglish": "English",
+  "languageNameJapanese": "日本語"
 }

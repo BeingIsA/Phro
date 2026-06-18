@@ -235,4 +235,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get otherSettingsAppBar => '其他设置';
+
+  @override
+  String get urlLabel => 'URL';
+
+  @override
+  String get modelNameHint => '例如：gpt-4';
+
+  @override
+  String get apiEndpointUrlLabel => 'API Endpoint URL';
+
+  @override
+  String get searchApiKeyHint => 'tvly-xxxx 或 fc-xxxx';
+
+  @override
+  String deleteConfigConfirmation(String configName) {
+    return '确定删除配置 \"$configName\" 吗？此操作无法撤销。';
+  }
+
+  @override
+  String get visionModelComingSoon => '视觉模型配置\n开发中...';
+
+  @override
+  String get speechModelComingSoon => '语音模型配置\n开发中...';
+
+  @override
+  String get languageNameChinese => '简体中文';
+
+  @override
+  String get languageNameEnglish => 'English';
+
+  @override
+  String get languageNameJapanese => '日本語';
 }

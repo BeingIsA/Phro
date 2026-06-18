@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/services/search_api_config_service.dart';
 
 class SearchApiConfigPage extends StatefulWidget {
@@ -37,6 +38,8 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
   }
 
   Future<void> _saveConfig() async {
+    final l10n = AppLocalizations.of(context)!;
+
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
@@ -48,15 +51,15 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('搜索API 配置已保存')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.searchApiConfigSavedMessage)),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('保存失败: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.searchApiConfigSaveError(e.toString()))),
+        );
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -72,8 +75,10 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
@@ -81,52 +86,49 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('搜索API 配置', style: theme.textTheme.headlineSmall),
+            Text(
+              l10n.searchApiConfigTitle,
+              style: theme.textTheme.headlineSmall,
+            ),
             const SizedBox(height: 8),
             Text(
-              '支持 Tavily / Firecrawl',
+              l10n.searchApiSupportedEngines,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurfaceVariant,
               ),
             ),
             const SizedBox(height: 24),
-
-            // URL 输入
             TextFormField(
               controller: _urlController,
               decoration: InputDecoration(
-                labelText: 'API Endpoint URL',
+                labelText: l10n.apiEndpointUrlLabel,
                 hintText: 'https://api.tavily.com/search',
                 border: const OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: colorScheme.outline),
                 ),
               ),
-              validator: (value) =>
-                  (value == null || value.trim().isEmpty) ? 'URL 不能为空' : null,
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? l10n.urlRequiredError
+                  : null,
             ),
             const SizedBox(height: 16),
-
-            // API Key 输入
             TextFormField(
               controller: _apiKeyController,
               obscureText: true,
               decoration: InputDecoration(
                 labelText: 'API Key',
-                hintText: 'tvly-xxxx 或 fc-xxxx',
+                hintText: l10n.searchApiKeyHint,
                 border: const OutlineInputBorder(),
                 enabledBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: colorScheme.outline),
                 ),
               ),
               validator: (value) => (value == null || value.trim().isEmpty)
-                  ? 'API Key 不能为空'
+                  ? l10n.apiKeyRequiredError
                   : null,
             ),
-
             const SizedBox(height: 32),
-
-            // 保存按钮
             ElevatedButton(
               onPressed: _isLoading ? null : _saveConfig,
               style: ElevatedButton.styleFrom(
@@ -139,11 +141,11 @@ class _SearchApiConfigPageState extends State<SearchApiConfigPage> {
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
-                        color: colorScheme.onPrimary, // 或
+                        color: colorScheme.onPrimary,
                         strokeWidth: 2.5,
                       ),
                     )
-                  : const Text('保存配置'),
+                  : Text(l10n.saveSearchApiConfigButton),
             ),
           ],
         ),
