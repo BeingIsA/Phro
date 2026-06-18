@@ -191,6 +191,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get apiKeyLabel => 'API Key';
+
+  @override
   String get searchApiConfigTitle => 'Search API Config';
 
   @override

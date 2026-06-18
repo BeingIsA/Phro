@@ -88,6 +88,7 @@
       "error": { "type": "String" }
     }
   },
+  "apiKeyLabel": "API Key",
   "searchApiConfigTitle": "搜索API 配置",
   "searchApiSupportedEngines": "支持 Tavily / Firecrawl",
   "urlRequiredError": "URL 不能为空",

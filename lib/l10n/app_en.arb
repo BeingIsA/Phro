@@ -88,6 +88,7 @@
       "error": { "type": "String" }
     }
   },
+  "apiKeyLabel": "API Key",
   "searchApiConfigTitle": "Search API Config",
   "searchApiSupportedEngines": "Supports Tavily / Firecrawl",
   "urlRequiredError": "URL cannot be empty",
@@ -106,6 +107,7 @@
   "otherSettingsAppBar": "Other Settings",
   "urlLabel": "URL",
   "modelNameHint": "e.g., gpt-4",
+
   "apiEndpointUrlLabel": "API Endpoint URL",
   "searchApiKeyHint": "tvly-xxxx or fc-xxxx",
   "deleteConfigConfirmation": "Are you sure you want to delete config \"{configName}\"? This operation cannot be undone.",

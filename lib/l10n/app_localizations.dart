@@ -434,6 +434,12 @@ abstract class AppLocalizations {
   /// **'Save failed: {error}'**
   String searchApiConfigSaveError(String error);
 
+  /// No description provided for @apiKeyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key'**
+  String get apiKeyLabel;
+
   /// No description provided for @searchApiConfigTitle.
   ///
   /// In en, this message translates to:

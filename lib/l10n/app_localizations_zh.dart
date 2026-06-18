@@ -189,6 +189,9 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String get apiKeyLabel => 'API Key';
+
+  @override
   String get searchApiConfigTitle => '搜索API 配置';
 
   @override
