@@ -33,6 +33,7 @@ class EditFileTool extends Tool {
   @override
   Future<String> execute(Map args) async {
     final path = args['path'] as String;
+    // 统一换行符避免匹配失败
     final oldString = args['oldString'].replaceAll('\r\n', '\n') as String;
     final newString = args['newString'].replaceAll('\r\n', '\n') as String;
     final replaceAll = args['replaceAll'] as bool? ?? false;
