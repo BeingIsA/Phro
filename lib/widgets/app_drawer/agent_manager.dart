@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/agent.dart';
 import 'package:phro/widgets/app_drawer/config_agent_card.dart';
 import 'package:phro/services/agent_service.dart';
@@ -16,6 +17,7 @@ class AgentManager extends ConsumerStatefulWidget {
 
 class _AgentManagerState extends ConsumerState<AgentManager> {
   final AgentService _agentService = AgentService.instance;
+
   List<Agent> _agents = [];
   bool _isExpanded = false;
 
@@ -73,6 +75,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final activatedAgent = ref.watch(activeAgentNotifierProvider);
     final activatedAgentId = activatedAgent?.id;
     final colorScheme = Theme.of(context).colorScheme;
@@ -80,7 +83,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
     return Column(
       children: [
         ListTile(
-          title: Text('Agent管理', style: widget.titleStyle),
+          title: Text(l10n.agentManagementTitle, style: widget.titleStyle),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -92,7 +95,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
               IconButton(
                 onPressed: _createNewAgent,
                 icon: Icon(Icons.add, size: 22, color: colorScheme.onSurface),
-                tooltip: '新建 Agent',
+                tooltip: l10n.newAgentTooltip,
               ),
             ],
           ),
@@ -107,7 +110,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: Center(
                       child: Text(
-                        '暂无 Agent',
+                        'noAgentsText',
                         style: TextStyle(color: Colors.grey),
                       ),
                     ),
@@ -142,7 +145,7 @@ class _AgentManagerState extends ConsumerState<AgentManager> {
                                 color: colorScheme.primary,
                               ),
                               onPressed: () => _editAgent(agent),
-                              tooltip: '编辑 Agent',
+                              tooltip: l10n.editAgentTooltip,
                             ),
                           ],
                         ),

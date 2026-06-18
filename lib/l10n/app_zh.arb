@@ -14,6 +14,94 @@
     }
   },
   "newChatPrefix": "新对话（",
-  "newChatSuffix": "）",
-  "settings": "设置"
+  "newChatSuffix": ")",
+  "settings": "设置",
+  "editAgentTitle": "编辑 Agent",
+  "newAgentTitle": "新建 Agent",
+  "agentNameLabel": "Agent 名称 *",
+  "agentNameHint": "例如：专业写作助手",
+  "nameNotEmptyError": "名称不能为空",
+  "identityLabel": "Identity（系统提示词） *",
+  "identityHint": "你是一个专业的...",
+  "saveChangesButton": "保存修改",
+  "createButton": "创建",
+  "agentManagementTitle": "Agent管理",
+  "newAgentTooltip": "新建 Agent",
+  "noAgentsText": "暂无 Agent",
+  "editAgentTooltip": "编辑 Agent",
+  "toolCallResult": "工具 {name} 调用结果",
+  "@toolCallResult": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolSecurityWarning": "安全警告：工具 {name} 请求授权",
+  "@toolSecurityWarning": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolArgumentsPrefix": "参数：",
+  "toolRejected": "工具 {name} 已被拒绝",
+  "@toolRejected": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolStatusPending": "状态：等待安全授权...",
+  "toolStatusRejectedPrefix": "拒绝详情：\n",
+  "toolStatusResultPrefix": "调用结果：\n",
+  "toolReasonHint": "输入拒绝原因或修正反馈（可选）...",
+  "rejectButton": "拒绝",
+  "allowButton": "允许",
+  "startNewChatText": "开始新的对话吧！",
+  "thinkingProcessTitle": "思考过程",
+  "chatHistoryTitle": "聊天历史",
+  "noChatHistoryText": "暂无历史对话",
+  "editButton": "编辑",
+  "deleteButton": "删除",
+  "editChatTitleTitle": "编辑标题",
+  "editChatTitleHint": "请输入新标题",
+  "cancelButtonMsg": "取消",
+  "saveButton": "保存",
+  "deleteChatConfirmation": "确定删除会话 \"{title}\" 吗？此操作无法撤销。",
+  "@deleteChatConfirmation": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "editMessageTooltip": "编辑消息",
+  "resendButton": "重新发送",
+  "messageInputHint": "请输入内容...",
+  "configAliasTitle": "配置别名",
+  "modelNameTitle": "模型名称",
+  "addConfigTooltip": "新增配置",
+  "settingsSavedMessage": "设置已保存",
+  "configNameLabel": "配置名称",
+  "urlExampleHint": "例如：https://api.openai.com/v1",
+  "requiredField": "必填",
+  "apiKeyHint": "请输入您的 API Key",
+  "searchApiConfigSavedMessage": "搜索API 配置已保存",
+  "searchApiConfigSaveError": "保存失败: {error}",
+  "@searchApiConfigSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "searchApiConfigTitle": "搜索API 配置",
+  "searchApiSupportedEngines": "支持 Tavily / Firecrawl",
+  "urlRequiredError": "URL 不能为空",
+  "apiKeyRequiredError": "API Key 不能为空",
+  "saveSearchApiConfigButton": "保存配置",
+  "languageModelMenu": "语言模型",
+  "visionModelMenu": "视觉模型",
+  "speechModelMenu": "语音模型",
+  "searchApiMenu": "搜索API",
+  "otherSettingsMenu": "其他设置",
+  "settingsTitle": "设置",
+  "languageModelAppBar": "语言模型",
+  "visionModelAppBar": "视觉模型",
+  "speechModelAppBar": "语音模型",
+  "searchApiAppBar": "搜索API",
+  "otherSettingsAppBar": "其他设置"
 }

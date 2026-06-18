@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:phro/l10n/app_localizations.dart';
 
 class ConfigAgentCard extends StatefulWidget {
   final String? initialName;
@@ -34,9 +35,10 @@ class _ConfigAgentCardState extends State<ConfigAgentCard> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.initialName != null;
+    final l10n = AppLocalizations.of(context)!;
 
     return AlertDialog(
-      title: Text(isEdit ? '编辑 Agent' : '新建 Agent'),
+      title: Text(isEdit ? l10n.editAgentTitle : l10n.newAgentTitle),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -45,12 +47,12 @@ class _ConfigAgentCardState extends State<ConfigAgentCard> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Agent 名称 *',
-                  hintText: '例如：专业写作助手',
+                decoration: InputDecoration(
+                  labelText: l10n.agentNameLabel,
+                  hintText: l10n.agentNameHint,
                 ),
                 validator: (value) =>
-                    value?.trim().isEmpty == true ? '名称不能为空' : null,
+                    value?.trim().isEmpty == true ? l10n.nameNotEmptyError : null,
                 autofocus: true,
               ),
               const SizedBox(height: 16),
@@ -58,9 +60,9 @@ class _ConfigAgentCardState extends State<ConfigAgentCard> {
                 controller: _identityController,
                 maxLines: 8,
                 minLines: 4,
-                decoration: const InputDecoration(
-                  labelText: 'Identity（系统提示词） *',
-                  hintText: '你是一个专业的...',
+                decoration: InputDecoration(
+                  labelText: l10n.identityLabel,
+                  hintText: l10n.identityHint,
                   alignLabelWithHint: true,
                 ),
               ),
@@ -71,7 +73,7 @@ class _ConfigAgentCardState extends State<ConfigAgentCard> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('取消'),
+          child: Text(l10n.cancel),
         ),
         ElevatedButton(
           onPressed: () {
@@ -82,9 +84,10 @@ class _ConfigAgentCardState extends State<ConfigAgentCard> {
               });
             }
           },
-          child: Text(isEdit ? '保存修改' : '创建'),
+          child: Text(isEdit ? l10n.saveChangesButton : l10n.createButton),
         ),
       ],
     );
   }
 }
+

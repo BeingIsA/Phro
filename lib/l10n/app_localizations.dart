@@ -151,6 +151,384 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get settings;
+
+  /// No description provided for @editAgentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Agent'**
+  String get editAgentTitle;
+
+  /// No description provided for @newAgentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New Agent'**
+  String get newAgentTitle;
+
+  /// No description provided for @agentNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Name *'**
+  String get agentNameLabel;
+
+  /// No description provided for @agentNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., professional writing assistant'**
+  String get agentNameHint;
+
+  /// No description provided for @nameNotEmptyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Name cannot be empty'**
+  String get nameNotEmptyError;
+
+  /// No description provided for @identityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Identity (System Prompt) *'**
+  String get identityLabel;
+
+  /// No description provided for @identityHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You are a professional...'**
+  String get identityHint;
+
+  /// No description provided for @saveChangesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get saveChangesButton;
+
+  /// No description provided for @createButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get createButton;
+
+  /// No description provided for @agentManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Agent Management'**
+  String get agentManagementTitle;
+
+  /// No description provided for @newAgentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'New Agent'**
+  String get newAgentTooltip;
+
+  /// No description provided for @editAgentTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Agent'**
+  String get editAgentTooltip;
+
+  /// No description provided for @noAgentsText.
+  ///
+  /// In en, this message translates to:
+  /// **'No Agents'**
+  String get noAgentsText;
+
+  /// No description provided for @toolCallResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool {name} call result'**
+  String toolCallResult(String name);
+
+  /// No description provided for @toolSecurityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Security warning: Tool {name} requests authorization'**
+  String toolSecurityWarning(String name);
+
+  /// No description provided for @toolArgumentsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Arguments: '**
+  String get toolArgumentsPrefix;
+
+  /// No description provided for @toolRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool {name} has been rejected'**
+  String toolRejected(String name);
+
+  /// No description provided for @toolStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: Waiting for security authorization...'**
+  String get toolStatusPending;
+
+  /// No description provided for @toolStatusRejectedPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Rejection details:\n'**
+  String get toolStatusRejectedPrefix;
+
+  /// No description provided for @toolStatusResultPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Call result:\n'**
+  String get toolStatusResultPrefix;
+
+  /// No description provided for @toolReasonHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter rejection reason or correction feedback (optional)...'**
+  String get toolReasonHint;
+
+  /// No description provided for @rejectButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Reject'**
+  String get rejectButton;
+
+  /// No description provided for @allowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get allowButton;
+
+  /// No description provided for @startNewChatText.
+  ///
+  /// In en, this message translates to:
+  /// **'Start a new conversation!'**
+  String get startNewChatText;
+
+  /// No description provided for @thinkingProcessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking process'**
+  String get thinkingProcessTitle;
+
+  /// No description provided for @chatHistoryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat History'**
+  String get chatHistoryTitle;
+
+  /// No description provided for @noChatHistoryText.
+  ///
+  /// In en, this message translates to:
+  /// **'No history conversations'**
+  String get noChatHistoryText;
+
+  /// No description provided for @editButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editButton;
+
+  /// No description provided for @deleteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteButton;
+
+  /// No description provided for @editChatTitleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Title'**
+  String get editChatTitleTitle;
+
+  /// No description provided for @editChatTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter new title'**
+  String get editChatTitleHint;
+
+  /// No description provided for @cancelButtonMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelButtonMsg;
+
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @deleteChatConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are yous sure you want to delete session {title}? This operation cannot be undone.'**
+  String deleteChatConfirmation(String title);
+
+  /// No description provided for @editMessageTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit message'**
+  String get editMessageTooltip;
+
+  /// No description provided for @resendButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get resendButton;
+
+  /// No description provided for @messageInputHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter content...'**
+  String get messageInputHint;
+
+  /// No description provided for @configAliasTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Config Alias'**
+  String get configAliasTitle;
+
+  /// No description provided for @modelNameTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Model Name'**
+  String get modelNameTitle;
+
+  /// No description provided for @addConfigTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Config'**
+  String get addConfigTooltip;
+
+  /// No description provided for @settingsSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings saved'**
+  String get settingsSavedMessage;
+
+  /// No description provided for @configNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Config Name'**
+  String get configNameLabel;
+
+  /// No description provided for @urlExampleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g., https://api.openai.com/v1'**
+  String get urlExampleHint;
+
+  /// No description provided for @requiredField.
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get requiredField;
+
+  /// No description provided for @apiKeyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your API Key'**
+  String get apiKeyHint;
+
+  /// No description provided for @searchApiConfigSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Search API configuration saved'**
+  String get searchApiConfigSavedMessage;
+
+  /// No description provided for @searchApiConfigSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Save failed: {error}'**
+  String searchApiConfigSaveError(String error);
+
+  /// No description provided for @searchApiConfigTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search API Config'**
+  String get searchApiConfigTitle;
+
+  /// No description provided for @searchApiSupportedEngines.
+  ///
+  /// In en, this message translates to:
+  /// **'Supports Tavily / Firecrawl'**
+  String get searchApiSupportedEngines;
+
+  /// No description provided for @urlRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'URL cannot be empty'**
+  String get urlRequiredError;
+
+  /// No description provided for @apiKeyRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'API Key cannot be empty'**
+  String get apiKeyRequiredError;
+
+  /// No description provided for @saveSearchApiConfigButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Config'**
+  String get saveSearchApiConfigButton;
+
+  /// No description provided for @languageModelMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Model'**
+  String get languageModelMenu;
+
+  /// No description provided for @visionModelMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Vision Model'**
+  String get visionModelMenu;
+
+  /// No description provided for @speechModelMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech Model'**
+  String get speechModelMenu;
+
+  /// No description provided for @searchApiMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Search API'**
+  String get searchApiMenu;
+
+  /// No description provided for @otherSettingsMenu.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Settings'**
+  String get otherSettingsMenu;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @languageModelAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Model'**
+  String get languageModelAppBar;
+
+  /// No description provided for @visionModelAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Vision Model'**
+  String get visionModelAppBar;
+
+  /// No description provided for @speechModelAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Speech Model'**
+  String get speechModelAppBar;
+
+  /// No description provided for @searchApiAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Search API'**
+  String get searchApiAppBar;
+
+  /// No description provided for @otherSettingsAppBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Settings'**
+  String get otherSettingsAppBar;
 }
 
 class _AppLocalizationsDelegate

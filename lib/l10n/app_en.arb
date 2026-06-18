@@ -15,5 +15,93 @@
   },
   "newChatPrefix": "New chat (",
   "newChatSuffix": ")",
-  "settings": "Settings"
+  "settings": "Settings",
+  "editAgentTitle": "Edit Agent",
+  "newAgentTitle": "New Agent",
+  "agentNameLabel": "Agent Name *",
+  "agentNameHint": "e.g., professional writing assistant",
+  "nameNotEmptyError": "Name cannot be empty",
+  "identityLabel": "Identity (System Prompt) *",
+  "identityHint": "You are a professional...",
+  "saveChangesButton": "Save Changes",
+  "createButton": "Create",
+  "agentManagementTitle": "Agent Management",
+  "newAgentTooltip": "New Agent",
+  "editAgentTooltip": "Edit Agent",
+  "noAgentsText": "No Agents",
+  "toolCallResult": "Tool {name} call result",
+  "@toolCallResult": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolSecurityWarning": "Security warning: Tool {name} requests authorization",
+  "@toolSecurityWarning": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolArgumentsPrefix": "Arguments: ",
+  "toolRejected": "Tool {name} has been rejected",
+  "@toolRejected": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolStatusPending": "Status: Waiting for security authorization...",
+  "toolStatusRejectedPrefix": "Rejection details:\n",
+  "toolStatusResultPrefix": "Call result:\n",
+  "toolReasonHint": "Enter rejection reason or correction feedback (optional)...",
+  "rejectButton": "Reject",
+  "allowButton": "Allow",
+  "startNewChatText": "Start a new conversation!",
+  "thinkingProcessTitle": "Thinking process",
+  "chatHistoryTitle": "Chat History",
+  "noChatHistoryText": "No history conversations",
+  "editButton": "Edit",
+  "deleteButton": "Delete",
+  "editChatTitleTitle": "Edit Title",
+  "editChatTitleHint": "Please enter new title",
+  "cancelButtonMsg": "Cancel",
+  "saveButton": "Save",
+  "deleteChatConfirmation": "Are yous sure you want to delete session {title}? This operation cannot be undone.",
+  "@deleteChatConfirmation": {
+    "placeholders": {
+      "title": { "type": "String" }
+    }
+  },
+  "editMessageTooltip": "Edit message",
+  "resendButton": "Resend",
+  "messageInputHint": "Please enter content...",
+  "configAliasTitle": "Config Alias",
+  "modelNameTitle": "Model Name",
+  "addConfigTooltip": "Add Config",
+  "settingsSavedMessage": "Settings saved",
+  "configNameLabel": "Config Name",
+  "urlExampleHint": "e.g., https://api.openai.com/v1",
+  "requiredField": "Required",
+  "apiKeyHint": "Please enter your API Key",
+  "searchApiConfigSavedMessage": "Search API configuration saved",
+  "searchApiConfigSaveError": "Save failed: {error}",
+  "@searchApiConfigSaveError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "searchApiConfigTitle": "Search API Config",
+  "searchApiSupportedEngines": "Supports Tavily / Firecrawl",
+  "urlRequiredError": "URL cannot be empty",
+  "apiKeyRequiredError": "API Key cannot be empty",
+  "saveSearchApiConfigButton": "Save Config",
+  "languageModelMenu": "Language Model",
+  "visionModelMenu": "Vision Model",
+  "speechModelMenu": "Speech Model",
+  "searchApiMenu": "Search API",
+  "otherSettingsMenu": "Other Settings",
+  "settingsTitle": "Settings",
+  "languageModelAppBar": "Language Model",
+  "visionModelAppBar": "Vision Model",
+  "speechModelAppBar": "Speech Model",
+  "searchApiAppBar": "Search API",
+  "otherSettingsAppBar": "Other Settings"
 }

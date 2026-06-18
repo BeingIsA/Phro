@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/chat_service.dart';
 
@@ -30,6 +32,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
@@ -45,14 +48,14 @@ class ToolMessageTileState extends State<ToolMessageTile> {
         : colorScheme.onSurfaceVariant;
 
     IconData iconData = Icons.build;
-    String titleText = '工具 ${message.name} 调用结果';
+    String titleText = l10n!.toolCallResult(message.name!);
 
     if (isPending) {
       iconData = Icons.gpp_maybe_outlined;
-      titleText = '安全警告：工具 ${message.name} 请求授权';
+      titleText = l10n.toolSecurityWarning(message.name!);
     } else if (isRejected) {
       iconData = Icons.block;
-      titleText = '工具 ${message.name} 已被拒绝';
+      titleText = l10n.toolRejected(message.name!);
     }
 
     return Padding(
@@ -76,8 +79,8 @@ class ToolMessageTileState extends State<ToolMessageTile> {
           Align(
             alignment: Alignment.centerLeft,
             child: SelectableText(
-              "参数：${message.argument}\n\n"
-              "${isPending ? '状态：等待安全授权...' : (isRejected ? '拒绝详情：\n' : '调用结果：\n')}${message.content}",
+              "${l10n.toolArgumentsPrefix}${message.argument}\n\n"
+              "${isPending ? l10n.toolStatusPending : (isRejected ? l10n.toolStatusRejectedPrefix : l10n.toolStatusResultPrefix)}${message.content}",
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onSurface,
                 height: 1.4,
@@ -95,7 +98,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                   child: TextField(
                     controller: _reasonController,
                     decoration: InputDecoration(
-                      hintText: '输入拒绝原因或修正反馈（可选）...',
+                      hintText: l10n.toolReasonHint,
                       hintStyle: theme.textTheme.bodySmall?.copyWith(
                         color: colorScheme.onSurfaceVariant,
                       ),
@@ -126,7 +129,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                     );
                   },
                   icon: Icon(Icons.close, size: 16, color: colorScheme.error),
-                  label: const Text('拒绝'),
+                  label: Text(l10n.rejectButton),
                   style: TextButton.styleFrom(
                     foregroundColor: colorScheme.error,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -143,7 +146,7 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                     );
                   },
                   icon: const Icon(Icons.check, size: 16),
-                  label: const Text('允许'),
+                  label: Text(l10n.allowButton),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
