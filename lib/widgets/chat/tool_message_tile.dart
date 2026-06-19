@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/chat_service.dart';
+import 'package:phro/widgets/chat/tool_messages/tool_arguments.dart';
 
 /// 新增：内嵌式工具消息卡片组件（免弹窗，直接输入并拒绝）
 class ToolMessageTile extends StatefulWidget {
@@ -9,6 +10,10 @@ class ToolMessageTile extends StatefulWidget {
   final ChatService chatService = ChatService.instance;
 
   ToolMessageTile({super.key, required this.message});
+
+  Widget buildToolDetails() {
+    return ToolDetails(message: message);
+  }
 
   @override
   State<ToolMessageTile> createState() => ToolMessageTileState();
@@ -77,13 +82,18 @@ class ToolMessageTileState extends State<ToolMessageTile> {
           // 参数与详情展示
           Align(
             alignment: Alignment.centerLeft,
-            child: SelectableText(
-              "${l10n.toolArgumentsPrefix}${message.argument}\n\n"
-              "${isPending ? l10n.toolStatusPending : (isRejected ? l10n.toolStatusRejectedPrefix : l10n.toolStatusResultPrefix)}${message.content}",
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurface,
-                height: 1.4,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                widget.buildToolDetails(),
+                SelectableText(
+                  '${isPending ? l10n.toolStatusPending : (isRejected ? l10n.toolStatusRejectedPrefix : l10n.toolStatusResultPrefix)}${message.content}',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurface,
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
           ),
 
