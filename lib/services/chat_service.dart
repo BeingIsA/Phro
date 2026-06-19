@@ -47,20 +47,6 @@ class ChatService {
        _chatRepository = chatRepository ?? ChatRepository.instance,
        _agentService = agentService ?? AgentService.instance;
 
-  // 提供给 UI 层调用的公开方法：用户点击“允许”或“拒绝”时通过此方法输入反馈
-  void confirmToolCall(
-    String toolCallId, {
-    required bool approved,
-    String? reason,
-  }) {
-    final completer = _toolConfirmationCompleters[toolCallId];
-    if (completer != null && !completer.isCompleted) {
-      completer.complete(
-        ToolConfirmationResult(approved: approved, reason: reason),
-      );
-    }
-  }
-
   Future<List<Chat>> getAllChats() async {
     return await _chatRepository.getAllChats();
   }
@@ -281,6 +267,21 @@ class ChatService {
     }
   }
 
+  // 提供给 UI 层调用的公开方法：用户点击“允许”或“拒绝”时通过此方法输入反馈
+  void confirmToolCall(
+    String toolCallId, {
+    required bool approved,
+    String? reason,
+  }) {
+    final completer = _toolConfirmationCompleters[toolCallId];
+    if (completer != null && !completer.isCompleted) {
+      completer.complete(
+        ToolConfirmationResult(approved: approved, reason: reason),
+      );
+    }
+  }
+
+  // 用来拼接LLM生成的tool call信息
   void _accumulateToolCalls(
     List toolCallList,
     Map<int, Map<String, dynamic>> fullToolCalls,
