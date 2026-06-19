@@ -23,7 +23,6 @@ enum _SettingsPageType {
 class _SettingsPageState extends State<SettingsPage> {
   _SettingsPageType _selectedPage = _SettingsPageType.menu;
 
-  // 杩欎釜鍗冧竾涓嶈兘鏀瑰啓鎴愮被瀹炰緥锛屼竴瀹氳鏄嚱鏁般€備細褰卞搷Scaffold鍒濆鍖栫殑鏃舵満
   Widget _buildMainSettings(Widget body, String appBarText) {
     final isMenuPage = _selectedPage == _SettingsPageType.menu;
 
