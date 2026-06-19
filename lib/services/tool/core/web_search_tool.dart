@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:phro/models/search_api_config.dart';
 import 'package:phro/services/search_api_config_service.dart';
-import 'package:phro/services/tools/core/tool.dart';
+import 'package:phro/services/tool/core/tool.dart';
 
 /// 极简版统一搜索工具
 /// 直接返回 response.body（已经是字符串）

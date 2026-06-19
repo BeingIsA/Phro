@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:phro/services/tools/core/tool.dart';
+import 'package:phro/services/tool/core/tool.dart';
 
 class CreateDirectoryTool extends Tool {
   CreateDirectoryTool._();

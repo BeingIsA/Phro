@@ -1,7 +1,7 @@
 // base_shell_tool.dart
 import 'dart:convert';
 import 'dart:io';
-import 'package:phro/services/tools/core/tool.dart';
+import 'package:phro/services/tool/core/tool.dart';
 
 abstract class BaseShellTool extends Tool {
   @override

@@ -7,7 +7,7 @@ import 'package:phro/models/model_config.dart';
 import 'package:phro/repositories/chat_repository.dart';
 import 'package:phro/services/chat_service.dart';
 import 'package:phro/services/model_config_service.dart';
-import 'package:phro/services/tools/tool_service.dart';
+import 'package:phro/services/tool/tool_service.dart';
 
 class MockLLMClient extends Mock implements LLMClient {}
 

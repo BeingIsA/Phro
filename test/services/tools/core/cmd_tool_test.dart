@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:phro/services/tools/core/shell_tool.dart';
+import 'package:phro/services/tool/core/shell_tool.dart';
 
 void main() {
   group('CmdTool', () {

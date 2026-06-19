@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:phro/services/tools/core/tool.dart';
+import 'package:phro/services/tool/core/tool.dart';
 
 class ShellTool extends Tool {
   ShellTool._();

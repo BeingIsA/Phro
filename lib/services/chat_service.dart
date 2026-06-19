@@ -6,7 +6,7 @@ import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/model_config_service.dart';
-import 'package:phro/services/tools/tool_service.dart';
+import 'package:phro/services/tool/tool_service.dart';
 
 class ToolConfirmationResult {
   final bool approved;
