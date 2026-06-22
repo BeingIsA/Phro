@@ -26,6 +26,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  pretty_diff_text: ^2.1.0
 
 
 dev_dependencies:

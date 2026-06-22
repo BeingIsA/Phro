@@ -233,7 +233,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolCallResult.
   ///
   /// In en, this message translates to:
-  /// **'Tool {name} call result'**
+  /// **'Tool call [{name}]'**
   String toolCallResult(String name);
 
   /// No description provided for @toolSecurityWarning.
@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @toolStatusResultPrefix.
   ///
   /// In en, this message translates to:
-  /// **'Call result:\n'**
+  /// **'Call result:'**
   String get toolStatusResultPrefix;
 
   /// No description provided for @toolReasonHint.

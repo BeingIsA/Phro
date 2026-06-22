@@ -29,7 +29,7 @@
   "newAgentTooltip": "新建 Agent",
   "noAgentsText": "暂无 Agent",
   "editAgentTooltip": "编辑 Agent",
-  "toolCallResult": "工具 {name} 调用结果",
+  "toolCallResult": "工具调用 [{name}]",
   "@toolCallResult": {
     "placeholders": {
       "name": { "type": "String" }
@@ -50,7 +50,7 @@
   },
   "toolStatusPending": "状态：等待安全授权...",
   "toolStatusRejectedPrefix": "拒绝详情：\n",
-  "toolStatusResultPrefix": "调用结果：\n",
+  "toolStatusResultPrefix": "调用结果：",
   "toolReasonHint": "输入拒绝原因或修正反馈（可选）...",
   "rejectButton": "拒绝",
   "allowButton": "允许",

@@ -78,7 +78,7 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String toolCallResult(String name) {
-    return '工具 $name 调用结果';
+    return '工具调用 [$name]';
   }
 
   @override
@@ -101,7 +101,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get toolStatusRejectedPrefix => '拒绝详情：\n';
 
   @override
-  String get toolStatusResultPrefix => '调用结果：\n';
+  String get toolStatusResultPrefix => '调用结果：';
 
   @override
   String get toolReasonHint => '输入拒绝原因或修正反馈（可选）...';

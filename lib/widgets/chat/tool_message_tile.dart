@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/chat_service.dart';
-import 'package:phro/widgets/chat/tool_messages/tool_arguments.dart';
+import 'package:phro/widgets/chat/tool_details/default_tool_details.dart';
+import 'package:phro/widgets/chat/tool_details/edit_file_tool_details.dart';
 
 /// 新增：内嵌式工具消息卡片组件（免弹窗，直接输入并拒绝）
 class ToolMessageTile extends StatefulWidget {
@@ -12,7 +13,10 @@ class ToolMessageTile extends StatefulWidget {
   ToolMessageTile({super.key, required this.message});
 
   Widget buildToolDetails() {
-    return ToolDetails(message: message);
+    if (message.name == 'edit_file') {
+      return EditFileToolDetails(message: message);
+    }
+    return DefaultToolDetails(message: message);
   }
 
   @override
@@ -87,10 +91,31 @@ class ToolMessageTileState extends State<ToolMessageTile> {
               children: [
                 widget.buildToolDetails(),
                 SelectableText(
-                  '${isPending ? l10n.toolStatusPending : (isRejected ? l10n.toolStatusRejectedPrefix : l10n.toolStatusResultPrefix)}${message.content}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    height: 1.4,
+                  isPending
+                      ? l10n.toolStatusPending
+                      : (isRejected
+                            ? l10n.toolStatusRejectedPrefix
+                            : l10n.toolStatusResultPrefix),
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: theme.colorScheme.outlineVariant),
+                  ),
+                  child: SelectableText(
+                    message.content,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],

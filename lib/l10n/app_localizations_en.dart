@@ -78,7 +78,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String toolCallResult(String name) {
-    return 'Tool $name call result';
+    return 'Tool call [$name]';
   }
 
   @override
@@ -102,7 +102,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get toolStatusRejectedPrefix => 'Rejection details:\n';
 
   @override
-  String get toolStatusResultPrefix => 'Call result:\n';
+  String get toolStatusResultPrefix => 'Call result:';
 
   @override
   String get toolReasonHint =>

@@ -29,7 +29,7 @@
   "newAgentTooltip": "New Agent",
   "editAgentTooltip": "Edit Agent",
   "noAgentsText": "No Agents",
-  "toolCallResult": "Tool {name} call result",
+  "toolCallResult": "Tool call [{name}]",
   "@toolCallResult": {
     "placeholders": {
       "name": { "type": "String" }
@@ -50,7 +50,7 @@
   },
   "toolStatusPending": "Status: Waiting for security authorization...",
   "toolStatusRejectedPrefix": "Rejection details:\n",
-  "toolStatusResultPrefix": "Call result:\n",
+  "toolStatusResultPrefix": "Call result:",
   "toolReasonHint": "Enter rejection reason or correction feedback (optional)...",
   "rejectButton": "Reject",
   "allowButton": "Allow",
