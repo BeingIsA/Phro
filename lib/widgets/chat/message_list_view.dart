@@ -72,8 +72,7 @@ class MessageListView extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
-    final bool hasError =
-        message.error != null && message.error!.trim().isNotEmpty;
+    final bool hasError = message.error?.trim().isNotEmpty ?? false;
     final String displayText = hasError ? message.error! : message.content;
 
     if (displayText.trim().isEmpty) return const SizedBox.shrink();

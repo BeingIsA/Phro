@@ -29,8 +29,14 @@
   "newAgentTooltip": "新建 Agent",
   "noAgentsText": "暂无 Agent",
   "editAgentTooltip": "编辑 Agent",
-  "toolCallResult": "工具调用 [{name}]",
-  "@toolCallResult": {
+  "toolCallFinished": "工具 [{name}] 执行完成",
+  "@toolCallFinished": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolExecuting": "Tool [{name}] 正在执行",
+  "@toolExecuting": {
     "placeholders": {
       "name": { "type": "String" }
     }
@@ -48,9 +54,16 @@
       "name": { "type": "String" }
     }
   },
+  "toolCanceled": "工具 {name} 调用已取消",
+  "@toolCanceled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "toolStatusPending": "状态：等待安全授权...",
-  "toolStatusRejectedPrefix": "拒绝详情：\n",
-  "toolStatusResultPrefix": "调用结果：",
+  "toolStatusRejected": "拒绝详情：",
+  "toolStatusfinished": "调用结果：",
+  "toolStatusExecuting": "正在执行...",
   "toolReasonHint": "输入拒绝原因或修正反馈（可选）...",
   "rejectButton": "拒绝",
   "allowButton": "允许",

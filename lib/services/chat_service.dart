@@ -9,14 +9,14 @@ import 'package:phro/services/model_config_service.dart';
 import 'package:phro/services/tool/tool_service.dart';
 
 class ToolConfirmationResult {
-  final bool approved;
+  final ToolCallStatus toolCallStatus;
   final String? reason;
-  ToolConfirmationResult({required this.approved, this.reason});
+  ToolConfirmationResult({required this.toolCallStatus, this.reason});
 }
 
 class ChatService {
   static final ChatService instance = ChatService._();
-
+  static final kGenerationCanceledFlag = 'generation_calceled_by_user';
   final ChatRepository _chatRepository;
   final LLMClient _llmClient;
   final ToolService _toolService;
@@ -172,6 +172,13 @@ class ChatService {
     if (_activeGeneration == null) return;
     _activeGeneration!.cancel();
     _activeGeneration = null;
+    for (final completer in _toolConfirmationCompleters.values) {
+      if (!completer.isCompleted) {
+        completer.complete(
+          ToolConfirmationResult(toolCallStatus: ToolCallStatus.canceled),
+        );
+      }
+    }
   }
 
   Stream<Chat> editAndSendMessage({
@@ -223,21 +230,24 @@ class ChatService {
       final bool needsAuth = _toolService.requiresConfirmation(functionName);
 
       // 2. 初始化工具消息，如果是高危工具，初始状态设为等待确认
+
       Message toolMessage = Message(
         role: 'tool',
-        content: needsAuth ? "等待用户授权执行该工具..." : "正在执行工具 '$functionName'...",
+        content: "",
         toolCallId: toolCallId,
         name: functionName,
         argument: functionArgs,
-        isPendingConfirmation: needsAuth,
+        toolCallStatus: needsAuth
+            ? ToolCallStatus.pendingConformation
+            : ToolCallStatus.executing,
       );
       chat.addMessage(toolMessage);
       yield chat;
 
-      bool shouldExecute = true;
+      ToolCallStatus toolCallStatus = ToolCallStatus.executing;
       String? rejectionReason;
 
-      // 3. 只有需要确认的工具才进入 Completer 挂起逻辑
+      // 将需要确认的工具挂起
       if (needsAuth) {
         final completer = Completer<ToolConfirmationResult>();
         _toolConfirmationCompleters[toolCallId] = completer;
@@ -246,41 +256,35 @@ class ChatService {
         final ToolConfirmationResult result = await completer.future;
         _toolConfirmationCompleters.remove(toolCallId); // 释放内存
 
-        // 解除拦截状态
-        toolMessage.update(isPendingConfirmation: false);
-        shouldExecute = result.approved;
+        toolCallStatus = result.toolCallStatus;
         rejectionReason = result.reason;
       }
 
-      // 4. 根据授权状态执行相应分支
-      if (shouldExecute) {
-        if (needsAuth) {
-          // 如果曾被挂起，通过授权后更新一下中间执行状态
-          toolMessage.update(content: "正在执行工具 '$functionName'...");
-          yield chat;
-        }
-
-        // 真正物理执行工具代码
-        final String toolResult = await _toolService.execute(
-          functionName,
-          functionArgs,
-        );
-        toolMessage.update(content: toolResult);
-        await _chatRepository.saveChat(chat);
-        yield chat;
-      } else {
-        // 用户拒绝逻辑：拼接反馈原因推送给模型
-        final String reasonText =
-            (rejectionReason != null && rejectionReason.trim().isNotEmpty)
-            ? "：\"$rejectionReason\"。\n"
-            : "。";
-
+      // 拒绝了就不执行直接返回
+      if (needsAuth && toolCallStatus != ToolCallStatus.executing) {
         toolMessage.update(
-          isRejected: true,
-          content: "用户拒绝了执行该工具的请求\n$reasonText",
+          toolCallStatus: toolCallStatus,
+          content: rejectionReason,
         );
+        yield chat;
+        return;
+      }
+      // 如果同意了就修改状态为executing，然后再执行
+      if (needsAuth) {
+        toolMessage.update(toolCallStatus: ToolCallStatus.executing);
         yield chat;
       }
+
+      final String toolResult = await _toolService.execute(
+        functionName,
+        functionArgs,
+      );
+      toolMessage.update(
+        toolCallStatus: ToolCallStatus.finished,
+        content: toolResult,
+      );
+      await _chatRepository.saveChat(chat);
+      yield chat;
     }
   }
 
@@ -293,7 +297,12 @@ class ChatService {
     final completer = _toolConfirmationCompleters[toolCallId];
     if (completer != null && !completer.isCompleted) {
       completer.complete(
-        ToolConfirmationResult(approved: approved, reason: reason),
+        ToolConfirmationResult(
+          toolCallStatus: approved
+              ? ToolCallStatus.executing
+              : ToolCallStatus.rejected,
+          reason: reason,
+        ),
       );
     }
   }

@@ -17,8 +17,7 @@ class Message {
   // 工具调用的参数，
   String? argument;
   // 新增：HITL 人类在环控制状态
-  bool isPendingConfirmation;
-  bool isRejected;
+  ToolCallStatus? toolCallStatus;
 
   String? error;
   final DateTime createdAt;
@@ -32,8 +31,7 @@ class Message {
     this.name,
     this.argument,
     this.error,
-    this.isPendingConfirmation = false,
-    this.isRejected = false,
+    this.toolCallStatus,
   }) : id = const Uuid().v4(),
        createdAt = DateTime.now();
 
@@ -48,8 +46,7 @@ class Message {
       name = json['name'],
       argument = json['argument'],
       error = json['error'],
-      isPendingConfirmation = json['is_pending_confirmation'] as bool? ?? false,
-      isRejected = json['is_rejected'] as bool? ?? false,
+      toolCallStatus = _parseToolCallStatus(json),
       createdAt = DateTime.parse(json['created_at'] as String);
 
   // 用来存储本地
@@ -64,8 +61,7 @@ class Message {
       'name': name,
       'argument': argument,
       'error': error,
-      'is_pending_confirmation': isPendingConfirmation,
-      'is_rejected': isRejected,
+      'tool_call_status': toolCallStatus?.name,
       'created_at': createdAt.toIso8601String(),
     };
     return map;
@@ -77,8 +73,7 @@ class Message {
     map.remove('reasoning_content');
     map.remove('error');
     map.remove('created_at');
-    map.remove('is_pending_confirmation');
-    map.remove('is_rejected');
+    map.remove('toolCallStatus');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
       if (value == null) return true;
@@ -95,8 +90,7 @@ class Message {
     String? content,
     List? toolCalls,
     String? error,
-    bool? isPendingConfirmation,
-    bool? isRejected,
+    ToolCallStatus? toolCallStatus,
   }) {
     if (reasoningContent != null && reasoningContent.isNotEmpty) {
       this.reasoningContent = reasoningContent;
@@ -115,12 +109,24 @@ class Message {
       this.toolCalls = toolCalls;
     }
 
-    if (isPendingConfirmation != null) {
-      this.isPendingConfirmation = isPendingConfirmation;
-    }
-
-    if (isRejected != null) {
-      this.isRejected = isRejected;
+    if (toolCallStatus != null) {
+      this.toolCallStatus = toolCallStatus;
     }
   }
+
+  static ToolCallStatus? _parseToolCallStatus(Map<String, dynamic> json) {
+    if (json['tool_call_status'] != null) {
+      return ToolCallStatus.values.byName(json['tool_call_status'] as String);
+    }
+
+    return null;
+  }
+}
+
+enum ToolCallStatus {
+  executing,
+  finished,
+  canceled,
+  rejected,
+  pendingConformation,
 }

@@ -77,8 +77,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAgentsText => 'No Agents';
 
   @override
-  String toolCallResult(String name) {
-    return 'Tool call [$name]';
+  String toolCallFinished(String name) {
+    return 'Tool call [$name] finished';
+  }
+
+  @override
+  String toolExecuting(String name) {
+    return 'Tool [$name] executing';
   }
 
   @override
@@ -95,14 +100,22 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String toolCanceled(String name) {
+    return 'Tool $name has been canceled';
+  }
+
+  @override
   String get toolStatusPending =>
       'Status: Waiting for security authorization...';
 
   @override
-  String get toolStatusRejectedPrefix => 'Rejection details:\n';
+  String get toolStatusRejected => 'Rejection details:';
 
   @override
-  String get toolStatusResultPrefix => 'Call result:';
+  String get toolStatusfinished => 'Call result:';
+
+  @override
+  String get toolStatusExecuting => 'Executing...';
 
   @override
   String get toolReasonHint =>

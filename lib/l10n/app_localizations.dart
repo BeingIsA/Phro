@@ -230,11 +230,17 @@ abstract class AppLocalizations {
   /// **'No Agents'**
   String get noAgentsText;
 
-  /// No description provided for @toolCallResult.
+  /// No description provided for @toolCallFinished.
   ///
   /// In en, this message translates to:
-  /// **'Tool call [{name}]'**
-  String toolCallResult(String name);
+  /// **'Tool call [{name}] finished'**
+  String toolCallFinished(String name);
+
+  /// No description provided for @toolExecuting.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool [{name}] executing'**
+  String toolExecuting(String name);
 
   /// No description provided for @toolSecurityWarning.
   ///
@@ -254,23 +260,35 @@ abstract class AppLocalizations {
   /// **'Tool {name} has been rejected'**
   String toolRejected(String name);
 
+  /// No description provided for @toolCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool {name} has been canceled'**
+  String toolCanceled(String name);
+
   /// No description provided for @toolStatusPending.
   ///
   /// In en, this message translates to:
   /// **'Status: Waiting for security authorization...'**
   String get toolStatusPending;
 
-  /// No description provided for @toolStatusRejectedPrefix.
+  /// No description provided for @toolStatusRejected.
   ///
   /// In en, this message translates to:
-  /// **'Rejection details:\n'**
-  String get toolStatusRejectedPrefix;
+  /// **'Rejection details:'**
+  String get toolStatusRejected;
 
-  /// No description provided for @toolStatusResultPrefix.
+  /// No description provided for @toolStatusfinished.
   ///
   /// In en, this message translates to:
   /// **'Call result:'**
-  String get toolStatusResultPrefix;
+  String get toolStatusfinished;
+
+  /// No description provided for @toolStatusExecuting.
+  ///
+  /// In en, this message translates to:
+  /// **'Executing...'**
+  String get toolStatusExecuting;
 
   /// No description provided for @toolReasonHint.
   ///

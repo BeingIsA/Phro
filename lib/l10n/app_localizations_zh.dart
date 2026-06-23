@@ -77,8 +77,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noAgentsText => '暂无 Agent';
 
   @override
-  String toolCallResult(String name) {
-    return '工具调用 [$name]';
+  String toolCallFinished(String name) {
+    return '工具 [$name] 执行完成';
+  }
+
+  @override
+  String toolExecuting(String name) {
+    return 'Tool [$name] 正在执行';
   }
 
   @override
@@ -95,13 +100,21 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
+  String toolCanceled(String name) {
+    return '工具 $name 调用已取消';
+  }
+
+  @override
   String get toolStatusPending => '状态：等待安全授权...';
 
   @override
-  String get toolStatusRejectedPrefix => '拒绝详情：\n';
+  String get toolStatusRejected => '拒绝详情：';
 
   @override
-  String get toolStatusResultPrefix => '调用结果：';
+  String get toolStatusfinished => '调用结果：';
+
+  @override
+  String get toolStatusExecuting => '正在执行...';
 
   @override
   String get toolReasonHint => '输入拒绝原因或修正反馈（可选）...';

@@ -45,25 +45,37 @@ class ToolMessageTileState extends State<ToolMessageTile> {
     final colorScheme = theme.colorScheme;
 
     final message = widget.message;
-    final bool isPending = message.isPendingConfirmation;
-    final bool isRejected = message.isRejected;
+    final bool isPending =
+        message.toolCallStatus == ToolCallStatus.pendingConformation;
 
     // 根据状态动态选择颜色
     final Color statusColor = isPending
         ? colorScheme.tertiary
-        : isRejected
-        ? colorScheme.error
         : colorScheme.onSurfaceVariant;
 
     IconData iconData = Icons.build;
-    String titleText = l10n!.toolCallResult(message.name!);
+    String titleText = l10n!.toolExecuting(message.name!);
 
-    if (isPending) {
-      iconData = Icons.gpp_maybe_outlined;
-      titleText = l10n.toolSecurityWarning(message.name!);
-    } else if (isRejected) {
-      iconData = Icons.block;
-      titleText = l10n.toolRejected(message.name!);
+    switch (message.toolCallStatus!) {
+      case ToolCallStatus.rejected:
+        iconData = Icons.block;
+        titleText = l10n.toolRejected(message.name!);
+
+      case ToolCallStatus.canceled:
+        iconData = Icons.cancel_outlined;
+        titleText = l10n.toolCanceled(message.name!);
+
+      case ToolCallStatus.pendingConformation:
+        iconData = Icons.gpp_maybe_outlined;
+        titleText = l10n.toolSecurityWarning(message.name!);
+
+      case ToolCallStatus.executing:
+        iconData = Icons.hourglass_top_outlined;
+        titleText = l10n.toolExecuting(message.name!);
+
+      case ToolCallStatus.finished:
+        iconData = Icons.build;
+        titleText = l10n.toolCallFinished(message.name!);
     }
 
     return Padding(
@@ -90,34 +102,42 @@ class ToolMessageTileState extends State<ToolMessageTile> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 widget.buildToolDetails(),
-                SelectableText(
-                  isPending
-                      ? l10n.toolStatusPending
-                      : (isRejected
-                            ? l10n.toolStatusRejectedPrefix
-                            : l10n.toolStatusResultPrefix),
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: theme.colorScheme.outlineVariant),
-                  ),
-                  child: SelectableText(
-                    message.content,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                      height: 1.4,
+                if (message.toolCallStatus != ToolCallStatus.canceled)
+                  SelectableText(
+                    switch (message.toolCallStatus!) {
+                      ToolCallStatus.rejected => l10n.toolStatusRejected,
+                      ToolCallStatus.pendingConformation =>
+                        l10n.toolStatusPending,
+                      ToolCallStatus.executing => l10n.toolStatusExecuting,
+                      ToolCallStatus.finished => l10n.toolStatusfinished,
+                      ToolCallStatus.canceled => throw UnimplementedError(),
+                    },
+
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                ),
+                const SizedBox(height: 6),
+                if (message.content.trim().isNotEmpty)
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: theme.colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: SelectableText(
+                      message.content,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

@@ -29,8 +29,14 @@
   "newAgentTooltip": "New Agent",
   "editAgentTooltip": "Edit Agent",
   "noAgentsText": "No Agents",
-  "toolCallResult": "Tool call [{name}]",
-  "@toolCallResult": {
+  "toolCallFinished": "Tool call [{name}] finished",
+  "@toolCallFinished": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolExecuting": "Tool [{name}] executing",
+  "@toolExecuting": {
     "placeholders": {
       "name": { "type": "String" }
     }
@@ -48,9 +54,16 @@
       "name": { "type": "String" }
     }
   },
+  "toolCanceled": "Tool {name} has been canceled",
+  "@toolCanceled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "toolStatusPending": "Status: Waiting for security authorization...",
-  "toolStatusRejectedPrefix": "Rejection details:\n",
-  "toolStatusResultPrefix": "Call result:",
+  "toolStatusRejected": "Rejection details:",
+  "toolStatusfinished": "Call result:",
+  "toolStatusExecuting": "Executing...",
   "toolReasonHint": "Enter rejection reason or correction feedback (optional)...",
   "rejectButton": "Reject",
   "allowButton": "Allow",
