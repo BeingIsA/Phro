@@ -157,6 +157,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get messageInputHint => '请输入内容...';
 
   @override
+  String get sendTooltip => '发送';
+
+  @override
+  String get stopGenerationTooltip => '停止生成';
+
+  @override
   String get configAliasTitle => '配置别名';
 
   @override

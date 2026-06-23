@@ -8,6 +8,7 @@ class Chat {
   final DateTime createdAt;
   DateTime updatedAt;
   List<Message> messages = [];
+  bool isGenerating;
 
   Chat({
     String? id,
@@ -16,6 +17,7 @@ class Chat {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<Message>? messages,
+    this.isGenerating = false,
   }) : id = id?.isNotEmpty == true ? id! : const Uuid().v4(),
        title = title?.isNotEmpty == true ? title! : DateTime.now().toString(),
        createdAt = createdAt ?? DateTime.now(),
@@ -31,6 +33,7 @@ class Chat {
       createdAt: createdAt,
       updatedAt: updatedAt,
       messages: List.from(messages),
+      isGenerating: isGenerating,
     );
   }
 
@@ -66,6 +69,7 @@ class Chat {
           ? DateTime.parse(json['updated_at'] as String)
           : DateTime.now(),
       messages: messages,
+      isGenerating: false,
     );
   }
 }

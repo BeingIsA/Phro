@@ -52,11 +52,10 @@ class ActiveChatNotifier extends Notifier<Chat?> {
     required String messageId,
     required String newContent,
   }) async {
-    final currentChat = state;
-    if (currentChat == null) return;
+    if (state == null) return;
 
     await for (final updatedChat in _chatService.editAndSendMessag(
-      chatId: currentChat.id,
+      chatId: state!.id,
       messageId: messageId,
       newContent: newContent,
     )) {

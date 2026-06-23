@@ -374,6 +374,18 @@ abstract class AppLocalizations {
   /// **'Please enter content...'**
   String get messageInputHint;
 
+  /// No description provided for @sendTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get sendTooltip;
+
+  /// No description provided for @stopGenerationTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop generating'**
+  String get stopGenerationTooltip;
+
   /// No description provided for @configAliasTitle.
   ///
   /// In en, this message translates to:

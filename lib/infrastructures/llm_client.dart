@@ -14,11 +14,15 @@ class LLMClient {
     List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>> tools,
   ) {
-    final controller = StreamController<Map<String, dynamic>>.broadcast();
+    http.Client? client = http.Client();
+    final controller = StreamController<Map<String, dynamic>>(
+      onCancel: () {
+        client.close();
+      },
+    );
 
     // 立即在后台启动请求（行为与原来完全一致）
     () async {
-      http.Client? client;
       try {
         final completionsUrl = Uri.parse('$baseUrl/chat/completions');
 
@@ -34,7 +38,6 @@ class LLMClient {
           'stream': true,
         });
 
-        client = http.Client();
         final request = http.Request('POST', completionsUrl)
           ..headers.addAll(headers)
           ..body = body;
@@ -78,8 +81,10 @@ class LLMClient {
       } catch (e) {
         controller.add({'type': 'error', 'content': e.toString()});
       } finally {
-        client?.close();
-        await controller.close();
+        client.close();
+        if (!controller.isClosed) {
+          await controller.close();
+        }
       }
     }();
 

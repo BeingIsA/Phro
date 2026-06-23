@@ -73,6 +73,8 @@
   "editMessageTooltip": "Edit message",
   "resendButton": "Resend",
   "messageInputHint": "Please enter content...",
+  "sendTooltip": "Send",
+  "stopGenerationTooltip": "Stop generating",
   "configAliasTitle": "Config Alias",
   "modelNameTitle": "Model Name",
   "addConfigTooltip": "Add Config",

@@ -73,6 +73,8 @@
   "editMessageTooltip": "编辑消息",
   "resendButton": "重新发送",
   "messageInputHint": "请输入内容...",
+  "sendTooltip": "发送",
+  "stopGenerationTooltip": "停止生成",
   "configAliasTitle": "配置别名",
   "modelNameTitle": "模型名称",
   "addConfigTooltip": "新增配置",

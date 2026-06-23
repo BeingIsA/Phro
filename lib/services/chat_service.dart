@@ -26,6 +26,7 @@ class ChatService {
   // 用于执行tool call时挂起等待用户确认
   final Map<String, Completer<ToolConfirmationResult>>
   _toolConfirmationCompleters = {};
+  StreamIterator<Map<String, dynamic>>? _activeGeneration;
 
   // 私有构造函数，防止外部调用构造函数
   ChatService._()
@@ -85,6 +86,7 @@ class ChatService {
 
   Stream<Chat> _continueGeneration(Chat chat) async* {
     try {
+      chat.isGenerating = true;
       while (true) {
         // 先搞一个空会话，前端展示空气泡
         Message assistantMessage = Message(role: 'assistant', content: '');
@@ -107,13 +109,18 @@ class ChatService {
             .map((message) => message.toMap4Api())
             .toList();
         messages.removeLast();
-        await for (final chunk in _llmClient.sendMessageStream(
-          modelConfig.url,
-          modelConfig.apiKey,
-          modelConfig.modelName,
-          messages,
-          _toolService.getAllToolsInJsonSchema(),
-        )) {
+        final iterator = StreamIterator<Map<String, dynamic>>(
+          _llmClient.sendMessageStream(
+            modelConfig.url,
+            modelConfig.apiKey,
+            modelConfig.modelName,
+            messages,
+            _toolService.getAllToolsInJsonSchema(),
+          ),
+        );
+        _activeGeneration = iterator;
+        while (await iterator.moveNext()) {
+          final chunk = iterator.current;
           final error = chunk['error'];
           final content = chunk['content'];
           final reasoningContent = chunk['reasoning_content'];
@@ -153,8 +160,16 @@ class ChatService {
         yield* _executeToolCalls(fullToolCallsList, chat);
       }
     } finally {
+      _activeGeneration = null;
+      chat.isGenerating = false;
+      yield chat;
       await _chatRepository.saveChat(chat);
     }
+  }
+
+  Future<void> cancelGeneration() async {
+    if (_activeGeneration == null) return;
+    _activeGeneration!.cancel();
   }
 
   Stream<Chat> editAndSendMessag({
@@ -167,7 +182,6 @@ class ChatService {
     // 1. 找到要编辑的消息并校验
     final messageIndex = chat.messages.indexWhere((m) => m.id == messageId);
     if (messageIndex == -1) {
-      // yield error 或 throw
       return;
     }
 
@@ -180,7 +194,7 @@ class ChatService {
     // 2. 更新消息内容
     targetMessage.update(content: newContent);
 
-    // 3. 截断历史
+    // 3. 截断消息至当前位置
     if (messageIndex + 1 < chat.messages.length) {
       chat.messages.removeRange(messageIndex + 1, chat.messages.length);
     }
@@ -250,6 +264,7 @@ class ChatService {
           functionArgs,
         );
         toolMessage.update(content: toolResult);
+        _chatRepository.saveChat(chat);
         yield chat;
       } else {
         // 用户拒绝逻辑：拼接反馈原因推送给模型

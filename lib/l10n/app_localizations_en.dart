@@ -159,6 +159,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get messageInputHint => 'Please enter content...';
 
   @override
+  String get sendTooltip => 'Send';
+
+  @override
+  String get stopGenerationTooltip => 'Stop generating';
+
+  @override
   String get configAliasTitle => 'Config Alias';
 
   @override

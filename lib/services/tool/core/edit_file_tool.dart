@@ -52,7 +52,7 @@ class EditFileTool extends Tool {
     if (!await file.exists()) {
       throw FileSystemException('文件不存在', path);
     }
-    final content = await file.readAsString();
+    final content = (await file.readAsString()).replaceAll('\r\n', '\n');
 
     // 统计匹配次数，避免静默失败（无匹配）或改错位置（多匹配但未启用 replaceAll）
     final matchCount = oldString.allMatches(content).length;

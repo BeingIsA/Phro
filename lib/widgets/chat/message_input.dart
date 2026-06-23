@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:phro/l10n/app_localizations.dart';
+import 'package:phro/notifiers/active_chat_notifier.dart';
+import 'package:phro/services/chat_service.dart';
+// 请确保导入包含 activeChatNotifierProvider 的文件
+// import 'package:phro/providers/xxx_provider.dart';
 
-class MessageInput extends StatefulWidget {
+class MessageInput extends ConsumerStatefulWidget {
   final void Function(String) onSend;
 
   const MessageInput({super.key, required this.onSend});
 
   @override
-  State<MessageInput> createState() => _MessageInputState();
+  ConsumerState<MessageInput> createState() => _MessageInputState();
 }
 
-class _MessageInputState extends State<MessageInput> {
+class _MessageInputState extends ConsumerState<MessageInput> {
   final TextEditingController _controller = TextEditingController();
+  final ChatService _chatService = ChatService.instance;
   bool _hasText = false;
 
   @override
@@ -44,6 +50,11 @@ class _MessageInputState extends State<MessageInput> {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
 
+    // 1. 监视 currentChat 状态
+    // 假设 currentChat 可能为 null，这里做个安全调用
+    final currentChat = ref.watch(activeChatNotifierProvider);
+    final bool isGenerating = currentChat?.isGenerating ?? false;
+
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
@@ -70,19 +81,30 @@ class _MessageInputState extends State<MessageInput> {
               style: theme.textTheme.bodyLarge,
               minLines: 1,
               maxLines: 10, // 达到10行后，内部滚动，不再撑大容器
-              textInputAction: TextInputAction.newline,
-              onSubmitted: (_) => _send(),
+              // 在生成中时，禁止回车直接发送
+              onSubmitted: (_) => isGenerating ? null : _send(),
             ),
             Align(
               alignment: Alignment.centerRight,
+
               child: IconButton(
+                // 根据 isGenerating 切换提示文本
+                tooltip: isGenerating
+                    ? l10n.stopGenerationTooltip
+                    : l10n.sendTooltip,
+                // 2. 根据 isGenerating 切换图标
                 icon: Icon(
-                  Icons.send,
-                  color: _hasText
+                  isGenerating ? Icons.stop_rounded : Icons.send,
+                  color: isGenerating || _hasText
                       ? colorScheme.primary
                       : colorScheme.onSurfaceVariant,
                 ),
-                onPressed: _send,
+                // 3. 根据 isGenerating 切换点击逻辑
+                onPressed: isGenerating
+                    ? () {
+                        _chatService.cancelGeneration();
+                      }
+                    : _send,
                 splashRadius: 20,
               ),
             ),
