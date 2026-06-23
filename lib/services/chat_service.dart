@@ -158,6 +158,7 @@ class ChatService {
         await _chatRepository.saveChat(chat);
         // 核心修改：利用 yield* 托管带有 HITL 拦截的工具流
         yield* _executeToolCalls(fullToolCallsList, chat);
+        if (_activeGeneration == null) break;
       }
     } finally {
       _activeGeneration = null;
@@ -170,9 +171,10 @@ class ChatService {
   Future<void> cancelGeneration() async {
     if (_activeGeneration == null) return;
     _activeGeneration!.cancel();
+    _activeGeneration = null;
   }
 
-  Stream<Chat> editAndSendMessag({
+  Stream<Chat> editAndSendMessage({
     required String chatId,
     required String messageId, // 要编辑的消息 ID
     required String newContent,
@@ -264,7 +266,7 @@ class ChatService {
           functionArgs,
         );
         toolMessage.update(content: toolResult);
-        _chatRepository.saveChat(chat);
+        await _chatRepository.saveChat(chat);
         yield chat;
       } else {
         // 用户拒绝逻辑：拼接反馈原因推送给模型

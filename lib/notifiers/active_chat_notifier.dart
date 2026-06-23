@@ -54,7 +54,7 @@ class ActiveChatNotifier extends Notifier<Chat?> {
   }) async {
     if (state == null) return;
 
-    await for (final updatedChat in _chatService.editAndSendMessag(
+    await for (final updatedChat in _chatService.editAndSendMessage(
       chatId: state!.id,
       messageId: messageId,
       newContent: newContent,
