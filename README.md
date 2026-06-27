@@ -38,7 +38,7 @@ flutter run
 - API Key
 - 模型名称
 
-如需联网搜索能力，也可以配置搜索 API。
+如需联网搜索能力，也可以配置搜索 API。推荐Tavily、FireCrawl，每月有免费额度。
 
 ## License
 
