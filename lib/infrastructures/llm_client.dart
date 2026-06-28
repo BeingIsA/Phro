@@ -1,6 +1,33 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:http/io_client.dart';
+import 'package:platform_proxy/platform_proxy.dart';
+
+Future<http.Client> createSystemProxyAwareClient(Uri targetUrl) async {
+  final ioClient = HttpClient();
+
+  try {
+    final platformProxy = PlatformProxy();
+
+    final proxies = await platformProxy.getPlatformProxies(
+      url: targetUrl.toString(),
+    );
+
+    final pacString = proxies.getProxiesAsPac();
+
+    if (pacString.trim().isNotEmpty) {
+      ioClient.findProxy = (_) => pacString;
+    } else {
+      ioClient.findProxy = HttpClient.findProxyFromEnvironment;
+    }
+  } catch (_) {
+    ioClient.findProxy = HttpClient.findProxyFromEnvironment;
+  }
+
+  return IOClient(ioClient);
+}
 
 class LLMClient {
   static final LLMClient instance = LLMClient._();
@@ -14,10 +41,10 @@ class LLMClient {
     List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>> tools,
   ) {
-    http.Client? client = http.Client();
+    http.Client? client;
     final controller = StreamController<Map<String, dynamic>>(
       onCancel: () {
-        client.close();
+        client?.close();
       },
     );
 
@@ -25,7 +52,7 @@ class LLMClient {
     () async {
       try {
         final completionsUrl = Uri.parse('$baseUrl/chat/completions');
-
+        client = await createSystemProxyAwareClient(completionsUrl);
         final headers = {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $apiKey',
@@ -42,7 +69,7 @@ class LLMClient {
           ..headers.addAll(headers)
           ..body = body;
 
-        final streamedResponse = await client.send(request);
+        final streamedResponse = await client!.send(request);
 
         if (streamedResponse.statusCode != 200) {
           final errorBody = await streamedResponse.stream.bytesToString();
@@ -81,7 +108,7 @@ class LLMClient {
       } catch (e) {
         controller.add({'type': 'error', 'content': e.toString()});
       } finally {
-        client.close();
+        client?.close();
         if (!controller.isClosed) {
           await controller.close();
         }

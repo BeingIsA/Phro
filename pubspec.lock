@@ -616,6 +616,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.6"
+  platform_proxy:
+    dependency: "direct main"
+    description:
+      name: platform_proxy
+      sha256: "0ab333b42b0a25197a03ea677647329cc6da121007599c4f17c6d432c8cabcb2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.9.4"
   plugin_platform_interface:
     dependency: transitive
     description:
