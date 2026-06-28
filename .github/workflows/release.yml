@@ -180,7 +180,7 @@ jobs:
           git push origin "$TAG"
 
           gh release create "$TAG" dist/* \
-            --title "Phro $VERSION" \
+            --title "$VERSION" \
             --notes "Release $VERSION
 
           Internal build version: $FULL_VERSION"
