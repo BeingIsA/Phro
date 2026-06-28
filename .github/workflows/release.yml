@@ -1,0 +1,186 @@
+name: Release
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "pubspec.yaml"
+      - ".github/workflows/release.yml"
+
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  meta:
+    name: Read version
+    runs-on: ubuntu-latest
+
+    outputs:
+      full_version: ${{ steps.version.outputs.full_version }}
+      version_name: ${{ steps.version.outputs.version_name }}
+      build_number: ${{ steps.version.outputs.build_number }}
+      tag: ${{ steps.version.outputs.tag }}
+      exists: ${{ steps.check.outputs.exists }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Read version from pubspec.yaml
+        id: version
+        shell: bash
+        run: |
+          FULL_VERSION="$(grep '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//')"
+
+          if [ -z "$FULL_VERSION" ]; then
+            echo "Cannot find version in pubspec.yaml"
+            exit 1
+          fi
+
+          VERSION_NAME="${FULL_VERSION%%+*}"
+
+          if [[ "$FULL_VERSION" == *"+"* ]]; then
+            BUILD_NUMBER="${FULL_VERSION##*+}"
+          else
+            BUILD_NUMBER=""
+          fi
+
+          echo "full_version=$FULL_VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_name=$VERSION_NAME" >> "$GITHUB_OUTPUT"
+          echo "build_number=$BUILD_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION_NAME" >> "$GITHUB_OUTPUT"
+
+          echo "Full version: $FULL_VERSION"
+          echo "Version name: $VERSION_NAME"
+          echo "Build number: $BUILD_NUMBER"
+          echo "Tag: v$VERSION_NAME"
+
+      - name: Check whether release already exists
+        id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release already exists: ${{ steps.version.outputs.tag }}"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-windows:
+    name: Build Windows
+    needs: meta
+    if: needs.meta.outputs.exists == 'false'
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Windows
+        run: flutter build windows --release
+
+      - name: Package Windows portable zip
+        id: package
+        shell: pwsh
+        run: |
+          $version = "${{ needs.meta.outputs.version_name }}"
+          $zipName = "Phro-portable-$version-win-x64.zip"
+
+          Compress-Archive `
+            -Path "build\windows\x64\runner\Release\*" `
+            -DestinationPath $zipName `
+            -Force
+
+          "zip=$zipName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release
+          path: ${{ steps.package.outputs.zip }}
+
+  build-android:
+    name: Build Android APK
+    needs: meta
+    if: needs.meta.outputs.exists == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Rename APK
+        shell: bash
+        run: |
+          VERSION="${{ needs.meta.outputs.version_name }}"
+          cp build/app/outputs/flutter-apk/app-release.apk "Phro-$VERSION-android.apk"
+
+      - name: Upload Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release
+          path: Phro-${{ needs.meta.outputs.version_name }}-android.apk
+
+  release:
+    name: Create GitHub Release
+    needs:
+      - meta
+      - build-windows
+      - build-android
+
+    if: needs.meta.outputs.exists == 'false'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create tag and GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${{ needs.meta.outputs.tag }}"
+          VERSION="${{ needs.meta.outputs.version_name }}"
+          FULL_VERSION="${{ needs.meta.outputs.full_version }}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag "$TAG"
+          git push origin "$TAG"
+
+          gh release create "$TAG" dist/* \
+            --title "Phro $VERSION" \
+            --notes "Release $VERSION
+
+          Internal build version: $FULL_VERSION"
