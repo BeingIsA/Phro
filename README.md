@@ -25,7 +25,7 @@
 
 首次使用前，在设置中添加并启用语言模型配置：
 
-![image](docs\_assets\README\language_model_config.png)
+![image](docs/_assets/README/language_model_config.png)
 
 如需联网搜索能力，也可以配置搜索 API。推荐Tavily、FireCrawl，每月有免费额度。
 
