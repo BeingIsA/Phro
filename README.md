@@ -8,20 +8,28 @@
 
 ## 规划与进展
 
-| 状态 | 能力 |
-| --- | --- |
-| ✅ | Agent Loop与常见工具(本地文件修改、shell命令执行等) |
-| ✅ | Human-in-the-loop |
-| ✅ | 自定义 Agent |
-| ✅ | 本地文件增删改查 |
-| ✅ | 联网搜索 |
-| ❌ | 多 Agent 协作与规划执行 |
-| ❌ | Office 文件处理 |
-| ❌ | 移动设备自动化控制 |
-| ❌ | 浏览器自动化控制 |
-| ❌ | 多模态 |
+| 状态 | 能力                                                |
+| ---- | --------------------------------------------------- |
+| ✅    | Agent Loop与常见工具(本地文件修改、shell命令执行等) |
+| ✅    | Human-in-the-loop                                   |
+| ✅    | 自定义 Agent                                        |
+| ✅    | 本地文件增删改查                                    |
+| ✅    | 联网搜索                                            |
+| ❌    | 多 Agent 协作与规划执行                             |
+| ❌    | Office 文件处理                                     |
+| ❌    | 移动设备自动化控制                                  |
+| ❌    | 浏览器自动化控制                                    |
+| ❌    | 多模态                                              |
 
-## 配置与使用
+## 使用指导
+
+首次使用前，在设置中添加并启用语言模型配置：
+
+![image](docs\_assets\README\language_model_config.png)
+
+如需联网搜索能力，也可以配置搜索 API。推荐Tavily、FireCrawl，每月有免费额度。
+
+## 开发配置
 
 需要先安装 Flutter 环境，具体可以参考 [Flutter 官方安装文档](https://docs.flutter.dev/install)。
 
@@ -30,13 +38,6 @@ flutter pub get
 flutter run
 ```
 
-首次使用前，在设置中添加并启用语言模型配置：
-
-- API Endpoint URL，例如 `https://api.openai.com/v1`
-- API Key
-- 模型名称
-
-如需联网搜索能力，也可以配置搜索 API。推荐Tavily、FireCrawl，每月有免费额度。
 
 ## License
 
