@@ -1,10 +1,11 @@
-# Phro
-
+  
 ## Phro 的目标是成为一个 <span style="color:#2196F3"><strong>强大</strong></span> & <span style="color:#2196F3"><strong>易用</strong></span> 的Agent助手。
 
-项目使用 Flutter 开发，主要是为了更方便地覆盖桌面端、移动端与 Web 等多平台场景。
+## 项目哲学
 
-
+### 简单是通往强大的唯一途径  
+### 聚焦高难度&高价值的功能，用心血构造壁垒  
+### 识别本质能力，不包装，不跟风
 
 ## 规划与进展
 
@@ -23,22 +24,28 @@
 
 ## 使用指导
 
-首次使用前，在设置中添加并启用语言模型配置：
-
+### 语言模型必须配：
 ![image](docs/_assets/README/language_model_config.png)
+免费模型推荐智谱的[glm-4.7-flash](https://bigmodel.cn/)。
+各大平台都有免费模型/注册薅羊毛，不一一列举
 
-如需联网搜索能力，也可以配置搜索 API。推荐Tavily、FireCrawl，每月有免费额度。
+### 如需联网搜索能力，需配置搜索 API。
+目前支持[Tavily](https://www.tavily.com/)、[FireCrawl](https://www.firecrawl.dev/)，每月有免费额度。  
 
-## 开发配置
+## 开发环境配置
 
+项目使用 Flutter 开发，主要是为了更方便地覆盖桌面端、移动端与 Web 等多平台场景。  
 需要先安装 Flutter 环境，具体可以参考 [Flutter 官方安装文档](https://docs.flutter.dev/install)。
 
 ```bash
 flutter pub get
 flutter run
 ```
+移动端开发请自行安装Android Studio并配置安卓环境以及虚拟机
+
 
 
 ## License
 
 Apache-2.0
+   
