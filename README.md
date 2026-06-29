@@ -26,7 +26,7 @@
 
 ### 语言模型必须配：
 ![image](docs/_assets/README/language_model_config.png)
-免费模型推荐智谱的[glm-4.7-flash](https://bigmodel.cn/)。
+免费模型推荐智谱的[glm-4.7-flash](https://bigmodel.cn/)。  
 各大平台都有免费模型/注册薅羊毛，不一一列举
 
 ### 如需联网搜索能力，需配置搜索 API。
