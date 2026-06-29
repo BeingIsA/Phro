@@ -1,51 +1,53 @@
-  
-## Phro 的目标是成为一个 <span style="color:#2196F3"><strong>强大</strong></span> & <span style="color:#2196F3"><strong>易用</strong></span> 的Agent助手。
+<div align="right">
 
-## 项目哲学
+English | [简体中文](README.zh-CN.md)
 
-### 简单是通往强大的唯一途径  
-### 聚焦高难度&高价值的功能，用心血构造壁垒  
-### 识别本质能力，不包装，不跟风
+</div>
 
-## 规划与进展
+## Phro's goal is to become a <span style="color:#2196F3"><strong>powerful</strong></span> & <span style="color:#2196F3"><strong>easy-to-use</strong></span> Agent assistant.
 
-| 状态 | 能力                                                |
-| ---- | --------------------------------------------------- |
-| ✅    | Agent Loop与常见工具(本地文件修改、shell命令执行等) |
-| ✅    | Human-in-the-loop                                   |
-| ✅    | 自定义 Agent                                        |
-| ✅    | 本地文件增删改查                                    |
-| ✅    | 联网搜索                                            |
-| ❌    | 多 Agent 协作与规划执行                             |
-| ❌    | Office 文件处理                                     |
-| ❌    | 移动设备自动化控制                                  |
-| ❌    | 浏览器自动化控制                                    |
-| ❌    | 多模态                                              |
+## Project Philosophy
 
-## 使用指导
+### Simplicity is the only path to real strength.
+### Focus on high-difficulty & high-value features, building barriers with dedication  
+### Identify essential capabilities — no fluff, no trend-chasing.
 
-### 语言模型必须配：
+## Planning & Progress
+
+| Status | Capability                                                                      |
+| ------ | ------------------------------------------------------------------------------- |
+| ✅      | Agent Loop and common tools (local file editing, shell command execution, etc.) |
+| ✅      | Human-in-the-loop                                                               |
+| ✅      | Custom Agents                                                                   |
+| ✅      | Local file create/read/update/delete                                            |
+| ✅      | Web search                                                                      |
+| ❌      | Multi-Agent collaboration and planning execution                                |
+| ❌      | Office file processing                                                          |
+| ❌      | Mobile device automation control                                                |
+| ❌      | Browser automation control                                                      |
+| ❌      | Multimodal                                                                      |
+
+## Usage Guide
+
+### Language Model Configuration Required:
 ![image](docs/_assets/README/language_model_config.png)
-免费模型推荐智谱的[glm-4.7-flash](https://bigmodel.cn/)。  
-各大平台都有免费模型/注册薅羊毛，不一一列举
+Recommended free model: Zhipu's [glm-4.7-flash](https://bigmodel.cn/).  
+Most platforms offer free models or sign-up bonuses — too many to list.
 
-### 如需联网搜索能力，需配置搜索 API。
-目前支持[Tavily](https://www.tavily.com/)、[FireCrawl](https://www.firecrawl.dev/)，每月有免费额度。  
+### For web search capability, configure a Search API.
+Currently supports [Tavily](https://www.tavily.com/) and [FireCrawl](https://www.firecrawl.dev/), both with monthly free quotas.
 
-## 开发环境配置
+## Development Environment Setup
 
-项目使用 Flutter 开发，主要是为了更方便地覆盖桌面端、移动端与 Web 等多平台场景。  
-需要先安装 Flutter 环境，具体可以参考 [Flutter 官方安装文档](https://docs.flutter.dev/install)。
+The project is built with Flutter to easily support both desktop and mobile platforms.  
+First install the Flutter SDK. Refer to the [official Flutter installation guide](https://docs.flutter.dev/install).
 
 ```bash
 flutter pub get
 flutter run
 ```
-移动端开发请自行安装Android Studio并配置安卓环境以及虚拟机
-
-
+For mobile development, please install Android Studio and configure the Android environment and emulator by yourself.
 
 ## License
 
 Apache-2.0
-   
