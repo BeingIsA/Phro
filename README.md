@@ -48,6 +48,10 @@ flutter run
 ```
 For mobile development, please install Android Studio and configure the Android environment and emulator by yourself.
 
+## User Support
+Contact WeChat: xdu11117  
+Or email: 2321409910@qq.com
+
 ## License
 
 Apache-2.0

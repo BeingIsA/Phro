@@ -49,7 +49,9 @@ flutter run
 ```
 移动端开发请自行安装Android Studio并配置安卓环境以及虚拟机
 
-
+## 用户支持
+联系微信xdu11117  
+或邮箱2321409910@qq.com
 
 ## License
 
