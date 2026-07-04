@@ -7,7 +7,7 @@ class Message {
   String content;
   String? reasoningContent;
 
-  List? toolCalls;
+  List<Map<String, dynamic>>? toolCalls;
 
   // 以下仅当role == tool时会出现
   // 工具调用ID
@@ -88,7 +88,7 @@ class Message {
   void update({
     String? reasoningContent,
     String? content,
-    List? toolCalls,
+    List<Map<String, dynamic>>? toolCalls,
     String? error,
     ToolCallStatus? toolCallStatus,
   }) {

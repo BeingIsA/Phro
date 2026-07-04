@@ -87,85 +87,122 @@ class ChatService {
   Stream<Chat> _continueGeneration(Chat chat) async* {
     try {
       chat.isGenerating = true;
-      while (true) {
-        // 先搞一个空会话，前端展示空气泡
-        Message assistantMessage = Message(role: 'assistant', content: '');
-        chat.addMessage(assistantMessage);
+
+      await for (final updatedMessages in agentLoop(chat.messages)) {
+        if (updatedMessages.length > chat.messages.length) {
+          await _chatRepository.saveChat(chat);
+        }
+        if (updatedMessages.length > chat.messages.length) {
+          await _chatRepository.saveChat(chat);
+        }
+        chat.messages = updatedMessages;
         yield chat;
-
-        String fullContent = '';
-        String fullReasoningContent = '';
-        final fullToolCalls = <int, Map<String, dynamic>>{};
-        List<Map<String, dynamic>> fullToolCallsList = [];
-
-        final modelConfig = await _modelConfigService.getActivatedConfig();
-        if (modelConfig == null) {
-          assistantMessage.update(content: '语言模型未配置，请先配置并激活');
-          yield chat;
-          break;
-        }
-
-        final messages = chat.messages
-            .map((message) => message.toMap4Api())
-            .toList();
-        messages.removeLast();
-        final iterator = StreamIterator<Map<String, dynamic>>(
-          _llmClient.sendMessageStream(
-            modelConfig.url,
-            modelConfig.apiKey,
-            modelConfig.modelName,
-            messages,
-            _toolService.getAllToolsInJsonSchema(),
-          ),
-        );
-        _activeGeneration = iterator;
-        while (await iterator.moveNext()) {
-          final chunk = iterator.current;
-          final error = chunk['error'];
-          final content = chunk['content'];
-          final reasoningContent = chunk['reasoning_content'];
-          final toolCalls = chunk['tool_calls'];
-          if (error != null) {
-            assistantMessage.update(error: error as String);
-            yield chat;
-            return;
-          }
-          if (content != null) {
-            fullContent += content as String;
-          }
-          if (reasoningContent != null) {
-            fullReasoningContent += reasoningContent as String;
-          }
-          if (toolCalls != null && toolCalls.isNotEmpty) {
-            _accumulateToolCalls(toolCalls, fullToolCalls);
-          }
-
-          assistantMessage.update(
-            content: fullContent,
-            reasoningContent: fullReasoningContent,
-          );
-          yield chat;
-        }
-
-        fullToolCallsList = [
-          for (var key in fullToolCalls.keys.toList()..sort())
-            fullToolCalls[key]!,
-        ];
-        if (fullToolCallsList.isEmpty) {
-          break;
-        }
-        assistantMessage.update(toolCalls: fullToolCallsList);
-        await _chatRepository.saveChat(chat);
-        // 核心修改：利用 yield* 托管带有 HITL 拦截的工具流
-        yield* _executeToolCalls(fullToolCallsList, chat);
-        if (_activeGeneration == null) break;
       }
     } finally {
-      _activeGeneration = null;
       chat.isGenerating = false;
       yield chat;
       await _chatRepository.saveChat(chat);
     }
+  }
+
+  Stream<List<Message>> agentLoop(List<Message> messages) async* {
+    try {
+      while (true) {
+        final messages4Api = messages
+            .map((message) => message.toMap4Api())
+            .toList();
+        messages.add(Message(role: 'assistant', content: ""));
+        await for (final updatedMessage in streamAssistantResponse(
+          messages4Api,
+          _toolService.getAllToolsInJsonSchema(),
+        )) {
+          messages.removeLast();
+          messages.add(updatedMessage);
+          yield messages;
+        }
+        // 如果没有tool_call说明该结束了
+        final assistantMessage = messages.last;
+        if (assistantMessage.toolCalls == null ||
+            assistantMessage.toolCalls!.isEmpty) {
+          break;
+        }
+        await for (final updatedMessages in _executeToolCalls(
+          assistantMessage.toolCalls!,
+          messages,
+        )) {
+          messages = updatedMessages;
+          yield messages;
+        }
+        if (_activeGeneration == null) break;
+      }
+    } finally {
+      _activeGeneration = null;
+    }
+  }
+
+  // 处理模型单次回复内容
+  Stream<Message> streamAssistantResponse(
+    List<Map<String, dynamic>> messages,
+    List<Map<String, dynamic>> tools,
+  ) async* {
+    Message assistantMessage = Message(role: 'assistant', content: '');
+
+    String fullContent = '';
+    String fullReasoningContent = '';
+    final fullToolCalls = <int, Map<String, dynamic>>{};
+    List<Map<String, dynamic>> fullToolCallsList = [];
+
+    final modelConfig = await _modelConfigService.getActivatedConfig();
+    if (modelConfig == null) {
+      assistantMessage.update(content: '语言模型未配置，请先配置并激活');
+      yield assistantMessage;
+      return;
+    }
+
+    final iterator = StreamIterator<Map<String, dynamic>>(
+      _llmClient.sendMessageStream(
+        modelConfig.url,
+        modelConfig.apiKey,
+        modelConfig.modelName,
+        messages,
+        tools,
+      ),
+    );
+    _activeGeneration = iterator;
+    while (await iterator.moveNext()) {
+      final chunk = iterator.current;
+      final error = chunk['error'];
+      final content = chunk['content'];
+      final reasoningContent = chunk['reasoning_content'];
+      final toolCalls = chunk['tool_calls'];
+      if (error != null) {
+        assistantMessage.update(error: error as String);
+        yield assistantMessage;
+        return;
+      }
+      if (content != null) {
+        fullContent += content as String;
+      }
+      if (reasoningContent != null) {
+        fullReasoningContent += reasoningContent as String;
+      }
+      if (toolCalls != null && toolCalls.isNotEmpty) {
+        _accumulateToolCalls(toolCalls, fullToolCalls);
+      }
+
+      assistantMessage.update(
+        content: fullContent,
+        reasoningContent: fullReasoningContent,
+      );
+      yield assistantMessage;
+    }
+
+    fullToolCallsList = [
+      for (var key in fullToolCalls.keys.toList()..sort()) fullToolCalls[key]!,
+    ];
+
+    assistantMessage.update(toolCalls: fullToolCallsList);
+    yield assistantMessage;
   }
 
   Future<void> cancelGeneration() async {
@@ -216,10 +253,9 @@ class ChatService {
     yield* _continueGeneration(chat);
   }
 
-  // 核心改造：修改 _executeToolCalls 方法
-  Stream<Chat> _executeToolCalls(
+  Stream<List<Message>> _executeToolCalls(
     List<Map<String, dynamic>> fullToolCallsList,
-    Chat chat,
+    List<Message> messages,
   ) async* {
     for (final toolJson in fullToolCallsList) {
       final functionName = toolJson['function']["name"];
@@ -241,8 +277,8 @@ class ChatService {
             ? ToolCallStatus.pendingConformation
             : ToolCallStatus.executing,
       );
-      chat.addMessage(toolMessage);
-      yield chat;
+      messages.add(toolMessage);
+      yield messages;
 
       ToolCallStatus toolCallStatus = ToolCallStatus.executing;
       String? rejectionReason;
@@ -266,13 +302,13 @@ class ChatService {
           toolCallStatus: toolCallStatus,
           content: rejectionReason,
         );
-        yield chat;
-        return;
+        yield messages;
+        continue;
       }
       // 如果同意了就修改状态为executing，然后再执行
       if (needsAuth) {
         toolMessage.update(toolCallStatus: ToolCallStatus.executing);
-        yield chat;
+        yield messages;
       }
 
       final String toolResult = await _toolService.execute(
@@ -283,8 +319,7 @@ class ChatService {
         toolCallStatus: ToolCallStatus.finished,
         content: toolResult,
       );
-      await _chatRepository.saveChat(chat);
-      yield chat;
+      yield messages;
     }
   }
 

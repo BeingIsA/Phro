@@ -1,5 +1,4 @@
 // base_shell_tool.dart
-import 'dart:convert';
 import 'dart:io';
 import 'package:phro/services/tool/core/tool.dart';
 
@@ -33,7 +32,8 @@ abstract class BaseShellTool extends Tool {
     final result = await Process.run(
       shell,
       shellArgs,
-      stdoutEncoding: utf8,
+      stdoutEncoding: systemEncoding,
+      stderrEncoding: systemEncoding,
     ).timeout(const Duration(seconds: 30));
     return [
       if (result.stdout.toString().trim().isNotEmpty)

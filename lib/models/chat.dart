@@ -8,6 +8,7 @@ class Chat {
   final DateTime createdAt;
   DateTime updatedAt;
   List<Message> messages = [];
+  // 当前会话是否正在生成。前端用来判断按钮显示样式的
   bool isGenerating;
 
   Chat({
