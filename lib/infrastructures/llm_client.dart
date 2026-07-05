@@ -93,8 +93,10 @@ class LLMClient {
 
             try {
               final jsonData = jsonDecode(dataStr) as Map<String, dynamic>;
-              final delta =
-                  jsonData['choices']?[0]?['delta'] as Map<String, dynamic>?;
+              final choices = jsonData['choices'] as List<dynamic>?;
+              final delta = choices != null && choices.isNotEmpty
+                  ? choices.first['delta'] as Map<String, dynamic>?
+                  : null;
               if (delta != null) {
                 controller.add(delta);
               }
