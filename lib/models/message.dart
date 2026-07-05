@@ -41,7 +41,9 @@ class Message {
       role = json['role'] as String,
       content = json['content'] as String,
       reasoningContent = json['reasoning_content'],
-      toolCalls = json['tool_calls'],
+      toolCalls = (json['tool_calls'] as List?)
+          ?.map((e) => Map<String, dynamic>.from(e as Map))
+          .toList(),
       toolCallId = json['tool_call_id'],
       name = json['name'],
       argument = json['argument'],

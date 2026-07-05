@@ -1,3 +1,4 @@
+import 'package:phro/models/message.dart';
 import 'package:phro/services/tool/core/tool.dart';
 import 'package:phro/services/chat_service.dart';
 
@@ -59,12 +60,13 @@ class DeligateTool extends Tool {
     final systemPrompt = args['system_prompt'];
     final userInput = args['user_input'];
     final tools = args['tools'];
-    List<Map<String, dynamic>> messages = [
-      {"role": "system", "content": systemPrompt},
-      {"role": "user", "content": userInput},
-    ];
-    // TODO 未完成
+    List<Message> messages = [];
+    messages.add(Message(role: 'system', content: systemPrompt));
+    messages.add(Message(role: 'user', content: userInput));
 
-    return "";
+    final result = (await ChatService.instance.agentLoop(messages, tools).last)
+        .last
+        .content;
+    return result;
   }
 }

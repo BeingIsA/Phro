@@ -88,7 +88,10 @@ class ChatService {
     try {
       chat.isGenerating = true;
 
-      await for (final updatedMessages in agentLoop(chat.messages)) {
+      await for (final updatedMessages in agentLoop(
+        chat.messages,
+        _toolService.getAllToolsInJsonSchema(),
+      )) {
         if (updatedMessages.length > chat.messages.length) {
           await _chatRepository.saveChat(chat);
         }
@@ -105,7 +108,10 @@ class ChatService {
     }
   }
 
-  Stream<List<Message>> agentLoop(List<Message> messages) async* {
+  Stream<List<Message>> agentLoop(
+    List<Message> messages,
+    List<Map<String, dynamic>> tools,
+  ) async* {
     try {
       while (true) {
         final messages4Api = messages
@@ -114,7 +120,7 @@ class ChatService {
         messages.add(Message(role: 'assistant', content: ""));
         await for (final updatedMessage in streamAssistantResponse(
           messages4Api,
-          _toolService.getAllToolsInJsonSchema(),
+          tools,
         )) {
           messages.removeLast();
           messages.add(updatedMessage);
