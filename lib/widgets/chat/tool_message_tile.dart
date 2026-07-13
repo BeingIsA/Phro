@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
 import 'package:phro/services/chat_service.dart';
+import 'package:phro/widgets/chat/message_list_view.dart';
 import 'package:phro/widgets/chat/tool_details/default_tool_details.dart';
 import 'package:phro/widgets/chat/tool_details/edit_file_tool_details.dart';
 
@@ -207,6 +208,27 @@ class ToolMessageTileState extends State<ToolMessageTile> {
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                   ),
+                ),
+              ],
+            ),
+          ],
+          // 【新增部分】如果工具是 delegate 且有子 Agent 消息，渲染可折叠的递归列表
+          if (message.name == 'delegate' &&
+              message.subAgentMessages != null &&
+              message.subAgentMessages!.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              title: Text(
+                '子任务详情',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              children: [
+                MessageListView(
+                  messages: message.subAgentMessages!,
+                  isNested: true,
                 ),
               ],
             ),

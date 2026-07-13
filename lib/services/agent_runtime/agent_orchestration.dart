@@ -187,13 +187,7 @@ class AgentOrchestration {
           content: 'sub agent reached the maximum depth 2',
         );
       } else {
-        final toolsRaw = functionArgs['tools'];
-        final List<Map<String, dynamic>>? tools = toolsRaw is List
-            ? toolsRaw
-                  .whereType<Map>()
-                  .map((item) => Map<String, dynamic>.from(item))
-                  .toList()
-            : null;
+        List<String> toolNames = List<String>.from(functionArgs['tools'] ?? []);
         List<Message> subAgentMessages = [
           Message(role: 'system', content: functionArgs['system_prompt']),
           Message(role: 'user', content: functionArgs['user_input']),
@@ -202,7 +196,7 @@ class AgentOrchestration {
         await for (final _ in run(
           mutableMessages: subAgentMessages,
           depth: depth + 1,
-          tools: tools,
+          tools: _toolService.getToolJsonSchemasByNameList(toolNames),
         )) {
           yield mutableMessage;
         }

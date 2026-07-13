@@ -8,12 +8,15 @@ import 'package:phro/widgets/chat/tool_message_tile.dart';
 
 class MessageListView extends StatelessWidget {
   final List<Message> messages;
-  final ScrollController scrollController;
+  final ScrollController? scrollController;
+  // 是否为嵌套模式
+  final bool isNested;
 
   const MessageListView({
     super.key,
     required this.messages,
-    required this.scrollController,
+    this.scrollController,
+    this.isNested = false,
   });
 
   @override
@@ -23,6 +26,8 @@ class MessageListView extends StatelessWidget {
     final colorScheme = theme.colorScheme;
 
     if (messages.isEmpty) {
+      // 嵌套时如果没消息就不显示居中提示语
+      if (isNested) return const SizedBox.shrink();
       return Center(
         child: Text(
           l10n.startNewChatText,
@@ -35,6 +40,9 @@ class MessageListView extends StatelessWidget {
 
     return ListView.builder(
       controller: scrollController,
+      // 嵌套时禁用滚动并自适应高度
+      physics: isNested ? const NeverScrollableScrollPhysics() : null,
+      shrinkWrap: isNested,
       padding: const EdgeInsets.all(8.0),
       itemCount: messages.length,
       itemBuilder: (context, index) {

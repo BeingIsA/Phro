@@ -49,6 +49,24 @@ class ToolService {
     return _toolMap.values.map((tool) => tool.toJsonSchema()).toList();
   }
 
+  Map<String, dynamic> getToolJsonSchemaByName(String name) {
+    final tool = _toolMap[name];
+    if (tool == null) {
+      throw ArgumentError('Invalid tool name: "$name"');
+    }
+    return tool.toJsonSchema();
+  }
+
+  List<Map<String, dynamic>> getToolJsonSchemasByNameList(
+    List<String> nameList,
+  ) {
+    List<Map<String, dynamic>> result = [];
+    for (String name in nameList) {
+      result.add(getToolJsonSchemaByName(name));
+    }
+    return result;
+  }
+
   List<Tool> getAllTools() {
     return _toolMap.values.toList();
   }

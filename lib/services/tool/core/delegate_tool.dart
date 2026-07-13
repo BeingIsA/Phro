@@ -31,23 +31,9 @@ class DelegateTool extends Tool {
         "description":
             "Tools available to the sub-agent, filtered by the super-agent. Only necessary tools are assigned.",
         "items": {
-          "type": "object",
-          "properties": {
-            "type": {
-              "type": "string",
-              "enum": ["function"],
-            },
-            "function": {
-              "type": "object",
-              "properties": {
-                "name": {"type": "string"},
-                "description": {"type": "string"},
-                "parameters": {"type": "object"},
-              },
-              "required": ["name", "parameters"],
-            },
-          },
-          "required": ["type", "function"],
+          "type": "string",
+          "description":
+              "The exact name of the tool. Must match a registered tool name exactly.",
         },
       },
     },

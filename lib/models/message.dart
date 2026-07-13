@@ -87,7 +87,7 @@ class Message {
     map.remove('error');
     map.remove('created_at');
     map.remove('tool_call_status');
-    map.remove('subAgentMessages');
+    map.remove('sub_agent_messages');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
       if (value == null) return true;
