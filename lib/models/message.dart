@@ -9,14 +9,14 @@ class Message {
 
   List<Map<String, dynamic>>? toolCalls;
 
-  // 以下仅当role == tool时会出现
+  // 以下仅当role == tool时会出现，表示工具调用的结果
   // 工具调用ID
   String? toolCallId;
   // 已选工具名称
   String? name;
   // 工具调用的参数，
   String? argument;
-  // 新增：HITL 人类在环控制状态
+  // HITL 人类在环控制状态
   ToolCallStatus? toolCallStatus;
 
   String? error;
@@ -75,7 +75,7 @@ class Message {
     map.remove('reasoning_content');
     map.remove('error');
     map.remove('created_at');
-    map.remove('toolCallStatus');
+    map.remove('tool_call_status');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
       if (value == null) return true;

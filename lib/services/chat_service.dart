@@ -4,37 +4,26 @@ import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/repositories/chat_repository.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
+import 'package:phro/services/agent_runtime/agent_context.dart';
+import 'package:phro/services/agent_runtime/agent_orchestration.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/model_config_service.dart';
 import 'package:phro/services/tool/tool_service.dart';
-
-class ToolConfirmationResult {
-  final ToolCallStatus toolCallStatus;
-  final String? reason;
-  ToolConfirmationResult({required this.toolCallStatus, this.reason});
-}
 
 class ChatService {
   static final ChatService instance = ChatService._();
   static final kGenerationCanceledFlag = 'generation_calceled_by_user';
   final ChatRepository _chatRepository;
-  final LLMClient _llmClient;
   final ToolService _toolService;
-  final ModelConfigService _modelConfigService;
   final AgentService _agentService;
-
-  // 用于执行tool call时挂起等待用户确认
-  final Map<String, Completer<ToolConfirmationResult>>
-  _toolConfirmationCompleters = {};
-  StreamIterator<Map<String, dynamic>>? _activeGeneration;
+  final AgentOrchestration _agentOrchestration;
 
   // 私有构造函数，防止外部调用构造函数
   ChatService._()
-    : _llmClient = LLMClient.instance,
-      _toolService = ToolService.instance,
-      _modelConfigService = ModelConfigService.instance,
+    : _toolService = ToolService.instance,
       _chatRepository = ChatRepository.instance,
-      _agentService = AgentService.instance;
+      _agentService = AgentService.instance,
+      _agentOrchestration = AgentOrchestration.instance;
 
   ChatService.forTest({
     LLMClient? llmClient,
@@ -42,11 +31,11 @@ class ChatService {
     ModelConfigService? modelConfigService,
     ChatRepository? chatRepository,
     AgentService? agentService,
-  }) : _llmClient = llmClient ?? LLMClient.instance,
-       _toolService = toolService ?? ToolService.instance,
-       _modelConfigService = modelConfigService ?? ModelConfigService.instance,
+    AgentOrchestration? agentOrchestration,
+  }) : _toolService = toolService ?? ToolService.instance,
        _chatRepository = chatRepository ?? ChatRepository.instance,
-       _agentService = agentService ?? AgentService.instance;
+       _agentService = agentService ?? AgentService.instance,
+       _agentOrchestration = agentOrchestration ?? AgentOrchestration.instance;
 
   Future<List<Chat>> getAllChats() async {
     return await _chatRepository.getAllChats();
@@ -87,18 +76,15 @@ class ChatService {
   Stream<Chat> _continueGeneration(Chat chat) async* {
     try {
       chat.isGenerating = true;
-
-      await for (final updatedMessages in agentLoop(
-        chat.messages,
-        _toolService.getAllToolsInJsonSchema(),
+      AgentContext chiefAgentContext = AgentContext(0, chat.messages);
+      await for (final _ in _agentOrchestration.run(
+        context: chiefAgentContext,
+        tools: _toolService.getAllToolsInJsonSchema(),
       )) {
+        List<Message> updatedMessages = chiefAgentContext.messages;
         if (updatedMessages.length > chat.messages.length) {
           await _chatRepository.saveChat(chat);
         }
-        if (updatedMessages.length > chat.messages.length) {
-          await _chatRepository.saveChat(chat);
-        }
-        chat.messages = updatedMessages;
         yield chat;
       }
     } finally {
@@ -108,120 +94,9 @@ class ChatService {
     }
   }
 
-  Stream<List<Message>> agentLoop(
-    List<Message> messages,
-    List<Map<String, dynamic>> tools,
-  ) async* {
-    try {
-      while (true) {
-        final messages4Api = messages
-            .map((message) => message.toMap4Api())
-            .toList();
-        messages.add(Message(role: 'assistant', content: ""));
-        await for (final updatedMessage in streamAssistantResponse(
-          messages4Api,
-          tools,
-        )) {
-          messages.removeLast();
-          messages.add(updatedMessage);
-          yield messages;
-        }
-        // 如果没有tool_call说明该结束了
-        final assistantMessage = messages.last;
-        if (assistantMessage.toolCalls == null ||
-            assistantMessage.toolCalls!.isEmpty) {
-          break;
-        }
-        await for (final updatedMessages in _executeToolCalls(
-          assistantMessage.toolCalls!,
-          messages,
-        )) {
-          messages = updatedMessages;
-          yield messages;
-        }
-        if (_activeGeneration == null) break;
-      }
-    } finally {
-      _activeGeneration = null;
-    }
-  }
-
-  // 处理模型单次回复内容
-  Stream<Message> streamAssistantResponse(
-    List<Map<String, dynamic>> messages,
-    List<Map<String, dynamic>> tools,
-  ) async* {
-    Message assistantMessage = Message(role: 'assistant', content: '');
-
-    String fullContent = '';
-    String fullReasoningContent = '';
-    final fullToolCalls = <int, Map<String, dynamic>>{};
-    List<Map<String, dynamic>> fullToolCallsList = [];
-
-    final modelConfig = await _modelConfigService.getActivatedConfig();
-    if (modelConfig == null) {
-      assistantMessage.update(content: '语言模型未配置，请先配置并激活');
-      yield assistantMessage;
-      return;
-    }
-
-    final iterator = StreamIterator<Map<String, dynamic>>(
-      _llmClient.sendMessageStream(
-        modelConfig.url,
-        modelConfig.apiKey,
-        modelConfig.modelName,
-        messages,
-        tools,
-      ),
-    );
-    _activeGeneration = iterator;
-    while (await iterator.moveNext()) {
-      final chunk = iterator.current;
-      final error = chunk['error'];
-      final content = chunk['content'];
-      final reasoningContent = chunk['reasoning_content'];
-      final toolCalls = chunk['tool_calls'];
-      if (error != null) {
-        assistantMessage.update(error: error as String);
-        yield assistantMessage;
-        return;
-      }
-      if (content != null) {
-        fullContent += content as String;
-      }
-      if (reasoningContent != null) {
-        fullReasoningContent += reasoningContent as String;
-      }
-      if (toolCalls != null && toolCalls.isNotEmpty) {
-        _accumulateToolCalls(toolCalls, fullToolCalls);
-      }
-
-      assistantMessage.update(
-        content: fullContent,
-        reasoningContent: fullReasoningContent,
-      );
-      yield assistantMessage;
-    }
-
-    fullToolCallsList = [
-      for (var key in fullToolCalls.keys.toList()..sort()) fullToolCalls[key]!,
-    ];
-
-    assistantMessage.update(toolCalls: fullToolCallsList);
-    yield assistantMessage;
-  }
-
+  // TODO 透传不对劲，早晚改了
   Future<void> cancelGeneration() async {
-    if (_activeGeneration == null) return;
-    _activeGeneration!.cancel();
-    _activeGeneration = null;
-    for (final completer in _toolConfirmationCompleters.values) {
-      if (!completer.isCompleted) {
-        completer.complete(
-          ToolConfirmationResult(toolCallStatus: ToolCallStatus.canceled),
-        );
-      }
-    }
+    await _agentOrchestration.cancelGeneration();
   }
 
   Stream<Chat> editAndSendMessage({
@@ -259,120 +134,17 @@ class ChatService {
     yield* _continueGeneration(chat);
   }
 
-  Stream<List<Message>> _executeToolCalls(
-    List<Map<String, dynamic>> fullToolCallsList,
-    List<Message> messages,
-  ) async* {
-    for (final toolJson in fullToolCallsList) {
-      final functionName = toolJson['function']["name"];
-      final functionArgs = toolJson['function']["arguments"];
-      final toolCallId = toolJson['id'];
-
-      // 1. 动态判断当前工具是否需要用户确认
-      final bool needsAuth = _toolService.requiresConfirmation(functionName);
-
-      // 2. 初始化工具消息，如果是高危工具，初始状态设为等待确认
-
-      Message toolMessage = Message(
-        role: 'tool',
-        content: "",
-        toolCallId: toolCallId,
-        name: functionName,
-        argument: functionArgs,
-        toolCallStatus: needsAuth
-            ? ToolCallStatus.pendingConformation
-            : ToolCallStatus.executing,
-      );
-      messages.add(toolMessage);
-      yield messages;
-
-      ToolCallStatus toolCallStatus = ToolCallStatus.executing;
-      String? rejectionReason;
-
-      // 将需要确认的工具挂起
-      if (needsAuth) {
-        final completer = Completer<ToolConfirmationResult>();
-        _toolConfirmationCompleters[toolCallId] = completer;
-
-        // 代码在此处原地挂起，等待 UI 唤醒
-        final ToolConfirmationResult result = await completer.future;
-        _toolConfirmationCompleters.remove(toolCallId); // 释放内存
-
-        toolCallStatus = result.toolCallStatus;
-        rejectionReason = result.reason;
-      }
-
-      // 拒绝了就不执行直接返回
-      if (needsAuth && toolCallStatus != ToolCallStatus.executing) {
-        toolMessage.update(
-          toolCallStatus: toolCallStatus,
-          content: rejectionReason,
-        );
-        yield messages;
-        continue;
-      }
-      // 如果同意了就修改状态为executing，然后再执行
-      if (needsAuth) {
-        toolMessage.update(toolCallStatus: ToolCallStatus.executing);
-        yield messages;
-      }
-
-      final String toolResult = await _toolService.execute(
-        functionName,
-        functionArgs,
-      );
-      toolMessage.update(
-        toolCallStatus: ToolCallStatus.finished,
-        content: toolResult,
-      );
-      yield messages;
-    }
-  }
-
-  // 提供给 UI 层调用的公开方法：用户点击“允许”或“拒绝”时通过此方法输入反馈
+  // TODO 也是透传
   void confirmToolCall(
     String toolCallId, {
     required bool approved,
     String? reason,
   }) {
-    final completer = _toolConfirmationCompleters[toolCallId];
-    if (completer != null && !completer.isCompleted) {
-      completer.complete(
-        ToolConfirmationResult(
-          toolCallStatus: approved
-              ? ToolCallStatus.executing
-              : ToolCallStatus.rejected,
-          reason: reason,
-        ),
-      );
-    }
-  }
-
-  // 用来拼接LLM生成的tool call信息
-  void _accumulateToolCalls(
-    List toolCallList,
-    Map<int, Map<String, dynamic>> fullToolCalls,
-  ) {
-    for (final toolCallChunk in toolCallList) {
-      final index = toolCallChunk['index'];
-      if (!fullToolCalls.containsKey(index)) {
-        fullToolCalls[index] = {
-          "id": toolCallChunk['id'],
-          "type": toolCallChunk['type'] ?? "function",
-          "function": {
-            "name": toolCallChunk['function']['name'] ?? "",
-            "arguments": toolCallChunk['function']['arguments'],
-          },
-        };
-      } else {
-        final prevArgs =
-            fullToolCalls[index]!["function"]["arguments"] as String;
-        final newArgs = toolCallChunk['function']['arguments'];
-        if (newArgs != null && newArgs.isNotEmpty) {
-          fullToolCalls[index]!["function"]["arguments"] = prevArgs + newArgs;
-        }
-      }
-    }
+    _agentOrchestration.confirmToolCall(
+      toolCallId,
+      approved: approved,
+      reason: reason,
+    );
   }
 
   Future<Chat> createChat(String? title) async {

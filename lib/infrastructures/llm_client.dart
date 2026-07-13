@@ -39,7 +39,7 @@ class LLMClient {
     String apiKey,
     String modelName,
     List<Map<String, dynamic>> messages,
-    List<Map<String, dynamic>> tools,
+    List<Map<String, dynamic>>? tools,
   ) {
     http.Client? client;
     final controller = StreamController<Map<String, dynamic>>(
@@ -58,12 +58,17 @@ class LLMClient {
           'Authorization': 'Bearer $apiKey',
         };
 
-        final body = jsonEncode({
+        final bodyMap = {
           'model': modelName,
           'messages': messages,
-          'tools': tools,
           'stream': true,
-        });
+        };
+
+        if (tools != null) {
+          bodyMap['tools'] = tools;
+        }
+
+        final body = jsonEncode(bodyMap);
 
         final request = http.Request('POST', completionsUrl)
           ..headers.addAll(headers)

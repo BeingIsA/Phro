@@ -20,6 +20,12 @@ class DefaultToolDetails extends StatelessWidget {
       children: argumentMap.entries.map((entry) {
         final key = entry.key;
         final value = entry.value;
+        String valueString;
+        if (value is String) {
+          valueString = value;
+        } else {
+          valueString = JsonEncoder.withIndent('  ').convert(value);
+        }
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -43,7 +49,7 @@ class DefaultToolDetails extends StatelessWidget {
                   border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
                 child: SelectableText(
-                  value,
+                  valueString,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                     height: 1.4,

@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'dart:io';
-
 import 'package:phro/services/tool/core/browse_web_url_tool.dart';
 import 'package:phro/services/tool/core/create_directory_tool.dart';
 import 'package:phro/services/tool/core/create_file_tool.dart';
+import 'package:phro/services/tool/core/delegate_tool.dart';
 import 'package:phro/services/tool/core/delete_file_tool.dart';
 import 'package:phro/services/tool/core/edit_file_tool.dart';
 import 'package:phro/services/tool/core/read_file_tool.dart';
@@ -24,6 +23,7 @@ class ToolService {
     registerTool(CreateDirectoryTool.instance);
     registerTool(CreateFileTool.instance);
     registerTool(DeleteFileTool.instance);
+    registerTool(DelegateTool.instance);
   }
 
   void registerShellTool() {
@@ -58,13 +58,9 @@ class ToolService {
     return _toolMap[name]?.requiresConfirmation ?? false;
   }
 
-  Future<String> execute(String name, String argsString) async {
+  Future<String> execute(String name, Map<String, dynamic> args) async {
     final tool = _toolMap[name];
     if (tool == null) return 'Unknown tool: $name';
-    Map<String, dynamic> args = {};
-    if (argsString.isNotEmpty) {
-      args = jsonDecode(argsString);
-    }
     try {
       return await tool.execute(args);
     } catch (e, s) {

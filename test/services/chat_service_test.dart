@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:phro/infrastructures/llm_client.dart';
@@ -159,12 +161,15 @@ void main() {
       verify(
         () => mockToolService.execute(
           'get_weather',
-          '{"city":"北京","unit":"celsius"}',
+          jsonDecode('{"city":"北京","unit":"celsius"}'),
         ),
       ).called(1);
 
       verify(
-        () => mockToolService.execute('search_web', '{"query":"北京空气质量"}'),
+        () => mockToolService.execute(
+          'search_web',
+          jsonDecode('{"query":"北京空气质量"}'),
+        ),
       ).called(1);
     });
   });
