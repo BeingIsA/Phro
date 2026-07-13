@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/models/message.dart';
-import 'package:phro/services/agent_runtime/agent_context.dart';
 import 'package:phro/services/model_config_service.dart';
 import 'package:phro/services/tool/tool_service.dart';
 
@@ -28,43 +27,46 @@ class AgentOrchestration {
   _toolConfirmationCompleters = {};
   StreamIterator<Map<String, dynamic>>? _activeGeneration;
 
-  Stream<AgentContext> run({
-    required AgentContext context,
+  Stream<List<Message>> run({
+    required List<Message> mutableMessages,
+    required int depth,
     List<Map<String, dynamic>>? tools,
   }) async* {
-    List<Message> messages = context.messages;
     while (true) {
-      messages.add(Message(role: 'assistant', content: ""));
-      await for (final updatedMessage in streamAssistantResponse(
-        messages: messages.map((message) => message.toMap4Api()).toList(),
+      Message assistantMessage = Message(role: 'assistant', content: "");
+      mutableMessages.add(assistantMessage);
+      await for (final _ in streamAssistantResponse(
+        mutableMessage: assistantMessage,
+        messages: mutableMessages
+            .map((message) => message.toMap4Api())
+            .toList(),
         tools: tools,
       )) {
-        messages[messages.length - 1] = updatedMessage;
-        yield context;
+        yield mutableMessages;
       }
       // 如果没有tool_call说明该结束了
-      final assistantMessage = messages.last;
+
       if (assistantMessage.toolCalls == null ||
           assistantMessage.toolCalls!.isEmpty) {
-        context.update(result: assistantMessage.content);
         break;
       }
-      await for (final _ in _executeToolCalls(
-        assistantMessage.toolCalls!,
-        context,
-      )) {
-        yield context;
+
+      for (final toolJson in assistantMessage.toolCalls!) {
+        Message toolMessage = Message(role: 'tool', content: "");
+        mutableMessages.add(toolMessage);
+        await for (final _ in _executeToolCall(toolMessage, toolJson, depth)) {
+          yield mutableMessages;
+        }
       }
     }
   }
 
   // 处理模型单次回复内容
   Stream<Message> streamAssistantResponse({
+    required Message mutableMessage,
     required List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>>? tools,
   }) async* {
-    Message assistantMessage = Message(role: 'assistant', content: '');
-
     String fullContent = '';
     String fullReasoningContent = '';
     final fullToolCalls = <int, Map<String, dynamic>>{};
@@ -72,8 +74,8 @@ class AgentOrchestration {
 
     final modelConfig = await _modelConfigService.getActivatedConfig();
     if (modelConfig == null) {
-      assistantMessage.update(content: '语言模型未配置，请先配置并激活');
-      yield assistantMessage;
+      mutableMessage.update(content: '语言模型未配置，请先配置并激活');
+      yield mutableMessage;
       return;
     }
 
@@ -94,8 +96,8 @@ class AgentOrchestration {
       final reasoningContent = chunk['reasoning_content'];
       final toolCalls = chunk['tool_calls'];
       if (error != null) {
-        assistantMessage.update(error: error as String);
-        yield assistantMessage;
+        mutableMessage.update(error: error as String);
+        yield mutableMessage;
         return;
       }
       if (content != null) {
@@ -108,111 +110,114 @@ class AgentOrchestration {
         _accumulateToolCalls(toolCalls, fullToolCalls);
       }
 
-      assistantMessage.update(
+      mutableMessage.update(
         content: fullContent,
         reasoningContent: fullReasoningContent,
       );
-      yield assistantMessage;
+      yield mutableMessage;
     }
 
     fullToolCallsList = [
       for (var key in fullToolCalls.keys.toList()..sort()) fullToolCalls[key]!,
     ];
 
-    assistantMessage.update(toolCalls: fullToolCallsList);
-    yield assistantMessage;
+    mutableMessage.update(toolCalls: fullToolCallsList);
+    yield mutableMessage;
   }
 
-  Stream<AgentContext> _executeToolCalls(
-    List<Map<String, dynamic>> fullToolCallsList,
-    AgentContext context,
+  Stream<Message> _executeToolCall(
+    Message mutableMessage,
+    Map<String, dynamic> toolJson,
+    int depth,
   ) async* {
-    for (final toolJson in fullToolCallsList) {
-      final functionName = toolJson['function']["name"];
-      final argString = toolJson['function']["arguments"];
-      final toolCallId = toolJson['id'];
+    final toolCallId = toolJson['id'];
+    final functionName = toolJson['function']["name"];
+    final argString = toolJson['function']["arguments"];
 
-      // 1. 动态判断当前工具是否需要用户确认
-      final bool needsAuth = _toolService.requiresConfirmation(functionName);
+    // 1. 动态判断当前工具是否需要用户确认
+    final bool needsAuth = _toolService.requiresConfirmation(functionName);
 
-      // 2. 初始化工具消息，如果是高危工具，初始状态设为等待确认
-      Message toolMessage = Message(
-        role: 'tool',
-        content: "",
-        toolCallId: toolCallId,
-        name: functionName,
-        argument: argString,
-        toolCallStatus: needsAuth
-            ? ToolCallStatus.pendingConformation
-            : ToolCallStatus.executing,
-      );
-      context.messages.add(toolMessage);
-      yield context;
+    // 2. 初始化工具消息，如果是高危工具，初始状态设为等待确认
+    mutableMessage.update(
+      toolCallId: toolCallId,
+      name: functionName,
+      argument: argString,
+      toolCallStatus: needsAuth
+          ? ToolCallStatus.pendingConformation
+          : ToolCallStatus.executing,
+    );
+    yield mutableMessage;
 
-      ToolCallStatus toolCallStatus = ToolCallStatus.executing;
-      String? rejectionReason;
+    ToolCallStatus toolCallStatus = ToolCallStatus.executing;
+    String? rejectionReason;
 
-      // 将需要确认的工具挂起
-      if (needsAuth) {
-        final completer = Completer<ToolConfirmationResult>();
-        _toolConfirmationCompleters[toolCallId] = completer;
+    // 将需要确认的工具挂起
+    if (needsAuth) {
+      final completer = Completer<ToolConfirmationResult>();
+      _toolConfirmationCompleters[toolCallId] = completer;
 
-        // 代码在此处原地挂起，等待 UI 唤醒
-        final ToolConfirmationResult result = await completer.future;
-        _toolConfirmationCompleters.remove(toolCallId); // 释放内存
+      // 代码在此处原地挂起，等待 UI 唤醒
+      final ToolConfirmationResult result = await completer.future;
+      _toolConfirmationCompleters.remove(toolCallId); // 释放内存
 
-        toolCallStatus = result.toolCallStatus;
-        rejectionReason = result.reason;
-      }
-
-      // 拒绝了就不执行直接返回
-      if (needsAuth && toolCallStatus != ToolCallStatus.executing) {
-        toolMessage.update(
-          toolCallStatus: toolCallStatus,
-          content: rejectionReason,
-        );
-        yield context;
-        continue;
-      }
-      // 如果同意，先修改状态为executing
-      if (needsAuth && toolCallStatus == ToolCallStatus.executing) {
-        toolMessage.update(toolCallStatus: ToolCallStatus.executing);
-        yield context;
-      }
-      // 开始执行工具
-      final functionArgs = jsonDecode(argString);
-      if (functionName == "delegate") {
-        if (context.depth >= 2) {
-          toolMessage.update(
-            toolCallStatus: ToolCallStatus.rejected,
-            content: 'sub agent reached the maximum depth 2',
-          );
-        } else {
-          final toolsRaw = functionArgs['tools'];
-          final List<Map<String, dynamic>>? tools = toolsRaw is List
-              ? toolsRaw
-                    .whereType<Map>()
-                    .map((item) => Map<String, dynamic>.from(item))
-                    .toList()
-              : null;
-          AgentContext subAgentContext = AgentContext(context.depth + 1, [
-            Message(role: 'system', content: functionArgs['system_prompt']),
-            Message(role: 'user', content: functionArgs['user_input']),
-          ], parentToolCallId: toolCallId);
-          await run(context: subAgentContext, tools: tools).drain();
-          toolMessage.update(content: subAgentContext.result);
-        }
-      } else {
-        final String toolResult = await _toolService.execute(
-          functionName,
-          functionArgs,
-        );
-        toolMessage.update(content: toolResult);
-      }
-      // 工具执行完毕了
-      toolMessage.update(toolCallStatus: ToolCallStatus.finished);
-      yield context;
+      toolCallStatus = result.toolCallStatus;
+      rejectionReason = result.reason;
     }
+
+    // 拒绝了就不执行直接返回
+    if (needsAuth && toolCallStatus != ToolCallStatus.executing) {
+      mutableMessage.update(
+        toolCallStatus: toolCallStatus,
+        content: rejectionReason,
+      );
+      yield mutableMessage;
+      return;
+    }
+    // 如果同意，先修改状态为executing
+    if (needsAuth && toolCallStatus == ToolCallStatus.executing) {
+      mutableMessage.update(toolCallStatus: ToolCallStatus.executing);
+      yield mutableMessage;
+    }
+    // 开始执行工具
+    final functionArgs = jsonDecode(argString);
+    if (functionName == "delegate") {
+      if (depth >= 2) {
+        mutableMessage.update(
+          toolCallStatus: ToolCallStatus.rejected,
+          content: 'sub agent reached the maximum depth 2',
+        );
+      } else {
+        final toolsRaw = functionArgs['tools'];
+        final List<Map<String, dynamic>>? tools = toolsRaw is List
+            ? toolsRaw
+                  .whereType<Map>()
+                  .map((item) => Map<String, dynamic>.from(item))
+                  .toList()
+            : null;
+        List<Message> subAgentMessages = [
+          Message(role: 'system', content: functionArgs['system_prompt']),
+          Message(role: 'user', content: functionArgs['user_input']),
+        ];
+        mutableMessage.update(subAgentMessages: subAgentMessages);
+        await for (final _ in run(
+          mutableMessages: subAgentMessages,
+          depth: depth + 1,
+          tools: tools,
+        )) {
+          yield mutableMessage;
+        }
+        mutableMessage.update(content: subAgentMessages.last.content);
+      }
+    } else {
+      final String toolResult = await _toolService.execute(
+        functionName,
+        functionArgs,
+      );
+      mutableMessage.update(content: toolResult);
+    }
+    // 工具执行完毕了
+    mutableMessage.update(toolCallStatus: ToolCallStatus.finished);
+    yield mutableMessage;
   }
 
   // 用来拼接LLM生成的tool call信息

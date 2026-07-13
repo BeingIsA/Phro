@@ -12,6 +12,7 @@ class EditFileToolDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final argumentMap = jsonDecode(message.argument!);

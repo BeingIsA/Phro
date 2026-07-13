@@ -4,7 +4,6 @@ import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/repositories/chat_repository.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
-import 'package:phro/services/agent_runtime/agent_context.dart';
 import 'package:phro/services/agent_runtime/agent_orchestration.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/model_config_service.dart';
@@ -76,14 +75,15 @@ class ChatService {
   Stream<Chat> _continueGeneration(Chat chat) async* {
     try {
       chat.isGenerating = true;
-      AgentContext chiefAgentContext = AgentContext(0, chat.messages);
+      int messageNum = chat.messages.length;
       await for (final _ in _agentOrchestration.run(
-        context: chiefAgentContext,
+        mutableMessages: chat.messages,
+        depth: 0,
         tools: _toolService.getAllToolsInJsonSchema(),
       )) {
-        List<Message> updatedMessages = chiefAgentContext.messages;
-        if (updatedMessages.length > chat.messages.length) {
+        if (chat.messages.length > messageNum) {
           await _chatRepository.saveChat(chat);
+          messageNum = chat.messages.length;
         }
         yield chat;
       }

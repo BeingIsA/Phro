@@ -22,9 +22,14 @@ class DelegateTool extends Tool {
         "type": "string",
         "description": "set by the super Agent according to its task.",
       },
+      "user_input": {
+        "type": "string",
+        "description": "the exact subtask that sub agent has to finish",
+      },
       "tools": {
         "type": "array",
-        "description": "tools available to sub agent, filtered by super agent",
+        "description":
+            "Tools available to the sub-agent, filtered by the super-agent. Only necessary tools are assigned.",
         "items": {
           "type": "object",
           "properties": {
@@ -45,12 +50,8 @@ class DelegateTool extends Tool {
           "required": ["type", "function"],
         },
       },
-      "user_input": {
-        "type": "string",
-        "description": "the exact subtask that sub agent has to finish",
-      },
     },
-    "required": ["path"],
+    "required": ["system_prompt", "user_input"],
   };
 
   @override

@@ -20,6 +20,9 @@ class Message {
   ToolCallStatus? toolCallStatus;
 
   String? error;
+
+  List<Message>? subAgentMessages;
+
   final DateTime createdAt;
 
   Message({
@@ -32,6 +35,7 @@ class Message {
     this.argument,
     this.error,
     this.toolCallStatus,
+    this.subAgentMessages,
   }) : id = const Uuid().v4(),
        createdAt = DateTime.now();
 
@@ -49,6 +53,9 @@ class Message {
       argument = json['argument'],
       error = json['error'],
       toolCallStatus = _parseToolCallStatus(json),
+      subAgentMessages = (json['sub_agent_messages'] as List<dynamic>?)
+          ?.map((e) => Message.fromMap(Map<String, dynamic>.from(e as Map)))
+          .toList(),
       createdAt = DateTime.parse(json['created_at'] as String);
 
   // 用来存储本地
@@ -64,6 +71,10 @@ class Message {
       'argument': argument,
       'error': error,
       'tool_call_status': toolCallStatus?.name,
+      if (subAgentMessages != null && subAgentMessages!.isNotEmpty)
+        'sub_agent_messages': subAgentMessages!
+            .map((m) => m.toMap4Storage())
+            .toList(),
       'created_at': createdAt.toIso8601String(),
     };
     return map;
@@ -76,6 +87,7 @@ class Message {
     map.remove('error');
     map.remove('created_at');
     map.remove('tool_call_status');
+    map.remove('subAgentMessages');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
       if (value == null) return true;
@@ -93,6 +105,10 @@ class Message {
     List<Map<String, dynamic>>? toolCalls,
     String? error,
     ToolCallStatus? toolCallStatus,
+    List<Message>? subAgentMessages,
+    String? toolCallId,
+    String? name,
+    String? argument,
   }) {
     if (reasoningContent != null && reasoningContent.isNotEmpty) {
       this.reasoningContent = reasoningContent;
@@ -113,6 +129,18 @@ class Message {
 
     if (toolCallStatus != null) {
       this.toolCallStatus = toolCallStatus;
+    }
+    if (subAgentMessages != null) {
+      this.subAgentMessages = subAgentMessages;
+    }
+    if (toolCallId != null) {
+      this.toolCallId = toolCallId;
+    }
+    if (name != null) {
+      this.name = name;
+    }
+    if (argument != null) {
+      this.argument = argument;
     }
   }
 
