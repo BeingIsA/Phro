@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_markdown/gpt_markdown.dart';
 import 'package:phro/l10n/app_localizations.dart';
 import 'package:phro/models/message.dart';
-import 'package:phro/widgets/chat/code_element_builder.dart';
-import 'package:phro/widgets/chat/editable_user_bubble.dart';
-import 'package:phro/widgets/chat/tool_message_tile.dart';
+import 'package:phro/widgets/chat/assistant_content.dart';
+import 'package:phro/widgets/chat/user_input_bubble/editable_user_bubble.dart';
+import 'package:phro/widgets/chat/expantion_tiles/reasoning_content_tile.dart';
+import 'package:phro/widgets/chat/expantion_tiles/sub_agent_tile.dart';
+import 'package:phro/widgets/chat/expantion_tiles/tool_tile.dart';
+import 'package:phro/widgets/chat/user_input_bubble/user_bubble.dart';
 
 class MessageListView extends StatelessWidget {
   final List<Message> messages;
   final ScrollController? scrollController;
   // 是否为嵌套模式
-  final bool isNested;
+  final bool inSubAgent;
 
   const MessageListView({
     super.key,
     required this.messages,
     this.scrollController,
-    this.isNested = false,
+    // 是否为SubAgent内容
+    this.inSubAgent = false,
   });
 
   @override
@@ -27,7 +30,7 @@ class MessageListView extends StatelessWidget {
 
     if (messages.isEmpty) {
       // 嵌套时如果没消息就不显示居中提示语
-      if (isNested) return const SizedBox.shrink();
+      if (inSubAgent) return const SizedBox.shrink();
       return Center(
         child: Text(
           l10n.startNewChatText,
@@ -41,26 +44,32 @@ class MessageListView extends StatelessWidget {
     return ListView.builder(
       controller: scrollController,
       // 嵌套时禁用滚动并自适应高度
-      physics: isNested ? const NeverScrollableScrollPhysics() : null,
-      shrinkWrap: isNested,
+      physics: inSubAgent ? const NeverScrollableScrollPhysics() : null,
+      shrinkWrap: inSubAgent,
       padding: const EdgeInsets.all(8.0),
       itemCount: messages.length,
       itemBuilder: (context, index) {
         final message = messages[index];
-        List<Widget> columnChildren = [];
+        final List<Widget> columnChildren = [];
 
         if (message.role == 'user') {
-          columnChildren.add(EditableUserBubble(message: message));
-        } else if (message.role == 'assistant') {
-          if (message.reasoningContent != null &&
-              message.reasoningContent!.trim().isNotEmpty) {
-            columnChildren.add(_buildReasoningBubble(context, message));
+          if (inSubAgent) {
+            columnChildren.add(UserBubble(message: message));
+          } else {
+            columnChildren.add(EditableUserBubble(message: message));
           }
-          columnChildren.add(_buildAssistantContent(context, message));
+        } else if (message.role == 'assistant') {
+          if (message.reasoningContent?.trim().isNotEmpty ?? false) {
+            columnChildren.add(ReasoningContentTile(message: message));
+          }
+          columnChildren.add(AssistantContent(message: message));
         } else if (message.role == 'tool') {
-          columnChildren.add(ToolMessageTile(message: message));
+          if (message.name == 'delegate') {
+            columnChildren.add(SubAgentTile(message: message));
+          } else {
+            columnChildren.add(ToolTile(message: message));
+          }
         }
-
         return Align(
           alignment: message.role == 'user'
               ? Alignment.centerRight
@@ -73,78 +82,6 @@ class MessageListView extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildAssistantContent(BuildContext context, Message message) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    final bool hasError = message.error?.trim().isNotEmpty ?? false;
-    final String displayText = hasError ? message.error! : message.content;
-
-    if (displayText.trim().isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-      child: hasError
-          ? SelectableText(
-              displayText,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: colorScheme.error,
-                fontSize: 16,
-                height: 1.5,
-              ),
-            )
-          : SelectionArea(
-              child: GptMarkdown(
-                displayText,
-
-                codeBuilder: (context, name, code, closed) => CustomCodeBlock(
-                  language: name,
-                  codeText: code,
-                  closed: closed,
-                ),
-                style: theme.textTheme.bodyLarge?.copyWith(height: 1.5),
-              ),
-            ),
-    );
-  }
-
-  Widget _buildReasoningBubble(BuildContext context, Message message) {
-    final l10n = AppLocalizations.of(context)!;
-    final colorScheme = Theme.of(context).colorScheme;
-    final theme = Theme.of(context);
-
-    return Padding(
-      padding: const EdgeInsets.only(left: 12.0, right: 12.0, bottom: 4.0),
-      child: ExpansionTile(
-        tilePadding: EdgeInsets.zero,
-        childrenPadding: const EdgeInsets.symmetric(
-          horizontal: 16.0,
-          vertical: 8.0,
-        ),
-        leading: Icon(
-          Icons.psychology_outlined,
-          size: 20,
-          color: colorScheme.primary,
-        ),
-        title: Text(
-          l10n.thinkingProcessTitle,
-          style: theme.textTheme.labelLarge?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        children: [
-          SelectableText(
-            message.reasoningContent!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface,
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

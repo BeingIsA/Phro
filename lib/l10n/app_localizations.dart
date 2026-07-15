@@ -230,29 +230,11 @@ abstract class AppLocalizations {
   /// **'No Agents'**
   String get noAgentsText;
 
-  /// No description provided for @toolCallFinished.
-  ///
-  /// In en, this message translates to:
-  /// **'Tool call [{name}] finished'**
-  String toolCallFinished(String name);
-
   /// No description provided for @toolExecuting.
   ///
   /// In en, this message translates to:
   /// **'Tool [{name}] executing'**
   String toolExecuting(String name);
-
-  /// No description provided for @toolSecurityWarning.
-  ///
-  /// In en, this message translates to:
-  /// **'Security warning: Tool {name} requests authorization'**
-  String toolSecurityWarning(String name);
-
-  /// No description provided for @toolArgumentsPrefix.
-  ///
-  /// In en, this message translates to:
-  /// **'Arguments: '**
-  String get toolArgumentsPrefix;
 
   /// No description provided for @toolRejected.
   ///
@@ -266,10 +248,58 @@ abstract class AppLocalizations {
   /// **'Tool {name} has been canceled'**
   String toolCanceled(String name);
 
+  /// No description provided for @toolSecurityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Security warning: Tool {name} requests authorization'**
+  String toolSecurityWarning(String name);
+
+  /// No description provided for @toolCallFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'Tool call [{name}] finished'**
+  String toolCallFinished(String name);
+
+  /// No description provided for @subAgentExecuting.
+  ///
+  /// In en, this message translates to:
+  /// **'sub Agent [{name}] executing'**
+  String subAgentExecuting(String name);
+
+  /// No description provided for @subAgentRejected.
+  ///
+  /// In en, this message translates to:
+  /// **'sub Agent {name} has been rejected'**
+  String subAgentRejected(String name);
+
+  /// No description provided for @subAgentCanceled.
+  ///
+  /// In en, this message translates to:
+  /// **'sub Agent {name} has been canceled'**
+  String subAgentCanceled(String name);
+
+  /// No description provided for @subAgentSecurityWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Security warning: sub Agent {name} requests authorization'**
+  String subAgentSecurityWarning(String name);
+
+  /// No description provided for @subAgentCallFinished.
+  ///
+  /// In en, this message translates to:
+  /// **'sub Agent call [{name}] finished'**
+  String subAgentCallFinished(String name);
+
+  /// No description provided for @toolArgumentsPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Arguments: '**
+  String get toolArgumentsPrefix;
+
   /// No description provided for @toolStatusPending.
   ///
   /// In en, this message translates to:
-  /// **'Status: Waiting for security authorization...'**
+  /// **'Waiting for security authorization...'**
   String get toolStatusPending;
 
   /// No description provided for @toolStatusRejected.
@@ -625,6 +655,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'日本語'**
   String get languageNameJapanese;
+
+  /// No description provided for @systemPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'System Prompt'**
+  String get systemPrompt;
+
+  /// No description provided for @availableTools.
+  ///
+  /// In en, this message translates to:
+  /// **'Available Tools'**
+  String get availableTools;
+
+  /// No description provided for @input.
+  ///
+  /// In en, this message translates to:
+  /// **'input'**
+  String get input;
 }
 
 class _AppLocalizationsDelegate

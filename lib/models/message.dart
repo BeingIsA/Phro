@@ -21,6 +21,7 @@ class Message {
 
   String? error;
 
+  String? agentName;
   List<Message>? subAgentMessages;
 
   final DateTime createdAt;
@@ -35,6 +36,7 @@ class Message {
     this.argument,
     this.error,
     this.toolCallStatus,
+    this.agentName,
     this.subAgentMessages,
   }) : id = const Uuid().v4(),
        createdAt = DateTime.now();
@@ -53,6 +55,7 @@ class Message {
       argument = json['argument'],
       error = json['error'],
       toolCallStatus = _parseToolCallStatus(json),
+      agentName = json['agent_name'],
       subAgentMessages = (json['sub_agent_messages'] as List<dynamic>?)
           ?.map((e) => Message.fromMap(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -71,6 +74,7 @@ class Message {
       'argument': argument,
       'error': error,
       'tool_call_status': toolCallStatus?.name,
+      'agent_name': agentName,
       if (subAgentMessages != null && subAgentMessages!.isNotEmpty)
         'sub_agent_messages': subAgentMessages!
             .map((m) => m.toMap4Storage())
@@ -87,6 +91,7 @@ class Message {
     map.remove('error');
     map.remove('created_at');
     map.remove('tool_call_status');
+    map.remove('agent_name');
     map.remove('sub_agent_messages');
     // 空的键值对全删了防止报错
     map.removeWhere((key, value) {
@@ -105,6 +110,7 @@ class Message {
     List<Map<String, dynamic>>? toolCalls,
     String? error,
     ToolCallStatus? toolCallStatus,
+    String? agentName,
     List<Message>? subAgentMessages,
     String? toolCallId,
     String? name,
@@ -129,6 +135,10 @@ class Message {
 
     if (toolCallStatus != null) {
       this.toolCallStatus = toolCallStatus;
+    }
+
+    if (agentName != null) {
+      this.agentName = agentName;
     }
     if (subAgentMessages != null) {
       this.subAgentMessages = subAgentMessages;

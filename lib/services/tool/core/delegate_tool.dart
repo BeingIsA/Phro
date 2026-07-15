@@ -18,6 +18,10 @@ class DelegateTool extends Tool {
   Map<String, dynamic> get parameters => {
     "type": "object",
     "properties": {
+      "agent_name": {
+        "type": "string",
+        "description": "name of the agent, no more than 2 words",
+      },
       "system_prompt": {
         "type": "string",
         "description": "set by the super Agent according to its task.",
@@ -37,7 +41,7 @@ class DelegateTool extends Tool {
         },
       },
     },
-    "required": ["system_prompt", "user_input"],
+    "required": ["agent_name", "system_prompt", "user_input"],
   };
 
   @override

@@ -77,22 +77,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noAgentsText => '暂无 Agent';
 
   @override
-  String toolCallFinished(String name) {
-    return '工具 [$name] 执行完成';
-  }
-
-  @override
   String toolExecuting(String name) {
-    return 'Tool [$name] 正在执行';
+    return '工具 [$name] 正在执行';
   }
-
-  @override
-  String toolSecurityWarning(String name) {
-    return '安全警告：工具 $name 请求授权';
-  }
-
-  @override
-  String get toolArgumentsPrefix => '参数：';
 
   @override
   String toolRejected(String name) {
@@ -105,7 +92,45 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get toolStatusPending => '状态：等待安全授权...';
+  String toolSecurityWarning(String name) {
+    return '安全警告：工具 $name 请求授权';
+  }
+
+  @override
+  String toolCallFinished(String name) {
+    return '工具 [$name] 执行完成';
+  }
+
+  @override
+  String subAgentExecuting(String name) {
+    return '子Agent [$name] 正在执行';
+  }
+
+  @override
+  String subAgentRejected(String name) {
+    return '子Agent $name 已被拒绝';
+  }
+
+  @override
+  String subAgentCanceled(String name) {
+    return '子Agent $name 调用已取消';
+  }
+
+  @override
+  String subAgentSecurityWarning(String name) {
+    return '安全警告：子Agent $name 请求授权';
+  }
+
+  @override
+  String subAgentCallFinished(String name) {
+    return '子Agent [$name] 执行完成';
+  }
+
+  @override
+  String get toolArgumentsPrefix => '参数：';
+
+  @override
+  String get toolStatusPending => '等待安全授权...';
 
   @override
   String get toolStatusRejected => '拒绝详情：';
@@ -289,4 +314,13 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get languageNameJapanese => '日本語';
+
+  @override
+  String get systemPrompt => '系统提示词';
+
+  @override
+  String get availableTools => '可用工具';
+
+  @override
+  String get input => '输入';
 }

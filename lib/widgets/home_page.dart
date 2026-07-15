@@ -34,7 +34,6 @@ class _HomePageState extends ConsumerState<HomePage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Phro')),
-      // 声明式使用重构后的抽屉
       drawer: AppDrawer(),
       body: Column(
         children: [
@@ -47,14 +46,14 @@ class _HomePageState extends ConsumerState<HomePage> {
               ),
               color: theme.colorScheme.surfaceContainerHighest,
               child: Text(
-                AppLocalizations.of(context)!.currentChatAgent(currentChat.agentName),
+                AppLocalizations.of(
+                  context,
+                )!.currentChatAgent(currentChat.agentName),
                 style: theme.textTheme.labelLarge?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ),
-
-          // 声明式使用重构后的消息列表
           Expanded(
             child: MessageListView(
               messages: messages,

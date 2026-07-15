@@ -77,22 +77,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noAgentsText => 'No Agents';
 
   @override
-  String toolCallFinished(String name) {
-    return 'Tool call [$name] finished';
-  }
-
-  @override
   String toolExecuting(String name) {
     return 'Tool [$name] executing';
   }
-
-  @override
-  String toolSecurityWarning(String name) {
-    return 'Security warning: Tool $name requests authorization';
-  }
-
-  @override
-  String get toolArgumentsPrefix => 'Arguments: ';
 
   @override
   String toolRejected(String name) {
@@ -105,8 +92,45 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get toolStatusPending =>
-      'Status: Waiting for security authorization...';
+  String toolSecurityWarning(String name) {
+    return 'Security warning: Tool $name requests authorization';
+  }
+
+  @override
+  String toolCallFinished(String name) {
+    return 'Tool call [$name] finished';
+  }
+
+  @override
+  String subAgentExecuting(String name) {
+    return 'sub Agent [$name] executing';
+  }
+
+  @override
+  String subAgentRejected(String name) {
+    return 'sub Agent $name has been rejected';
+  }
+
+  @override
+  String subAgentCanceled(String name) {
+    return 'sub Agent $name has been canceled';
+  }
+
+  @override
+  String subAgentSecurityWarning(String name) {
+    return 'Security warning: sub Agent $name requests authorization';
+  }
+
+  @override
+  String subAgentCallFinished(String name) {
+    return 'sub Agent call [$name] finished';
+  }
+
+  @override
+  String get toolArgumentsPrefix => 'Arguments: ';
+
+  @override
+  String get toolStatusPending => 'Waiting for security authorization...';
 
   @override
   String get toolStatusRejected => 'Rejection details:';
@@ -293,4 +317,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageNameJapanese => '日本語';
+
+  @override
+  String get systemPrompt => 'System Prompt';
+
+  @override
+  String get availableTools => 'Available Tools';
+
+  @override
+  String get input => 'input';
 }

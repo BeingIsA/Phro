@@ -25,8 +25,7 @@ class AgentOrchestration {
   // 用于执行tool call时挂起等待用户确认
   final Map<String, Completer<ToolConfirmationResult>>
   _toolConfirmationCompleters = {};
-  StreamIterator<Map<String, dynamic>>? _activeGeneration;
-
+  Map<String, StreamIterator<Map<String, dynamic>>> _activeGeneration = {};
   Stream<List<Message>> run({
     required List<Message> mutableMessages,
     required int depth,
@@ -88,7 +87,6 @@ class AgentOrchestration {
         tools,
       ),
     );
-    _activeGeneration = iterator;
     while (await iterator.moveNext()) {
       final chunk = iterator.current;
       final error = chunk['error'];
@@ -146,6 +144,10 @@ class AgentOrchestration {
           ? ToolCallStatus.pendingConformation
           : ToolCallStatus.executing,
     );
+    if (functionName == 'delegate') {
+      final functionArgs = jsonDecode(argString);
+      mutableMessage.update(agentName: functionArgs['agent_name']);
+    }
     yield mutableMessage;
 
     ToolCallStatus toolCallStatus = ToolCallStatus.executing;
@@ -193,11 +195,14 @@ class AgentOrchestration {
           Message(role: 'user', content: functionArgs['user_input']),
         ];
         mutableMessage.update(subAgentMessages: subAgentMessages);
-        await for (final _ in run(
-          mutableMessages: subAgentMessages,
-          depth: depth + 1,
-          tools: _toolService.getToolJsonSchemasByNameList(toolNames),
-        )) {
+        var iterator = StreamIterator(
+          run(
+            mutableMessages: subAgentMessages,
+            depth: depth + 1,
+            tools: _toolService.getToolJsonSchemasByNameList(toolNames),
+          ),
+        );
+        while (await iterator.moveNext()) {
           yield mutableMessage;
         }
         mutableMessage.update(content: subAgentMessages.last.content);

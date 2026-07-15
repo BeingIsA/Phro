@@ -29,25 +29,12 @@
   "newAgentTooltip": "New Agent",
   "editAgentTooltip": "Edit Agent",
   "noAgentsText": "No Agents",
-  "toolCallFinished": "Tool call [{name}] finished",
-  "@toolCallFinished": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
   "toolExecuting": "Tool [{name}] executing",
   "@toolExecuting": {
     "placeholders": {
       "name": { "type": "String" }
     }
   },
-  "toolSecurityWarning": "Security warning: Tool {name} requests authorization",
-  "@toolSecurityWarning": {
-    "placeholders": {
-      "name": { "type": "String" }
-    }
-  },
-  "toolArgumentsPrefix": "Arguments: ",
   "toolRejected": "Tool {name} has been rejected",
   "@toolRejected": {
     "placeholders": {
@@ -60,7 +47,50 @@
       "name": { "type": "String" }
     }
   },
-  "toolStatusPending": "Status: Waiting for security authorization...",
+  "toolSecurityWarning": "Security warning: Tool {name} requests authorization",
+  "@toolSecurityWarning": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolCallFinished": "Tool call [{name}] finished",
+  "@toolCallFinished": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "subAgentExecuting": "sub Agent [{name}] executing",
+  "@subAgentExecuting": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "subAgentRejected": "sub Agent {name} has been rejected",
+  "@subAgentRejected": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "subAgentCanceled": "sub Agent {name} has been canceled",
+  "@subAgentCanceled": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "subAgentSecurityWarning": "Security warning: sub Agent {name} requests authorization",
+  "@subAgentSecurityWarning": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "subAgentCallFinished": "sub Agent call [{name}] finished",
+  "@subAgentCallFinished": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "toolArgumentsPrefix": "Arguments: ",
+  "toolStatusPending": "Waiting for security authorization...",
   "toolStatusRejected": "Rejection details:",
   "toolStatusfinished": "Call result:",
   "toolStatusExecuting": "Executing...",
@@ -135,5 +165,8 @@
   "speechModelComingSoon": "Speech model configuration\nComing soon...",
   "languageNameChinese": "简体中文",
   "languageNameEnglish": "English",
-  "languageNameJapanese": "日本語"
+  "languageNameJapanese": "日本語",
+  "systemPrompt": "System Prompt",
+  "availableTools": "Available Tools",
+  "input": "input"
 }
