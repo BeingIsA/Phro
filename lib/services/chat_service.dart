@@ -4,6 +4,7 @@ import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/repositories/chat_repository.dart';
 import 'package:phro/models/chat.dart';
 import 'package:phro/models/message.dart';
+import 'package:phro/services/agent_runtime/cancel_token.dart';
 import 'package:phro/services/agent_runtime/agent_orchestration.dart';
 import 'package:phro/services/agent_service.dart';
 import 'package:phro/services/model_config_service.dart';
@@ -16,6 +17,7 @@ class ChatService {
   final ToolService _toolService;
   final AgentService _agentService;
   final AgentOrchestration _agentOrchestration;
+  CancenToken? _agentContext;
 
   // 私有构造函数，防止外部调用构造函数
   ChatService._()
@@ -76,7 +78,9 @@ class ChatService {
     try {
       chat.isGenerating = true;
       int messageNum = chat.messages.length;
+      _agentContext = CancenToken();
       await for (final _ in _agentOrchestration.run(
+        cancelToken: _agentContext!,
         mutableMessages: chat.messages,
         depth: 0,
         tools: _toolService.getAllToolsInJsonSchema(),
@@ -94,9 +98,9 @@ class ChatService {
     }
   }
 
-  // TODO 透传不对劲，早晚改了
   Future<void> cancelGeneration() async {
-    await _agentOrchestration.cancelGeneration();
+    _agentContext?.cancel();
+    _agentOrchestration.cancelAllPendingTools();
   }
 
   Stream<Chat> editAndSendMessage({

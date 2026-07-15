@@ -128,8 +128,7 @@ class Message {
       this.error = error;
     }
 
-    // List 类型：null 或空列表都不更新
-    if (toolCalls != null && toolCalls.isNotEmpty) {
+    if (toolCalls != null) {
       this.toolCalls = toolCalls;
     }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:phro/infrastructures/llm_client.dart';
 import 'package:phro/models/message.dart';
+import 'package:phro/services/agent_runtime/cancel_token.dart';
 import 'package:phro/services/model_config_service.dart';
 import 'package:phro/services/tool/tool_service.dart';
 
@@ -25,16 +26,20 @@ class AgentOrchestration {
   // 用于执行tool call时挂起等待用户确认
   final Map<String, Completer<ToolConfirmationResult>>
   _toolConfirmationCompleters = {};
-  Map<String, StreamIterator<Map<String, dynamic>>> _activeGeneration = {};
   Stream<List<Message>> run({
+    required CancenToken cancelToken,
     required List<Message> mutableMessages,
     required int depth,
     List<Map<String, dynamic>>? tools,
   }) async* {
     while (true) {
+      if (cancelToken.isCanceled()) {
+        return;
+      }
       Message assistantMessage = Message(role: 'assistant', content: "");
       mutableMessages.add(assistantMessage);
       await for (final _ in streamAssistantResponse(
+        cancelToken: cancelToken,
         mutableMessage: assistantMessage,
         messages: mutableMessages
             .map((message) => message.toMap4Api())
@@ -49,11 +54,18 @@ class AgentOrchestration {
           assistantMessage.toolCalls!.isEmpty) {
         break;
       }
-
+      if (cancelToken.isCanceled()) {
+        return;
+      }
       for (final toolJson in assistantMessage.toolCalls!) {
         Message toolMessage = Message(role: 'tool', content: "");
         mutableMessages.add(toolMessage);
-        await for (final _ in _executeToolCall(toolMessage, toolJson, depth)) {
+        await for (final _ in _executeToolCall(
+          cancelToken,
+          toolMessage,
+          toolJson,
+          depth,
+        )) {
           yield mutableMessages;
         }
       }
@@ -62,6 +74,7 @@ class AgentOrchestration {
 
   // 处理模型单次回复内容
   Stream<Message> streamAssistantResponse({
+    required CancenToken cancelToken,
     required Message mutableMessage,
     required List<Map<String, dynamic>> messages,
     List<Map<String, dynamic>>? tools,
@@ -87,12 +100,22 @@ class AgentOrchestration {
         tools,
       ),
     );
+    if (cancelToken.isCanceled()) {
+      iterator.cancel();
+      return;
+    }
     while (await iterator.moveNext()) {
       final chunk = iterator.current;
       final error = chunk['error'];
       final content = chunk['content'];
       final reasoningContent = chunk['reasoning_content'];
       final toolCalls = chunk['tool_calls'];
+      if (cancelToken.isCanceled()) {
+        iterator.cancel();
+        mutableMessage.update(toolCalls: []);
+        yield mutableMessage;
+        return;
+      }
       if (error != null) {
         mutableMessage.update(error: error as String);
         yield mutableMessage;
@@ -124,6 +147,7 @@ class AgentOrchestration {
   }
 
   Stream<Message> _executeToolCall(
+    CancenToken cancelToken,
     Message mutableMessage,
     Map<String, dynamic> toolJson,
     int depth,
@@ -195,19 +219,24 @@ class AgentOrchestration {
           Message(role: 'user', content: functionArgs['user_input']),
         ];
         mutableMessage.update(subAgentMessages: subAgentMessages);
-        var iterator = StreamIterator(
-          run(
-            mutableMessages: subAgentMessages,
-            depth: depth + 1,
-            tools: _toolService.getToolJsonSchemasByNameList(toolNames),
-          ),
-        );
-        while (await iterator.moveNext()) {
+        await for (final _ in run(
+          cancelToken: cancelToken,
+          mutableMessages: subAgentMessages,
+          depth: depth + 1,
+          tools: _toolService.getToolJsonSchemasByNameList(toolNames),
+        )) {
+          if (cancelToken.isCanceled()) {
+            mutableMessage.update(toolCallStatus: ToolCallStatus.canceled);
+            yield mutableMessage;
+            return;
+          }
           yield mutableMessage;
         }
+
         mutableMessage.update(content: subAgentMessages.last.content);
       }
     } else {
+      // 普通工具暂不支持取消
       final String toolResult = await _toolService.execute(
         functionName,
         functionArgs,
@@ -246,10 +275,7 @@ class AgentOrchestration {
     }
   }
 
-  Future<void> cancelGeneration() async {
-    if (_activeGeneration == null) return;
-    _activeGeneration!.cancel();
-    _activeGeneration = null;
+  Future<void> cancelAllPendingTools() async {
     for (final completer in _toolConfirmationCompleters.values) {
       if (!completer.isCompleted) {
         completer.complete(

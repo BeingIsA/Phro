@@ -48,7 +48,7 @@ class LLMClient {
       },
     );
 
-    // 立即在后台启动请求（行为与原来完全一致）
+    // 立即在后台启动请求
     () async {
       try {
         final completionsUrl = Uri.parse('$baseUrl/chat/completions');
