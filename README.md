@@ -21,7 +21,7 @@ English | [简体中文](README.zh-CN.md)
 | ✅      | Custom Agents                                                                   |
 | ✅      | Local file create/read/update/delete                                            |
 | ✅      | Web search                                                                      |
-| ❌      | Multi-Agent collaboration and planning execution                                |
+| ✅      | Multi-Agent collaboration                    |
 | ❌      | Office file processing                                                          |
 | ❌      | Mobile device automation control                                                |
 | ❌      | Browser automation control                                                      |
