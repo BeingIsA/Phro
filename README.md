@@ -1,57 +1,36 @@
+  
 <div align="right">
 
-English | [简体中文](README.zh-CN.md)
+[English](README.md) | 简体中文
 
 </div>
 
-## Phro's goal is to become a <span style="color:#2196F3"><strong>powerful</strong></span> & <span style="color:#2196F3"><strong>easy-to-use</strong></span> Agent assistant.
+## Phro 是一个 <span style="color:#2196F3"><strong>强大</strong></span> & <span style="color:#2196F3"><strong>易用</strong></span> 的Agent助手。
 
-## Project Philosophy
+## 项目特色
+### 1. 安装即用！无需复杂的环境配置！
+### 2. Windows、Android平台支持
+### 3. 擅长类Claude Code、Codex的本地编码
+### 4. 擅长联网搜索与问答
+其余特长待发掘
 
-### Simplicity is the only path to real strength.
-### Focus on high-difficulty & high-value features, building barriers with dedication  
-### Identify essential capabilities — no fluff, no trend-chasing.
+## 快速开始
 
-## Planning & Progress
-
-| Status | Capability                                                                      |
-| ------ | ------------------------------------------------------------------------------- |
-| ✅      | Agent Loop and common tools (local file editing, shell command execution, etc.) |
-| ✅      | Human-in-the-loop                                                               |
-| ✅      | Custom Agents                                                                   |
-| ✅      | Local file create/read/update/delete                                            |
-| ✅      | Web search                                                                      |
-| ✅      | Multi-Agent collaboration                    |
-| ❌      | Office file processing                                                          |
-| ❌      | Mobile device automation control                                                |
-| ❌      | Browser automation control                                                      |
-| ❌      | Multimodal                                                                      |
-
-## Usage Guide
-
-### Language Model Configuration Required:
+### 语言模型必须配：
 ![image](docs/_assets/README/language_model_config.png)
-Recommended free model: Zhipu's [glm-4.7-flash](https://bigmodel.cn/).  
-Most platforms offer free models or sign-up bonuses — too many to list.
+免费模型推荐智谱的[glm-4.7-flash](https://bigmodel.cn/)。  
+各大平台都有免费模型/注册薅羊毛，不一一列举
 
-### For web search capability, configure a Search API.
-Currently supports [Tavily](https://www.tavily.com/) and [FireCrawl](https://www.firecrawl.dev/), both with monthly free quotas.
+### 如需联网搜索能力，需配置搜索 API。
+目前支持[Tavily](https://www.tavily.com/)、[FireCrawl](https://www.firecrawl.dev/)，每月有免费额度。  
 
-## Development Environment Setup
 
-The project is built with Flutter to easily support both desktop and mobile platforms.  
-First install the Flutter SDK. Refer to the [official Flutter installation guide](https://docs.flutter.dev/install).
 
-```bash
-flutter pub get
-flutter run
-```
-For mobile development, please install Android Studio and configure the Android environment and emulator by yourself.
-
-## User Support
-Contact WeChat: xdu11117  
-Or email: 2321409910@qq.com
+## 用户支持
+联系微信xdu11117  
+或邮箱2321409910@qq.com
 
 ## License
 
 Apache-2.0
+   
